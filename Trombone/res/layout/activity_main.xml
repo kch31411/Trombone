@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+	<ImageView
+		android:id="@+id/CurrentSpectrum"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<Button
+		android:text="Start"
+		android:id="@+id/StartStopButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<TextView
+	    android:id="@+id/debugText"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text=""
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+		<LinearLayout
+		    android:orientation="vertical"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="10dp" >
+	    	<ImageView
+				android:id="@+id/Instrument1Spectrum"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+			<Button
+				android:text="Rec1"
+				android:id="@+id/Instrument1Record"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:visibility="gone" />
+		</LinearLayout>
+		<LinearLayout
+		    android:orientation="vertical"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content" >
+	    	<ImageView
+				android:id="@+id/Instrument2Spectrum"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+			<Button
+				android:text="Rec2"
+				android:id="@+id/Instrument2Record"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:visibility="gone" />
+		</LinearLayout>
+	</LinearLayout>
+	<Button
+		android:text="Background"
+		android:id="@+id/BackgroundButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+
+	<TextView
+	    android:id="@+id/resultText"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text=""
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+</LinearLayout>
