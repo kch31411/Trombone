@@ -97,12 +97,41 @@ public class DisplayActivity extends Activity {
 	Bitmap curBitmap, rec1Bitmap, rec2Bitmap;
 	Canvas curCanvas, rec1Canvas, rec2Canvas;
 	Paint paint;
+	
+	int width, height;
+	int lastNoteIndex;
+	int side_padding = 40;
 
 	TextView resultText, debugText;
 
 	double[][] toTransformSample = new double[blockSize * 2 + 1][sampleSize];
 
 	ArrayList<Note> music_sheet;
+	ArrayList<ImageView> noteViews;
+
+	private void displayMusicSheet(int start) {
+		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
+		
+		for (ImageView iv : noteViews) {
+			l.removeView(iv);
+		}
+		noteViews.clear();
+		
+		// Display music sheet
+		int note_index = start;
+		int y = 0;
+		int count = 0;
+		while (count++ < 3) {
+			if (note_index >= 0)
+				note_index = DrawNotes(note_index, 150, y, music_sheet);
+			if (note_index >= 0)
+				note_index = DrawNotes(note_index,
+						(int) ((width - side_padding) / 2) + 50, y, music_sheet);
+
+			y += 150;
+		}
+		lastNoteIndex = note_index-1;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +171,8 @@ public class DisplayActivity extends Activity {
 		curCanvas = new Canvas(curBitmap);
 		currentSpec.setImageBitmap(curBitmap);
 
+		noteViews = new ArrayList<ImageView>();
+		 
 		// temporary music sheet
 		// TODO : consider beat
 		// 4/4 beat. hak gyo jong E DDangDDANGADNAGDSNGADSf
@@ -185,8 +216,8 @@ public class DisplayActivity extends Activity {
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		int width = size.x;
-		int height = size.y;
+		width = size.x;
+		height = size.y;
 		height = height / 2; // added
 
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
@@ -218,18 +249,17 @@ public class DisplayActivity extends Activity {
 
 		l.addView(trackingView);
 
+
 		// Display music sheet
-		int note_index = 0;
 		int y = 0;
 		int count = 0;
-		while (y < height) {
+		while (count++ < 3) {
 			ImageView fiveLine = new ImageView(getBaseContext());
 			Bitmap bitmap = Bitmap.createBitmap((int) width, (int) 150,
 					Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			fiveLine.setImageBitmap(bitmap);
 
-			int side_padding = 40;
 			for (int i = 20; i <= 100; i += 20)
 				canvas.drawLine(side_padding, i, width - side_padding, i, paint);
 
@@ -259,15 +289,11 @@ public class DisplayActivity extends Activity {
 			clef.setImageMatrix(m);
 
 			l.addView(clef);
-
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 150, y, music_sheet);
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index,
-						(int) ((width - side_padding) / 2) + 50, y, music_sheet);
-
+			
 			y += 150;
 		}
+		
+		displayMusicSheet(0);
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
@@ -499,6 +525,7 @@ public class DisplayActivity extends Activity {
 			noteImage.setImageMatrix(mNote);
 
 			l.addView(noteImage);
+			noteViews.add(noteImage);
 
 			x += 60 * note.getBeat();
 		}
@@ -599,6 +626,10 @@ public class DisplayActivity extends Activity {
 
 			trackingView.setX(music_sheet.get(currentPosition).x);
 			trackingView.setY(music_sheet.get(currentPosition).y);
+			
+			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
+				displayMusicSheet(lastNoteIndex+1);
+			}
 
 			String musicShow = "<font color='#000000'>";
 			for (int i = 0; i < currentPosition; i++) {

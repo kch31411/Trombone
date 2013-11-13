@@ -66,6 +66,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Dummy title - CH.kim"
+            android:layout_marginBottom="30dp"
             android:textSize="50sp"
             android:textStyle="bold" />
 
