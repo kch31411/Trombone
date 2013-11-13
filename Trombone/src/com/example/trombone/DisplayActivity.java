@@ -204,7 +204,7 @@ public class DisplayActivity extends Activity {
 
 		// tracking bar
 		trackingView = new ImageView(getBaseContext());
-		Bitmap trackingBm = Bitmap.createBitmap((int) 40, (int) 200,
+		Bitmap trackingBm = Bitmap.createBitmap((int) 40, (int) 120,
 				Bitmap.Config.ARGB_8888);
 		Canvas trackingCanvas = new Canvas(trackingBm);
 		trackingView.setImageBitmap(trackingBm);
@@ -491,8 +491,8 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 
-			trackingView.setX(music_sheet.get(currentPosition).x);
-			trackingView.setY(music_sheet.get(currentPosition).y);
+			trackingView.setX(music_sheet.get(currentPosition).x-5);
+			trackingView.setY(music_sheet.get(currentPosition).y+80);
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				displayMusicSheet(lastNoteIndex+1);
