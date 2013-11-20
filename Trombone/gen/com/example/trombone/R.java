@@ -48,18 +48,20 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int Instrument2Record=0x7f09000c;
         public static final int Instrument2Spectrum=0x7f09000b;
         public static final int StartStopButton=0x7f090001;
-        public static final int action_settings=0x7f09000e;
+        public static final int action_settings=0x7f09000f;
         public static final int debugText=0x7f090003;
         public static final int dummy_button=0x7f090008;
         public static final int fullscreen_content=0x7f090000;
         public static final int fullscreen_content_controls=0x7f090007;
         public static final int music_sheet=0x7f090006;
         public static final int music_sheet_title=0x7f090005;
+        public static final int playbutton=0x7f09000e;
         public static final int resultText=0x7f090004;
     }
     public static final class layout {
         public static final int activity_display=0x7f030000;
         public static final int activity_main=0x7f030001;
+        public static final int activity_main_ui=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -72,6 +74,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int hello_world=0x7f060002;
         public static final int title_activity_display=0x7f060003;
         public static final int title_activity_fullscreen=0x7f060006;
+        public static final int title_activity_main_ui=0x7f060007;
     }
     public static final class style {
         /** 
