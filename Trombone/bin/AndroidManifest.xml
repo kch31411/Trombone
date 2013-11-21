@@ -37,6 +37,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.trombone.HistoryActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_history"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
     </application>
 
 </manifest>
