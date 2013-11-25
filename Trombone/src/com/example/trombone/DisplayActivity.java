@@ -27,7 +27,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 
-import com.example.trombone.util.SystemUiHider;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
