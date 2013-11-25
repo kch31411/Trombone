@@ -1,0 +1,153 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".CalibrationActivity" >
+
+    <TextView
+        android:id="@+id/fullscreen_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:keepScreenOn="true"
+        android:textColor="#33b5e5"
+        android:textSize="50sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="80dp" >
+
+            <Button
+                android:id="@+id/StartStopButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:text="Start" />
+
+            <ImageView
+                android:id="@+id/CurrentSpectrum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_launcher" />
+
+            <TextView
+                android:id="@+id/debugText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/resultText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="24dp" />
+
+        <FrameLayout
+            android:id="@+id/music_sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true" >
+
+            <Button
+                android:id="@+id/buttonC"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="95dp"/>
+
+            <Button
+                android:id="@+id/buttonD"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="140dp"/>
+            
+            <Button
+                android:id="@+id/buttonE"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="185dp"/>
+
+			<Button
+                android:id="@+id/buttonF"
+                android:layout_width="50dp"
+                android:layout_height="150dp"               
+                android:layout_marginLeft="230dp"/>
+
+			<Button
+                android:id="@+id/buttonG"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="310dp"/>
+            
+			
+			<Button
+                android:id="@+id/buttonA"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="355dp"/>
+            
+			
+			<Button
+                android:id="@+id/buttonB"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="400dp"/>
+            
+            <Button
+                android:id="@+id/buttonC2"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="445dp" />
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="150dp"
+                android:orientation="vertical" >
+
+                   <ProgressBar
+                       android:id="@+id/ProgressBar"
+                       style="?android:attr/progressBarStyleHorizontal"
+                       android:layout_width="320dp"
+                       android:layout_height="40dp"
+                       android:layout_gravity="center"
+                       android:max="100"
+                       android:progress="0"
+                       />"
+
+                   <TextView
+                       android:id="@+id/pitchText"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginLeft="100dp"
+                       android:text="TextView"
+                       android:textColor="#000000"
+                       android:textSize="32dp" />
+
+			</LinearLayout>
+			
+        </FrameLayout>
+
+        
+
+    </LinearLayout>
+
+</FrameLayout>

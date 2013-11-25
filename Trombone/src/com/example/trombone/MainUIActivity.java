@@ -43,5 +43,13 @@ public class MainUIActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		Button calibBtnCall = (Button) findViewById(R.id.calibrationbutton);
+		calibBtnCall.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				Intent intent = new Intent(MainUIActivity.this,
+						CalibrationActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 }

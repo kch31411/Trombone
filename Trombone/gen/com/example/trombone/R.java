@@ -32,39 +32,45 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int high=0x7f020000;
-        public static final int ic_launcher=0x7f020001;
-        public static final int logo=0x7f020002;
-        public static final int note_1=0x7f020003;
-        public static final int note_2=0x7f020004;
-        public static final int note_3=0x7f020005;
-        public static final int note_4=0x7f020006;
-        public static final int rest_1=0x7f020007;
+        public static final int button=0x7f020000;
+        public static final int high=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int logo=0x7f020003;
+        public static final int note_1=0x7f020004;
+        public static final int note_2=0x7f020005;
+        public static final int note_3=0x7f020006;
+        public static final int note_4=0x7f020007;
+        public static final int rest_1=0x7f020008;
     }
     public static final class id {
-        public static final int BackgroundButton=0x7f09000c;
         public static final int CurrentSpectrum=0x7f090002;
-        public static final int Instrument1Record=0x7f090009;
-        public static final int Instrument1Spectrum=0x7f090008;
-        public static final int Instrument2Record=0x7f09000b;
-        public static final int Instrument2Spectrum=0x7f09000a;
+        public static final int ProgressBar=0x7f09000e;
         public static final int StartStopButton=0x7f090001;
-        public static final int action_settings=0x7f090011;
-        public static final int calibrationbutton=0x7f090010;
+        public static final int action_settings=0x7f090016;
+        public static final int buttonA=0x7f09000b;
+        public static final int buttonB=0x7f09000c;
+        public static final int buttonC=0x7f090006;
+        public static final int buttonC2=0x7f09000d;
+        public static final int buttonD=0x7f090007;
+        public static final int buttonE=0x7f090008;
+        public static final int buttonF=0x7f090009;
+        public static final int buttonG=0x7f09000a;
+        public static final int calibrationbutton=0x7f090015;
         public static final int debugText=0x7f090003;
         public static final int fullscreen_content=0x7f090000;
-        public static final int fullscreen_content_controls=0x7f090007;
-        public static final int historybutton=0x7f09000f;
-        public static final int imageView1=0x7f09000d;
-        public static final int music_sheet=0x7f090006;
-        public static final int music_sheet_title=0x7f090005;
-        public static final int playbutton=0x7f09000e;
+        public static final int fullscreen_content_controls=0x7f090011;
+        public static final int historybutton=0x7f090014;
+        public static final int imageView1=0x7f090012;
+        public static final int music_sheet=0x7f090005;
+        public static final int music_sheet_title=0x7f090010;
+        public static final int pitchText=0x7f09000f;
+        public static final int playbutton=0x7f090013;
         public static final int resultText=0x7f090004;
     }
     public static final class layout {
-        public static final int activity_display=0x7f030000;
-        public static final int activity_history=0x7f030001;
-        public static final int activity_main=0x7f030002;
+        public static final int activity_calibration=0x7f030000;
+        public static final int activity_display=0x7f030001;
+        public static final int activity_history=0x7f030002;
         public static final int activity_main_ui=0x7f030003;
     }
     public static final class menu {
@@ -74,6 +80,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int hello_world=0x7f060002;
+        public static final int title_activity_calibration=0x7f060007;
         public static final int title_activity_display=0x7f060003;
         public static final int title_activity_fullscreen=0x7f060004;
         public static final int title_activity_history=0x7f060006;
