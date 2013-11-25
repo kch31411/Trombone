@@ -46,7 +46,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int CurrentSpectrum=0x7f090002;
         public static final int ProgressBar=0x7f09000e;
         public static final int StartStopButton=0x7f090001;
-        public static final int action_settings=0x7f090016;
+        public static final int action_settings=0x7f090017;
         public static final int buttonA=0x7f09000b;
         public static final int buttonB=0x7f09000c;
         public static final int buttonC=0x7f090006;
@@ -55,16 +55,17 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int buttonE=0x7f090008;
         public static final int buttonF=0x7f090009;
         public static final int buttonG=0x7f09000a;
-        public static final int calibrationbutton=0x7f090015;
+        public static final int calibrationbutton=0x7f090016;
         public static final int debugText=0x7f090003;
+        public static final int dummy_button=0x7f090012;
         public static final int fullscreen_content=0x7f090000;
         public static final int fullscreen_content_controls=0x7f090011;
-        public static final int historybutton=0x7f090014;
-        public static final int imageView1=0x7f090012;
+        public static final int historybutton=0x7f090015;
+        public static final int imageView1=0x7f090013;
         public static final int music_sheet=0x7f090005;
         public static final int music_sheet_title=0x7f090010;
         public static final int pitchText=0x7f09000f;
-        public static final int playbutton=0x7f090013;
+        public static final int playbutton=0x7f090014;
         public static final int resultText=0x7f090004;
     }
     public static final class layout {
@@ -79,6 +80,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class string {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
+        public static final int dummy_button=0x7f060008;
+        public static final int dummy_content=0x7f060009;
         public static final int hello_world=0x7f060002;
         public static final int title_activity_calibration=0x7f060007;
         public static final int title_activity_display=0x7f060003;

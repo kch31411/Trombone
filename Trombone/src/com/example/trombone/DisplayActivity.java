@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -49,8 +50,8 @@ public class DisplayActivity extends Activity {
 	int sampleSize = 10;
 	int sampleCount = 0;
 
-	double[] pitches = { 523.25 - 10, 587.32 - 10, 659.25, 698.45 - 10,
-			783.99, 880.00, 987.76, 1046.50, 1174.66 };
+	double[] pitches = { 523.25, 587.32 - 25, 659.25, 698.45 - 10,
+			783.99 - 35, 880.00 - 40, 987.76 - 90, 1046.50 - 15, 1174.66 };
 	String[] pitchName = { "C", "D", "E", "F", "G", "A", "B", "C6", "D6" };
 	String[] musicSheet_code = { "C", "C", "G", "G", "A", "A", "G", "F", "F",
 			"E", "E", "D", "D", "C", "end" };
@@ -144,9 +145,52 @@ public class DisplayActivity extends Activity {
 		 
 		// temporary music sheet
 		// TODO : consider beat
-		// 4/4 beat. hak gyo jong E DDangDDANGADNAGDSNGADSf
+		
 		music_sheet = new ArrayList<Note>();
+		
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(0));
+		music_sheet.add(new Note(1));
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(3,3));
+		music_sheet.add(new Note(1));
+		
+		music_sheet.add(new Note(0,2));
+		music_sheet.add(new Note(3,2));
+		music_sheet.add(new Note(0,2));
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(-3));
+		music_sheet.add(new Note(1,3));
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(-2,3));
+		music_sheet.add(new Note(-1, 1, true));
+		
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(-2));
+		music_sheet.add(new Note(-3,2));
+		music_sheet.add(new Note(-2,2));
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(0));
+		music_sheet.add(new Note(-4,2));
+		music_sheet.add(new Note(-1,2));
+		music_sheet.add(new Note(0));
+		music_sheet.add(new Note(1));
+		
+		music_sheet.add(new Note(2,2));
+		music_sheet.add(new Note(2));
+		music_sheet.add(new Note(1));
+		music_sheet.add(new Note(0));
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(0,3));
+		music_sheet.add(new Note(-1, 1, true));
+		
+		music_sheet.add(new Note(-1));
+		music_sheet.add(new Note(0));
+		music_sheet.add(new Note(-1, 1, true));	
 
+		/* school bell dangdangdang
+		 * 4/4 beat. hak gyo jong E DDangDDANGADNAGDSNGADSf
+		 *
 		music_sheet.add(new Note(0));
 		music_sheet.add(new Note(0));
 		music_sheet.add(new Note(1));
@@ -180,6 +224,7 @@ public class DisplayActivity extends Activity {
 
 		music_sheet.add(new Note(-4, 3));
 		music_sheet.add(new Note(-1, 1, true));
+		*/
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
@@ -263,7 +308,6 @@ public class DisplayActivity extends Activity {
 		}
 		
 		displayMusicSheet(0);
-
 	}
 
 	@Override
@@ -410,8 +454,8 @@ public class DisplayActivity extends Activity {
 
 			if (maxIntensity < 5)
 				currentError++;
-			else if (currentError > 2
-					&& currentCount > 5
+			else if (currentError > 1
+					&& currentCount > 3
 					&& musicSheet_code[currentPosition + 1]
 							.equals(f2note(MajorF))) {
 				currentPosition++;

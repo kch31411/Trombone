@@ -26,7 +26,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="100dp" >
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="80dp" >
 
             <Button
                 android:id="@+id/StartStopButton"
@@ -58,15 +59,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="32dp" />
+            android:textSize="24dp" />
 
         <TextView
             android:id="@+id/music_sheet_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="30dp"
             android:gravity="center"
-            android:text="Dummy title - CH.kim"
-            android:layout_marginBottom="30dp"
+            android:text="Always with me"
             android:textSize="50sp"
             android:textStyle="bold" />
 
@@ -86,6 +88,13 @@
                 android:orientation="horizontal"
                 tools:ignore="UselessParent" >
 
+                <Button
+                    android:id="@+id/dummy_button"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dummy_button" />
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>
