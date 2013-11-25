@@ -17,10 +17,6 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.trombone.MainActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
             android:name="com.example.trombone.DisplayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_display"
