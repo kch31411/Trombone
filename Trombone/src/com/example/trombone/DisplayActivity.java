@@ -16,16 +16,19 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 
 import classes.Note;
@@ -42,6 +45,19 @@ public class DisplayActivity extends Activity {
 	int frequency = 8000*2;
 	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+	
+	 
+    // 시작 위치를 저장을 위한 변수 
+    private float mLastMotionX = 0;
+    private float mLastMotionY = 0;
+    // 마우스 move 로 일정범위 벗어나면 취소하기 위한 값
+    private int mTouchSlop;
+ 
+    // long click을 위한 변수들 
+    private boolean mHasPerformedLongPress;
+    private CheckForLongPress mPendingCheckForLongPress;
+ 
+    private Handler mHandler = null;
 
 	private RealDoubleFFT transformer;
 	int blockSize = 256;
@@ -308,7 +324,122 @@ public class DisplayActivity extends Activity {
 		}
 		
 		displayMusicSheet(0);
+		
+
+        mHandler = new Handler();
+ 
+        mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+
+		switch (event.getAction()) {
+
+		case MotionEvent.ACTION_DOWN:
+			Log.d("CLICK", "ACTION_DOWN");
+
+			mLastMotionX = event.getX();
+			mLastMotionY = event.getY();   // 시작 위치 저장
+
+			mHasPerformedLongPress = false;   
+
+			postCheckForLongClick(0);     //  Long click message 설정
+
+			break;
+
+		case MotionEvent.ACTION_MOVE:
+			Log.d("CLICK", "ACTION_MOVE");  
+
+			final float x = event.getX();
+			final float y = event.getY();
+			final int deltaX = Math.abs((int) (mLastMotionX - x));
+			final int deltaY = Math.abs((int) (mLastMotionY - y));
+
+			// 일정 범위 벗어나면  취소함
+			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
+				if (!mHasPerformedLongPress) {
+					// This is a tap, so remove the longpress check
+					removeLongPressCallback();
+				}
+			}
+
+			break;
+
+		case MotionEvent.ACTION_CANCEL:
+			if (!mHasPerformedLongPress) {
+				// This is a tap, so remove the longpress check
+				removeLongPressCallback();
+			}
+			break;
+
+		case MotionEvent.ACTION_UP:
+			Log.d("CLICK", "ACTION_UP");
+
+			if (!mHasPerformedLongPress) {
+				// Long Click을 처리되지 않았으면 제거함.
+				removeLongPressCallback();
+
+				// Short Click 처리 루틴을 여기에 넣으면 됩니다.
+				performOneClick(); 
+
+			}
+
+			break;
+
+		default:
+			break;
+		}
+		return super.onTouchEvent(event);
+	}
+	
+    // Long Click을 처리할  Runnable 입니다. 
+    class CheckForLongPress implements Runnable {
+ 
+        public void run() {
+            if (performLongClick()) {
+                mHasPerformedLongPress = true;
+            }
+        }
+    }
+ 
+    // Long Click 처리 설정을 위한 함수 
+    private void postCheckForLongClick(int delayOffset) {
+        mHasPerformedLongPress = false;
+ 
+        if (mPendingCheckForLongPress == null) {
+            mPendingCheckForLongPress = new CheckForLongPress();
+        }
+ 
+        mHandler.postDelayed(mPendingCheckForLongPress,
+                ViewConfiguration.getLongPressTimeout() - delayOffset);
+        // 여기서  시스템의  getLongPressTimeout() 후에 message 수행하게 합니다.  
+        // 추가 delay가 필요한 경우를 위해서  파라미터로 조절가능하게 합니다.
+    }
+ 
+ 
+    /**
+     * Remove the longpress detection timer.
+     * 중간에 취소하는 용도입니다.
+     */
+    private void removeLongPressCallback() {
+        if (mPendingCheckForLongPress != null) {
+            mHandler.removeCallbacks(mPendingCheckForLongPress);
+        }
+    }
+ 
+    public boolean performLongClick() {
+        //  실제 Long Click 처리하는 부분을 여기 둡니다.
+        Log.d("CLICK", "Long Click OK");
+        Toast.makeText(DisplayActivity.this, "Long Click OK!!", Toast.LENGTH_SHORT).show();
+        return true;
+    }
+     
+    private void performOneClick() {
+        Log.d("CLICK", "One Click OK");
+        Toast.makeText(DisplayActivity.this, "One Click OK!!", Toast.LENGTH_SHORT).show();
+    }
+ 
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
