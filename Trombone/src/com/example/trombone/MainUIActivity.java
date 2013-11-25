@@ -1,11 +1,17 @@
 package com.example.trombone;
 
 
+import java.util.List;
+
+import classes.MusicSheet;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import db.*;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -43,6 +49,7 @@ public class MainUIActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		
 		Button calibBtnCall = (Button) findViewById(R.id.calibrationbutton);
 		calibBtnCall.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
@@ -51,5 +58,20 @@ public class MainUIActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		
+		
+		DBSheetHelper db = new DBSheetHelper(this); 
+		Log.d("Insert: ", "Inserting ..");
+		db.addMusicSheet(new MusicSheet("a",1,1));
+		db.addMusicSheet(new MusicSheet("b",2,1));
+		db.addMusicSheet(new MusicSheet("c",1,3));
+		
+		Log.d("Reading: ", "Reading all contacts..");
+		List<MusicSheet> sheets = db.getAllMusicSheets();
+		
+		for (MusicSheet sheet : sheets) {
+			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
+			Log.d("read - ", log);
+ 		}
 	}
 }
