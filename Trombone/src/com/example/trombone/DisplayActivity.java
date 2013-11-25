@@ -27,6 +27,8 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 
+import classes.Note;
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -192,8 +194,8 @@ public class DisplayActivity extends Activity {
 		musicSheet_code = new String[music_sheet.size()];
 		for (int pt = 0; pt < music_sheet.size(); pt++) {
 			Note note = music_sheet.get(pt);
-			if (!note.isRest)
-				musicSheet_code[pt] = pitchName[note.pitch + 4]; // /// 0 for G
+			if (!note.isRest())
+				musicSheet_code[pt] = pitchName[note.getPitch() + 4]; // /// 0 for G
 			else
 				musicSheet_code[pt] = "_";
 		}
@@ -270,64 +272,6 @@ public class DisplayActivity extends Activity {
 	}
 
 
-	class Note {
-		private int pitch; // temporary set 0 as G
-		private int beat; // no saenggak yet
-		private boolean isRest;
-		public int x;
-		public int y;
-
-		// TODO : sharp? flat?
-
-		public Note(int pitch, int beat, boolean rest) {
-			this.pitch = pitch;
-			this.beat = beat;
-			this.isRest = rest;
-			this.x = -100;
-			this.y = -100;
-		}
-
-		public Note(int pitch, int beat) {
-			this.pitch = pitch;
-			this.beat = beat;
-			this.isRest = false;
-			this.x = -100;
-			this.y = -100;
-		}
-
-		public Note(int pitch) {
-			this.pitch = pitch;
-			this.beat = 1;
-			this.isRest = false;
-			this.x = -100;
-			this.y = -100;
-		}
-
-		public int getPitch() {
-			return pitch;
-		}
-
-		public void setPitch(int pitch) {
-			this.pitch = pitch;
-		}
-
-		public int getBeat() {
-			return beat;
-		}
-
-		public void setBeat(int beat) {
-			this.beat = beat;
-		}
-
-		public boolean isRest() {
-			return isRest;
-		}
-
-		public void setRest(boolean isRest) {
-			this.isRest = isRest;
-		}
-	}
-
 	private int getNotePosition(Note note) {
 		return note.getPitch() * -10 + 20;
 	}
@@ -351,7 +295,7 @@ public class DisplayActivity extends Activity {
 
 			ImageView noteImage = new ImageView(getBaseContext());
 			Bitmap bmNote;
-			if (note.isRest) {
+			if (note.isRest()) {
 				bmNote = BitmapFactory.decodeResource(getResources(),
 						R.drawable.rest_1);
 			} else {
