@@ -6,6 +6,7 @@ import java.util.List;
 import classes.Memo;
 import classes.MusicSheet;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -96,7 +97,7 @@ public class DBMemoHelper extends SQLiteOpenHelper {
 					Integer.parseInt(cursor.getString(3)),
 					Integer.parseInt(cursor.getString(4)),
 					cursor.getString(5),
-					Integer.parseInt(cursor.getString(6)),
+					Integer.parseInt(cursor.getString(6))
 					);
 			
 			return memo;
@@ -122,7 +123,7 @@ public class DBMemoHelper extends SQLiteOpenHelper {
 					memo.setY(Integer.parseInt(cursor.getString(2)));
 					memo.setOpacity(Integer.parseInt(cursor.getString(3)));
 					memo.setPage(Integer.parseInt(cursor.getString(4)));
-					memo.setContent(cursor.getString(5);
+					memo.setContent(cursor.getString(5));
 					memo.setMusicsheet_id(Integer.parseInt(cursor.getString(6)));
 					
 					// Adding sheets to list
@@ -147,7 +148,7 @@ public class DBMemoHelper extends SQLiteOpenHelper {
 			values.put(KEY_MUSICSHEET, memo.getMusicsheet_id());
 			
 			return db.update(TABLE_SHEETS, values, KEY_ID + " = ?",
-					new String[] { String.valueOf(sheet.getId()) });
+					new String[] { String.valueOf(memo.getId()) });
 		}
 		
 		// Memo 정보 삭제하기
