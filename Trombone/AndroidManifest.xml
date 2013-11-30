@@ -26,7 +26,7 @@
             android:name="com.example.trombone.CalibrationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_calibration"
-            android:theme="@style/FullscreenTheme" >
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
         <activity
             android:name="com.example.trombone.MainUIActivity"

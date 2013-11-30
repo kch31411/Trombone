@@ -21,9 +21,11 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
@@ -41,24 +43,34 @@ public class CalibrationActivity extends Activity {
 
 	private RealDoubleFFT transformer;
 	int blockSize = 256;
-	Button startStopButton, buttonC, buttonD, buttonE, buttonF, 
-		buttonG, buttonA, buttonB, buttonC2;
+	Button startStopButton, buttonC, buttonCs, buttonD, buttonDs,
+		buttonE, buttonF, buttonFs, buttonG, buttonGs,
+		buttonA, buttonAs, buttonB, RefButton;
 	boolean started = false;
-
+	EditText refText;
+	 
 	int sampleSize = 10;
 	int sampleCount = 0;
 	
-	double[] pitches = { 523.25, 587.32, 659.25, 698.45,
-			783.99, 880.00, 987.76, 1046.50, 1174.66 };
-	String[] pitchName = { "C", "D", "E", "F", "G", "A", "B", "C6", "D6" };
-	String[] musicSheet_code = { "C", "C", "G", "G", "A", "A", "G", "F", "F",
-			"E", "E", "D", "D", "C", "end" };
+	double reference=440.0;
+	
+	double[] ref_pitches = {261.626, 277.183, 293.665, 311.127, 329.628, 
+			349.228, 369.994, 391.995, 415.305, 440.000, 466.164,
+			493.883};
+	double[] pitches = {261.626, 277.183, 293.665, 311.127, 329.628, 
+			349.228, 369.994, 391.995, 415.305, 440.000, 466.164,
+			493.883};
+	
+	String[] pitchName={"C","C#","D","D#","E","F","F#","G","G#",
+			"A","A#","B"
+	};
+	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
 	
 	double calibPitches_sum = 0;
 	int calibCount = 0;
-	int calibTarget = 8;
+	int calibTarget = -1;
 	Button calibButton;
-	double[] calibPitches = new double[8];
+	double[] calibPitches = new double[12];
 	
 	int currentCount = 0;
 	int currentError = 0;
@@ -72,6 +84,9 @@ public class CalibrationActivity extends Activity {
 	Paint paint;
 	
 	int width, height;
+	int nexus7_width = 800;
+	int nexus7_height = 1280;
+	
 	int lastNoteIndex;
 	int side_padding = 40;
 
@@ -79,12 +94,10 @@ public class CalibrationActivity extends Activity {
 	ProgressBar progress;
 	
 	double[][] toTransformSample = new double[blockSize * 2 + 1][sampleSize];
+	SQLiteDatabase calibDB;
 
-	ArrayList<Note> music_sheet;
 	ArrayList<ImageView> noteViews;
 
-	SQLiteDatabase calibDB;
-	
 	private void displayMusicSheet(int start) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 		
@@ -93,42 +106,99 @@ public class CalibrationActivity extends Activity {
 		}
 		noteViews.clear();
 		
-		// Display music sheet
-		int note_index = start;
-		int y = 0;
-		int count = 0;
-		while (count++ < 3) {
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 150, y, music_sheet);
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index,
-						(int) ((width - side_padding) / 2) + 50, y, music_sheet);
+		Bitmap bmNote = BitmapFactory.decodeResource
+				(getResources(),R.drawable.note_1);
 
-			y += 150;
+		for(int i=0; i<12; i++){
+			ImageView noteImage = new ImageView(getBaseContext());
+
+			noteImage.setImageBitmap(bmNote);
+			noteImage.setLayoutParams(new LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+						
+			if(i==1||i==3||i==6||i==8||i==10){
+				ImageView sharp = new ImageView(getBaseContext());
+				Bitmap bm = BitmapFactory.decodeResource(getResources(),
+						R.drawable.sharp);
+				sharp.setImageBitmap(bm);
+				sharp.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+						LayoutParams.WRAP_CONTENT));
+				sharp.setPadding(100+i*55, yPosition[i]*-10+95, 0, 0);
+				Matrix m = new Matrix();
+				m.postScale((float) 0.17, (float) 0.17);
+				sharp.setScaleType(ScaleType.MATRIX);
+				sharp.setImageMatrix(m);
+				l.addView(sharp);
+				noteImage.setPadding(120+i*55, yPosition[i]*-10+60, 0, 0);
+			}
+			else
+				noteImage.setPadding(115+i*55, yPosition[i]*-10+60, 0, 0);
+			Matrix mNote = new Matrix();
+			mNote.postScale((float) 0.5, (float) 0.5);
+			noteImage.setScaleType(ScaleType.MATRIX);
+			noteImage.setImageMatrix(mNote);
+
+			l.addView(noteImage);						
+			noteViews.add(noteImage);	
 		}
-		lastNoteIndex = note_index-1;
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_calibration);
-		
-		// calibDB = openOrCreateDatabase("Calibration",MODE_WORLD_WRITEABLE, null);
+		//getWindow().addFlags(WindowManager.LayoutParams. FLAG_LAYOUT_NO_LIMITS)
+		//getWindow().setLayout(852, 1280)
 
-		for(int i=0; i<8; i++)
+		// get dimension of device
+		Display display = getWindowManager().getDefaultDisplay();
+				
+		Point size = new Point();
+		display.getSize(size);
+		width = size.x;
+		height = size.y;
+
+		getWindow().setLayout(nexus7_width, nexus7_height);
+		
+		FrameLayout mainView = (FrameLayout)
+				findViewById(R.id.calibration_frame);
+		
+		float ratioW = (float)width/nexus7_width;
+		float ratioH = (float)height/nexus7_height;
+
+		if (ratioW < 1 || ratioH < 1) {
+			if(ratioW>ratioH) ratioW = ratioH;
+			mainView.setScaleX((float) ratioW);
+			mainView.setScaleY((float) ratioW);
+			mainView.setPivotX(0.0f);
+			mainView.setPivotY(0.0f);
+		}
+
+		// calibDB = openOrCreateDatabase("Calibration",MODE_WORLD_WRITEABLE, null);
+		for(int i=0; i<12; i++)
 		{
 			calibPitches[i] = pitches[i];
 		}
 		progress = (ProgressBar) findViewById(R.id.ProgressBar);
-				
+		refText = (EditText)findViewById(R.id.RefEdit);		
 		buttonC = (Button) findViewById(R.id.buttonC);
 		buttonC.setBackgroundColor(Color.WHITE);
 		calibButton = buttonC;
 		buttonC.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonC;
 				calibTarget = 0;
+				calibNote();
+			}
+		});
+		buttonCs = (Button) findViewById(R.id.buttonCs);
+		buttonCs.setBackgroundColor(Color.WHITE);
+		buttonCs.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
+				calibButton = buttonCs;
+				calibTarget = 1;
 				calibNote();
 			}
 		});
@@ -136,8 +206,19 @@ public class CalibrationActivity extends Activity {
 		buttonD.setBackgroundColor(Color.WHITE);
 		buttonD.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonD;
-				calibTarget = 1;
+				calibTarget = 2;
+				calibNote();
+			}
+		});
+		buttonDs = (Button) findViewById(R.id.buttonDs);
+		buttonDs.setBackgroundColor(Color.WHITE);
+		buttonDs.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
+				calibButton = buttonDs;
+				calibTarget = 3;
 				calibNote();
 			}
 		});
@@ -145,8 +226,9 @@ public class CalibrationActivity extends Activity {
 		buttonE.setBackgroundColor(Color.WHITE);
 		buttonE.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonE;
-				calibTarget = 2;
+				calibTarget = 4;
 				calibNote();
 			}
 		});
@@ -154,8 +236,19 @@ public class CalibrationActivity extends Activity {
 		buttonF.setBackgroundColor(Color.WHITE);
 		buttonF.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonF;
-				calibTarget = 3;
+				calibTarget = 5;
+				calibNote();
+			}
+		});
+		buttonFs = (Button) findViewById(R.id.buttonFs);
+		buttonFs.setBackgroundColor(Color.WHITE);
+		buttonFs.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
+				calibButton = buttonFs;
+				calibTarget = 6;
 				calibNote();
 			}
 		});
@@ -163,8 +256,19 @@ public class CalibrationActivity extends Activity {
 		buttonG.setBackgroundColor(Color.WHITE);
 		buttonG.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonG;
-				calibTarget = 4;
+				calibTarget = 7;
+				calibNote();
+			}
+		});
+		buttonGs = (Button) findViewById(R.id.buttonGs);
+		buttonGs.setBackgroundColor(Color.WHITE);
+		buttonGs.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
+				calibButton = buttonGs;
+				calibTarget = 8;
 				calibNote();
 			}
 		});
@@ -172,8 +276,19 @@ public class CalibrationActivity extends Activity {
 		buttonA.setBackgroundColor(Color.WHITE);
 		buttonA.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonA;
-				calibTarget = 5;
+				calibTarget = 9;
+				calibNote();
+			}
+		});
+		buttonAs = (Button) findViewById(R.id.buttonAs);
+		buttonAs.setBackgroundColor(Color.WHITE);
+		buttonAs.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
+				calibButton = buttonAs;
+				calibTarget = 10;
 				calibNote();
 			}
 		});
@@ -181,21 +296,13 @@ public class CalibrationActivity extends Activity {
 		buttonB.setBackgroundColor(Color.WHITE);
 		buttonB.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				calibButton.setBackgroundColor(Color.WHITE);
 				calibButton = buttonB;
-				calibTarget = 6;
+				calibTarget = 11;
 				calibNote();
 			}
 		});
-		buttonC2 = (Button) findViewById(R.id.buttonC2);
-		buttonC2.setBackgroundColor(Color.WHITE);
-		buttonC2.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				calibButton = buttonC2;
-				calibTarget = 7;
-				calibNote();
-			}
-		});		
-		// added
+		
 		resultText = (TextView) findViewById(R.id.resultText);
 		debugText = (TextView) findViewById(R.id.debugText);
 		pitchText = (TextView) findViewById(R.id.pitchText);
@@ -207,6 +314,7 @@ public class CalibrationActivity extends Activity {
 			public void onClick(View v) {
 				if (started) {
 					started = false;
+					calibTarget = -1;
 					calibButton.setBackgroundColor(Color.WHITE);
 					startStopButton.setText("Start");
 					recordTask.cancel(true);
@@ -221,6 +329,19 @@ public class CalibrationActivity extends Activity {
 				}
 			}
 		});
+		
+		RefButton = (Button) findViewById(R.id.RefButton);
+		RefButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				reference = Double.parseDouble(refText.getText().toString());
+				for(int i=0;i<12;i++){
+					pitches[i]= Math.floor(
+							ref_pitches[i]*reference/440*100)/100;
+					calibPitches[i]=pitches[i];
+				}
+				showPitch();
+			}});
+		
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
 
 		paint = new Paint();
@@ -231,42 +352,10 @@ public class CalibrationActivity extends Activity {
 				Bitmap.Config.ARGB_8888);
 		curCanvas = new Canvas(curBitmap);
 		currentSpec.setImageBitmap(curBitmap);
-
 		noteViews = new ArrayList<ImageView>();
 		 
-		// temporary music sheet
-		// TODO : consider beat
-		// 4/4 beat. hak gyo jong E DDangDDANGADNAGDSNGADSf
 		
-		music_sheet = new ArrayList<Note>();
-		
-		music_sheet.add(new Note(-4));
-		music_sheet.add(new Note(-3));
-		music_sheet.add(new Note(-2));
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(1));
-		music_sheet.add(new Note(2));
-		music_sheet.add(new Note(3));
-			
-		// get dimension of device
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		width = size.x;
-		height = size.y;
-		height = height / 4; // added
-
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
-
-		musicSheet_code = new String[music_sheet.size()];
-		for (int pt = 0; pt < music_sheet.size(); pt++) {
-			Note note = music_sheet.get(pt);
-			if (!note.isRest)
-				musicSheet_code[pt] = pitchName[note.pitch + 4]; // /// 0 for G
-			else
-				musicSheet_code[pt] = "_";
-		}
 
 		Paint paint = new Paint();
 		paint.setColor(Color.BLACK);
@@ -274,7 +363,7 @@ public class CalibrationActivity extends Activity {
 		// Display music sheet
 		int y = 0;
 		int count = 0;
-		while (count++ < music_sheet.size()/8) {
+		while (count++ < 1) {
 			ImageView fiveLine = new ImageView(getBaseContext());
 			Bitmap bitmap = Bitmap.createBitmap((int) width, (int) 150,
 					Bitmap.Config.ARGB_8888);
@@ -284,10 +373,10 @@ public class CalibrationActivity extends Activity {
 			for (int i = 20; i <= 100; i += 20)
 				canvas.drawLine(side_padding, i, width - side_padding, i, paint);
 
-			canvas.drawLine((int) ((width - side_padding) / 2), 20,
-					(int) ((width - side_padding) / 2), 100, paint);
 			canvas.drawLine(width - side_padding, 20, width - side_padding,
 					100, paint);
+			canvas.drawLine(110, 120, 140, 120, paint);
+			canvas.drawLine(110+60, 120, 120+60, 120, paint);
 
 			fiveLine.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -312,143 +401,12 @@ public class CalibrationActivity extends Activity {
 			l.addView(clef);
 			y += 150;
 		}
-		
-		displayMusicSheet(0);
-
+		displayMusicSheet(0);	
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-	}
-
-
-	class Note {
-		private int pitch; // temporary set 0 as G
-		private int beat; // no saenggak yet
-		private boolean isRest;
-		public int x;
-		public int y;
-
-		// TODO : sharp? flat?
-
-		public Note(int pitch, int beat, boolean rest) {
-			this.pitch = pitch;
-			this.beat = beat;
-			this.isRest = rest;
-			this.x = -100;
-			this.y = -100;
-		}
-
-		public Note(int pitch, int beat) {
-			this.pitch = pitch;
-			this.beat = beat;
-			this.isRest = false;
-			this.x = -100;
-			this.y = -100;
-		}
-
-		public Note(int pitch) {
-			this.pitch = pitch;
-			this.beat = 1;
-			this.isRest = false;
-			this.x = -100;
-			this.y = -100;
-		}
-
-		public int getPitch() {
-			return pitch;
-		}
-
-		public void setPitch(int pitch) {
-			this.pitch = pitch;
-		}
-
-		public int getBeat() {
-			return beat;
-		}
-
-		public void setBeat(int beat) {
-			this.beat = beat;
-		}
-
-		public boolean isRest() {
-			return isRest;
-		}
-
-		public void setRest(boolean isRest) {
-			this.isRest = isRest;
-		}
-	}
-
-	private int getNotePosition(Note note) {
-		return note.getPitch() * -10 + 20;
-	}
-
-	class MusicSheet {
-		// C major, G minor ...
-		// overall beat
-	}
-
-	public int DrawNotes(int pt, int x, int y, ArrayList<Note> notes) {
-		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
-
-		int beatSum = 0;
-		while (pt < notes.size()) {
-			Note note = notes.get(pt++);
-			beatSum += note.getBeat();
-
-			if (beatSum > 4) {
-				return pt - 1;
-			}
-
-			ImageView noteImage = new ImageView(getBaseContext());
-			Bitmap bmNote;
-			if (note.isRest) {
-				bmNote = BitmapFactory.decodeResource(getResources(),
-						R.drawable.rest_1);
-			} else {
-				switch (note.getBeat()) {
-				case 1:
-					bmNote = BitmapFactory.decodeResource(getResources(),
-							R.drawable.note_1);
-					break;
-				case 2:
-					bmNote = BitmapFactory.decodeResource(getResources(),
-							R.drawable.note_2);
-					break;
-				case 3:
-					bmNote = BitmapFactory.decodeResource(getResources(),
-							R.drawable.note_3);
-					break;
-				case 4:
-					bmNote = BitmapFactory.decodeResource(getResources(),
-							R.drawable.note_4);
-					break;
-				default:
-					bmNote = BitmapFactory.decodeResource(getResources(),
-							R.drawable.note_1);
-				}
-			}
-
-			noteImage.setImageBitmap(bmNote);
-			noteImage.setLayoutParams(new LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			noteImage.setPadding(x, getNotePosition(note) + y, 0, 0);
-			note.x = x;
-			note.y = y;
-
-			Matrix mNote = new Matrix();
-			mNote.postScale((float) 0.5, (float) 0.5);
-			noteImage.setScaleType(ScaleType.MATRIX);
-			noteImage.setImageMatrix(mNote);
-
-			l.addView(noteImage);
-			noteViews.add(noteImage);
-
-			x += 60 * note.getBeat();
-		}
-		return -1;
 	}
 
 	public void calibNote (){
@@ -507,29 +465,70 @@ public class CalibrationActivity extends Activity {
 		@Override
 		protected void onProgressUpdate(double[]... toTransform) {
 			curCanvas.drawColor(Color.BLACK);
-			double maxIntensity = Math.abs(toTransform[0][0]); // first real (0
 			// imaginary)
-			double maxFrequency = 0;
-			double Magnitude[] = new double[blockSize + 1];
-			Magnitude[0] = maxIntensity;
-			for (int i = 1; i < toTransform[0].length / 2; i++) {
-				Magnitude[i] = Math.sqrt((toTransform[0][2 * i - 1])
-						* (toTransform[0][2 * i - 1]) + (toTransform[0][2 * i])
-						* (toTransform[0][2 * i]));
-				if (maxIntensity < Magnitude[i]) {
-					maxIntensity = Magnitude[i];
-					maxFrequency = i;
-				}
-				// maxIntensity = Math.max(maxIntensity,
-				// Math.abs(toTransform[0][i]));
-			}
-
-			while (musicSheet_code[currentPosition].equals("_"))
-				currentPosition++;
-
-			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
+			double[] maxFrequency ={0,0,0};
+			double[] maxIntensity = {0,0,0};			
 			
-			if(maxIntensity>5 && MajorF>pitches[calibTarget]-50 && 
+			double Magnitude[] = new double[blockSize + 1];
+			double temp_Magnitude[] = new double[blockSize + 1];	
+			Magnitude[0] = Math.abs(toTransform[0][0]);
+
+			for (int j = 0; j < maxFrequency.length; j++) {
+				for (int i = 1; i < toTransform[0].length / 2; i++) {
+					if (j == 0) {
+						Magnitude[i] = Math.sqrt((toTransform[0][2 * i - 1])
+								* (toTransform[0][2 * i - 1])
+								+ (toTransform[0][2 * i])
+								* (toTransform[0][2 * i]));
+						temp_Magnitude[i]=Magnitude[i];
+					}
+					if (maxIntensity[j] < temp_Magnitude[i]) {
+						maxIntensity[j] = temp_Magnitude[i];
+						maxFrequency[j] = i;
+					}
+					// maxIntensity = Math.max(maxIntensity,
+					// Math.abs(toTransform[0][i]));
+				}
+				for (int i=0; i<15; i++) {
+					int index = (int)(maxFrequency[j]);
+					if(index-i>=0)
+						temp_Magnitude[index-i]=0;
+					if(index+i<Magnitude.length)
+						temp_Magnitude[index+i]=0;
+				}
+			}
+			
+			for (int i = 0; i < Magnitude.length; i++) {
+				int x = i;
+				
+				int scale=1;
+				if(maxIntensity[0]>10)
+					scale = (int) Math.ceil(maxIntensity[0]/10);
+
+				int downy = (int) (100 - (Magnitude[i] * 10/scale));
+				int upy = 100;
+
+				if(i==maxFrequency[0]||i==maxFrequency[1]
+						||i==maxFrequency[2]){
+						paint.setColor(Color.BLUE);
+						curCanvas.drawLine(x, 0, x, downy, paint);
+						paint.setColor(Color.GRAY);
+				}
+				else paint.setColor(Color.rgb(190,225,245));
+				curCanvas.drawLine(x, downy, x, upy, paint);
+			}
+			
+			for (int j=0;j<maxFrequency.length;j++){
+				maxFrequency[j] = maxFrequency[j]
+						*frequency / (blockSize * 2 + 1);
+			}
+			
+			double MajorF = maxFrequency[0];
+			MajorF = Math.floor(MajorF*100)/100;
+			debugText.setText(MajorF+" "+maxFrequency[1]+" "+maxFrequency[2]);
+			
+			if(calibTarget<0);				
+			else if(maxIntensity[0]>5 && MajorF>pitches[calibTarget]-50 && 
 				MajorF<pitches[calibTarget]+50 && calibCount<40){
 				calibPitches_sum += MajorF;
 				calibCount++;
@@ -542,16 +541,9 @@ public class CalibrationActivity extends Activity {
 				started = false;
 				startStopButton.setText("Start");
 				calibButton.setBackgroundColor(Color.argb(0,0,0,0));
-				calibPitches[calibTarget] = calibPitches_sum/calibCount;
+				calibPitches[calibTarget] = Math.floor
+						(calibPitches_sum/calibCount*100)/100;
 				showPitch();
-			}
-			
-			for (int i = 0; i < Magnitude.length; i++) {
-				int x = i;
-				int downy = (int) (100 - (Magnitude[i] * 10));
-				int upy = 100;
-
-				curCanvas.drawLine(x, downy, x, upy, paint);
 			}
 
 			if (true) {
@@ -571,7 +563,7 @@ public class CalibrationActivity extends Activity {
 	public void showPitch()
 	{
 		String s = "";
-		for (int i=0; i<8; i++)
+		for (int i=0; i<12; i++)
 		{
 			s+=pitchName[i] + " : "+pitches[i];
 			if(pitches[i]!=calibPitches[i])
@@ -580,5 +572,4 @@ public class CalibrationActivity extends Activity {
 		}
 		pitchText.setText(s);
 	}
-
 }
