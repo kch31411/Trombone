@@ -63,7 +63,7 @@
             android:id="@+id/resultText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:textColor="#000000"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="24dp" />
 
@@ -73,77 +73,72 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true" >
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+            
             <Button
                 android:id="@+id/buttonC"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="75dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp"
+                android:layout_marginLeft="65dp" />
 
             <Button
                 android:id="@+id/buttonCs"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="115dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonD"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="155dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonDs"
-                android:layout_width="45dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="195dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonE"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="240dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonF"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="280dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonFs"
-                android:layout_width="45dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="320dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonG"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="365dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonGs"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="405dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonA"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="445dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonAs"
-                android:layout_width="40dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="485dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonB"
-                android:layout_width="45dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="525dp" />
+                android:layout_width="37dp"
+                android:layout_height="120dp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

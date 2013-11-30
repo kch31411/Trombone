@@ -20,12 +20,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
@@ -146,6 +147,12 @@ public class CalibrationActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		 
+		requestWindowFeature(Window.FEATURE_NO_TITLE);  
+	    //set up full screen
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
+	        
 		setContentView(R.layout.activity_calibration);
 		//getWindow().addFlags(WindowManager.LayoutParams. FLAG_LAYOUT_NO_LIMITS)
 		//getWindow().setLayout(852, 1280)
@@ -365,18 +372,19 @@ public class CalibrationActivity extends Activity {
 		int count = 0;
 		while (count++ < 1) {
 			ImageView fiveLine = new ImageView(getBaseContext());
-			Bitmap bitmap = Bitmap.createBitmap((int) width, (int) 150,
+			Bitmap bitmap = Bitmap.createBitmap((int) nexus7_width, (int) 150,
 					Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			fiveLine.setImageBitmap(bitmap);
 
-			for (int i = 20; i <= 100; i += 20)
-				canvas.drawLine(side_padding, i, width - side_padding, i, paint);
+			for (int i = 25; i <= 105; i += 20)
+				canvas.drawLine(side_padding, i, nexus7_width - side_padding, i, paint);
 
-			canvas.drawLine(width - side_padding, 20, width - side_padding,
-					100, paint);
-			canvas.drawLine(110, 120, 140, 120, paint);
-			canvas.drawLine(110+60, 120, 120+60, 120, paint);
+			canvas.drawLine(nexus7_width - side_padding, 25, 
+					nexus7_width - side_padding,
+					105, paint);
+			canvas.drawLine(110, 125, 140, 125, paint);
+			canvas.drawLine(110+60, 125, 120+60, 125, paint);
 
 			fiveLine.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -525,17 +533,26 @@ public class CalibrationActivity extends Activity {
 			
 			double MajorF = maxFrequency[0];
 			MajorF = Math.floor(MajorF*100)/100;
-			debugText.setText(MajorF+" "+maxFrequency[1]+" "+maxFrequency[2]);
+			resultText.setText(MajorF+" "+
+					Math.floor(maxFrequency[1]*100)/100
+					+" "+Math.floor(maxFrequency[2]*100)/100);
 			
-			if(calibTarget<0);				
-			else if(maxIntensity[0]>5 && MajorF>pitches[calibTarget]-50 && 
-				MajorF<pitches[calibTarget]+50 && calibCount<40){
-				calibPitches_sum += MajorF;
-				calibCount++;
-				debugText.setText(calibCount+"");
+			if (calibTarget >= 0) {
+				for (int i = 1; i < 3; i++)
+					if (Math.abs(MajorF - pitches[calibTarget]) > Math
+							.abs(maxFrequency[i] - pitches[calibTarget]))
+						MajorF = maxFrequency[i];
 
-				progress.setProgress(calibCount*100/40);	
+				if (maxIntensity[0] > 5 && MajorF > pitches[calibTarget] - 50
+						&& MajorF < pitches[calibTarget] + 50
+						&& calibCount < 40) {
+					calibPitches_sum += MajorF;
+					calibCount++;
+					debugText.setText(calibCount + "");
+
+					progress.setProgress(calibCount * 100 / 40);
 				}
+			}
 			
 			if(calibCount>=40){
 				started = false;
