@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -56,6 +57,7 @@ public class DisplayActivity extends Activity {
 	
 	// request code
 	public static final int MEMO_ADD = 1;
+	public static final int MEMO_MODIFY = 2;
 	 
     // 시작 위치를 저장을 위한 변수 
     private float mLastMotionX = 0;
@@ -444,7 +446,7 @@ public class DisplayActivity extends Activity {
  
     public boolean performLongClick() {
     	Intent foo = new Intent(this, TextEntryActivity.class);
-    	foo.putExtra("value", "if modification, original value.");
+    	foo.putExtra("value", "");
     	this.startActivityForResult(foo, MEMO_ADD);
     	
         return true;
@@ -459,6 +461,8 @@ public class DisplayActivity extends Activity {
         case MEMO_ADD:
             try {
                 String value = data.getStringExtra("value");
+                int opacity = data.getIntExtra("opacity", 255);
+                
                 if (value != null && value.length() > 0) {
                     FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
                     
@@ -468,13 +472,25 @@ public class DisplayActivity extends Activity {
                     		LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
                     memo.setX(mLastMotionX);
                     memo.setY(mLastMotionY);
-                    memo.setTextColor(Color.RED);
+                    memo.setTextColor(Color.argb(opacity, 255, 0, 0));
                     memo.setTextSize(30);
+                    
+                    memo.setOnClickListener(new View.OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+					    	Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
+					    	foo.putExtra("value", "get original memo from DB");
+					    	DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
+						}
+					});
                     
                     f.addView(memo);
                 }
             } catch (Exception e) {
             }
+            break;
+        case MEMO_MODIFY:
             break;
         default:
             break;

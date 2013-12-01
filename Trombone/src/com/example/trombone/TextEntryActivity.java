@@ -8,6 +8,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 
 public class TextEntryActivity extends Activity {
     private EditText et;
@@ -56,6 +57,7 @@ public class TextEntryActivity extends Activity {
     private void executeDone() {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("value", TextEntryActivity.this.et.getText().toString());
+        resultIntent.putExtra("opacity", ((SeekBar) findViewById(R.id.opacityBar)).getProgress());
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
