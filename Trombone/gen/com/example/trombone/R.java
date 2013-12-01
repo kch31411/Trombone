@@ -32,19 +32,23 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int button=0x7f020000;
-        public static final int calibrationbtn=0x7f020001;
-        public static final int high=0x7f020002;
-        public static final int historybtn=0x7f020003;
-        public static final int ic_launcher=0x7f020004;
-        public static final int logo=0x7f020005;
-        public static final int note_1=0x7f020006;
-        public static final int note_2=0x7f020007;
-        public static final int note_3=0x7f020008;
-        public static final int note_4=0x7f020009;
-        public static final int playbtn=0x7f02000a;
-        public static final int rest_1=0x7f02000b;
-        public static final int sharp=0x7f02000c;
+        public static final int addicon=0x7f020000;
+        public static final int button=0x7f020001;
+        public static final int calibrationbtn=0x7f020002;
+        public static final int deleteicon=0x7f020003;
+        public static final int high=0x7f020004;
+        public static final int historybtn=0x7f020005;
+        public static final int ic_launcher=0x7f020006;
+        public static final int logo=0x7f020007;
+        public static final int note_1=0x7f020008;
+        public static final int note_2=0x7f020009;
+        public static final int note_3=0x7f02000a;
+        public static final int note_4=0x7f02000b;
+        public static final int playbtn=0x7f02000c;
+        public static final int realplay=0x7f02000d;
+        public static final int rest_1=0x7f02000e;
+        public static final int sharp=0x7f02000f;
+        public static final int sorticon=0x7f020010;
     }
     public static final class id {
         public static final int CurrentSpectrum=0x7f090004;
@@ -52,11 +56,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int RefButton=0x7f090002;
         public static final int RefEdit=0x7f090001;
         public static final int StartStopButton=0x7f090003;
-        public static final int action_settings=0x7f090021;
-<<<<<<< HEAD
-=======
-        public static final int btnDone=0x7f090020;
->>>>>>> origin/origin
+        public static final int action_settings=0x7f09002a;
+        public static final int btnDone=0x7f090029;
         public static final int buttonA=0x7f090011;
         public static final int buttonAs=0x7f090012;
         public static final int buttonB=0x7f090013;
@@ -70,43 +71,37 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int buttonG=0x7f09000f;
         public static final int buttonGs=0x7f090010;
         public static final int calibration_frame=0x7f090000;
-<<<<<<< HEAD
-        public static final int calibrationbutton=0x7f09001f;
-        public static final int debugText=0x7f090005;
-        public static final int dummy_button=0x7f090019;
-        public static final int fullscreen_content=0x7f090016;
-        public static final int fullscreen_content_controls=0x7f090018;
-        public static final int historybutton=0x7f09001d;
-        public static final int imageView1=0x7f09001a;
-=======
-        public static final int calibrationbutton=0x7f09001e;
+        public static final int calibrationbutton=0x7f090020;
         public static final int debugText=0x7f090005;
         public static final int dummy_button=0x7f09001a;
         public static final int fullscreen_content=0x7f090017;
         public static final int fullscreen_content_controls=0x7f090019;
-        public static final int historybutton=0x7f09001d;
+        public static final int gallery1=0x7f090022;
+        public static final int historybutton=0x7f09001e;
+        public static final int imageButton1=0x7f090023;
         public static final int imageView1=0x7f09001b;
->>>>>>> origin/origin
+        public static final int imageView2=0x7f090025;
+        public static final int imageView3=0x7f090026;
+        public static final int imageView4=0x7f090024;
         public static final int music_sheet=0x7f090007;
         public static final int music_sheet_background=0x7f090016;
         public static final int music_sheet_title=0x7f090018;
         public static final int pitchText=0x7f090015;
         public static final int playbutton=0x7f09001c;
         public static final int resultText=0x7f090006;
-<<<<<<< HEAD
-        public static final int textView1=0x7f09001c;
-        public static final int textView2=0x7f09001e;
-        public static final int textView3=0x7f090020;
-=======
-        public static final int txtValue=0x7f09001f;
->>>>>>> origin/origin
+        public static final int scrollView1=0x7f090027;
+        public static final int textView1=0x7f09001d;
+        public static final int textView2=0x7f09001f;
+        public static final int textView3=0x7f090021;
+        public static final int txtValue=0x7f090028;
     }
     public static final class layout {
         public static final int activity_calibration=0x7f030000;
         public static final int activity_display=0x7f030001;
         public static final int activity_history=0x7f030002;
         public static final int activity_main_ui=0x7f030003;
-        public static final int activity_text_entry=0x7f030004;
+        public static final int activity_musicsheet_select=0x7f030004;
+        public static final int activity_text_entry=0x7f030005;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -122,6 +117,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int title_activity_fullscreen=0x7f060004;
         public static final int title_activity_history=0x7f060006;
         public static final int title_activity_main_ui=0x7f060005;
+        public static final int title_activity_musicsheet_select=0x7f06000a;
     }
     public static final class style {
         /** 
