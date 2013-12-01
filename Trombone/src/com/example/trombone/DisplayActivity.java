@@ -35,7 +35,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 
+import classes.Memo;
 import classes.Note;
+import db.DBMemoHelper;
 
 
 /**
@@ -466,26 +468,33 @@ public class DisplayActivity extends Activity {
                 if (value != null && value.length() > 0) {
                     FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
                     
-                    TextView memo = new TextView(this);
-                    memo.setText(value);
-                    memo.setLayoutParams(new LayoutParams(
+                    TextView memoView = new TextView(this);
+                    memoView.setText(value);
+                    memoView.setLayoutParams(new LayoutParams(
                     		LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    memo.setX(mLastMotionX);
-                    memo.setY(mLastMotionY);
-                    memo.setTextColor(Color.argb(opacity, 255, 0, 0));
-                    memo.setTextSize(30);
+                    memoView.setX(mLastMotionX);
+                    memoView.setY(mLastMotionY);
+                    memoView.setTextColor(Color.argb(opacity, 255, 0, 0));
+                    memoView.setTextSize(30);
                     
-                    memo.setOnClickListener(new View.OnClickListener() {
+
+                    Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
+                    		opacity, 1, value, 1); // XXX : to be fixed : page, musicsheet id, id
+                    DBMemoHelper helper = new DBMemoHelper(this);
+                    int id = (int) helper.addMemo(memo);
+                    memo.setId(id);
+                    
+                    memoView.setOnClickListener(new View.OnClickListener() {
 						
 						@Override
 						public void onClick(View v) {
 					    	Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
-					    	foo.putExtra("value", "get original memo from DB");
+					    	foo.putExtra("value", ((TextView) v).getText().toString());
 					    	DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
 						}
 					});
                     
-                    f.addView(memo);
+                    f.addView(memoView);
                 }
             } catch (Exception e) {
             }
