@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -52,6 +53,9 @@ public class DisplayActivity extends Activity {
 	public static final int NUM_FREQUENCIES = 3;  // calibration 혹은 tracking 할 때 사용할 주파수의 개수
 	public static final double[] SCORING_WEIGHT = {0.8, 0.5, 0.3};
 	public static final double SCORE_THRESHOLD = 1.0;  // have to be adjusted. 
+	
+	// request code
+	public static final int MEMO_ADD = 1;
 	 
     // 시작 위치를 저장을 위한 변수 
     private float mLastMotionX = 0;
@@ -353,8 +357,6 @@ public class DisplayActivity extends Activity {
 		switch (event.getAction()) {
 
 		case MotionEvent.ACTION_DOWN:
-			Log.d("CLICK", "ACTION_DOWN");
-
 			mLastMotionX = event.getX();
 			mLastMotionY = event.getY();   // 시작 위치 저장
 
@@ -365,8 +367,6 @@ public class DisplayActivity extends Activity {
 			break;
 
 		case MotionEvent.ACTION_MOVE:
-			Log.d("CLICK", "ACTION_MOVE");  
-
 			final float x = event.getX();
 			final float y = event.getY();
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
@@ -390,8 +390,6 @@ public class DisplayActivity extends Activity {
 			break;
 
 		case MotionEvent.ACTION_UP:
-			Log.d("CLICK", "ACTION_UP");
-
 			if (!mHasPerformedLongPress) {
 				// Long Click을 처리되지 않았으면 제거함.
 				removeLongPressCallback();
@@ -445,16 +443,43 @@ public class DisplayActivity extends Activity {
     }
  
     public boolean performLongClick() {
-        //  실제 Long Click 처리하는 부분을 여기 둡니다.
-        Log.d("CLICK", "Long Click OK");
-        Toast.makeText(DisplayActivity.this, "Long Click OK!!", Toast.LENGTH_SHORT).show();
+    	Intent foo = new Intent(this, TextEntryActivity.class);
+    	foo.putExtra("value", "if modification, original value.");
+    	this.startActivityForResult(foo, MEMO_ADD);
+    	
         return true;
     }
      
     private void performOneClick() {
-        Log.d("CLICK", "One Click OK");
-        Toast.makeText(DisplayActivity.this, "One Click OK!!", Toast.LENGTH_SHORT).show();
+    	// do nothing.
     }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+        case MEMO_ADD:
+            try {
+                String value = data.getStringExtra("value");
+                if (value != null && value.length() > 0) {
+                    FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+                    
+                    TextView memo = new TextView(this);
+                    memo.setText(value);
+                    memo.setLayoutParams(new LayoutParams(
+                    		LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    memo.setX(mLastMotionX);
+                    memo.setY(mLastMotionY);
+                    memo.setTextColor(Color.RED);
+                    memo.setTextSize(30);
+                    
+                    f.addView(memo);
+                }
+            } catch (Exception e) {
+            }
+            break;
+        default:
+            break;
+    }
+}
  
 
 	@Override
