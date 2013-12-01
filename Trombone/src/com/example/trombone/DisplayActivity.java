@@ -46,6 +46,10 @@ public class DisplayActivity extends Activity {
 	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
 	
+	// constants
+	public static final int NUM_FREQUENCIES = 3;  // calibration 혹은 tracking 할 때 사용할 주파수의 개수
+	public static final double[] SCORING_WEIGHT = {0.8, 0.5, 0.3};
+	public static final double SCORE_THRESHOLD = 1.0;  // have to be adjusted. 
 	 
     // 시작 위치를 저장을 위한 변수 
     private float mLastMotionX = 0;
@@ -71,6 +75,10 @@ public class DisplayActivity extends Activity {
 	String[] pitchName = { "C", "D", "E", "F", "G", "A", "B", "C6", "D6" };
 	String[] musicSheet_code = { "C", "C", "G", "G", "A", "A", "G", "F", "F",
 			"E", "E", "D", "D", "C", "end" };
+	
+	// XXX
+	double[][] calibratedPitches = new double[9][NUM_FREQUENCIES];
+	boolean isCalibrated = false;
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -583,30 +591,36 @@ public class DisplayActivity extends Activity {
 			debugText.setText(f2note(MajorF) + " : " + MajorF + " "
 					+ currentCount);
 
-			if (maxIntensity < 5)
-				currentError++;
-			else if (currentError > 1
-					&& currentCount > 3
-					&& musicSheet_code[currentPosition + 1]
-							.equals(f2note(MajorF))) {
-				currentPosition++;
-				currentCount = 0;
-				currentError = 0;
-
-			} else if (musicSheet_code[currentPosition].equals(f2note(MajorF))) {
-				currentCount++;
-				currentError = 0;
-			} 
-			else if (currentError>2 && currentCount>5 
-					&& musicSheet_code[currentPosition + 1]
-							.equals("_"))
-			{
-				currentPosition++;
-				currentCount = 0;
-				currentError = 0;
-			}
-			else {
-				currentError++;
+			// tracking
+			if (!isCalibrated) {
+				if (maxIntensity < 5)
+					currentError++;
+				else if (currentError > 1
+						&& currentCount > 3
+						&& musicSheet_code[currentPosition + 1]
+								.equals(f2note(MajorF))) {
+					currentPosition++;
+					currentCount = 0;
+					currentError = 0;
+	
+				} else if (musicSheet_code[currentPosition].equals(f2note(MajorF))) {
+					currentCount++;
+					currentError = 0;
+				} 
+				else if (currentError>2 && currentCount>5 
+						&& musicSheet_code[currentPosition + 1]
+								.equals("_"))
+				{
+					currentPosition++;
+					currentCount = 0;
+					currentError = 0;
+				}
+				else {
+					currentError++;
+				}
+			} else {
+				double score = 0;
+				
 			}
 
 			trackingView.setX(music_sheet.get(currentPosition).x-5);
