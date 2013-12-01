@@ -2,15 +2,15 @@ package com.example.trombone;
 
 import com.example.trombone.util.SystemUiHider;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.util.Log;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -29,5 +29,26 @@ public class MusicsheetSelectActivity extends Activity {
 	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
 
 		setContentView(R.layout.activity_musicsheet_select);
-	}
+		
+		ImageButton realplayBtnCall = (ImageButton)findViewById(R.id.realplaybutton);
+		realplayBtnCall.setOnClickListener(new ImageButton.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
+				startActivity(intent);
+			}
+			
+		});
+		/*Button realplayBtnCall = (Button)findViewById(R.id.realplaybutton);
+		Log.d("ww","Click7");
+		realplayBtnCall.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				Log.d("ww","Click");
+				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
+				startActivity(intent);
+			}
+		});
+*/	}
 }

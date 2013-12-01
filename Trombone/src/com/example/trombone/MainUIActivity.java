@@ -44,7 +44,9 @@ public class MainUIActivity extends Activity {
 		Button playBtnCall = (Button)findViewById(R.id.playbutton);
 		playBtnCall.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MainUIActivity.this, DisplayActivity.class);
+				Log.d("ww","Click");
+				Intent intent = new Intent(MainUIActivity.this, MusicsheetSelectActivity.class);
+				Log.d("ww","Click1");
 				startActivity(intent);
 			}
 		});
@@ -67,7 +69,7 @@ public class MainUIActivity extends Activity {
 		});
 		
 		
-		DBSheetHelper db = new DBSheetHelper(this); 
+		/*DBSheetHelper db = new DBSheetHelper(this); 
 		Log.d("Insert: ", "Inserting ..");
 		db.addMusicSheet(new MusicSheet("a",1,1));
 		db.addMusicSheet(new MusicSheet("b",2,1));
@@ -79,6 +81,6 @@ public class MainUIActivity extends Activity {
 		for (MusicSheet sheet : sheets) {
 			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
 			Log.d("read - ", log);
- 		}
+ 		}*/
 	}
 }
