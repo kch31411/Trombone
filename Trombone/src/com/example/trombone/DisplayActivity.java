@@ -279,7 +279,7 @@ public class DisplayActivity extends Activity {
 		getWindow().setLayout(nexus7_width, nexus7_height);
 		
 		FrameLayout mainView = (FrameLayout)
-				findViewById(R.id.display_frame);
+				findViewById(R.id.music_sheet_background);
 		
 		ratio = (float)width/nexus7_width;
 

@@ -74,17 +74,13 @@
             android:fitsSystemWindows="true" >
 
             <LinearLayout
-<<<<<<< HEAD
                 android:id="@+id/button_layout"
-=======
->>>>>>> origin/origin
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" >
             
             <Button
                 android:id="@+id/buttonC"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
                 android:layout_height="120dp" />
@@ -93,115 +89,66 @@
                 android:id="@+id/buttonCs"
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
-                android:layout_height="120dp"
-                android:layout_marginLeft="65dp" />
-
-            <Button
-                android:id="@+id/buttonCs"
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonD"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonDs"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonE"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonF"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonFs"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonG"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonGs"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonA"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonAs"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
 
             <Button
                 android:id="@+id/buttonB"
-<<<<<<< HEAD
                 android:layout_width="0dp"
                 android:layout_weight="0.05"
-=======
-                android:layout_width="37dp"
->>>>>>> origin/origin
                 android:layout_height="120dp" />
             </LinearLayout>
 
@@ -219,10 +166,7 @@
                     android:layout_gravity="center"
                     android:max="100"
                     android:progress="0" />
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/origin
                 <TextView
                     android:id="@+id/pitchText"
                     android:layout_width="wrap_content"
@@ -231,7 +175,6 @@
                     android:text="TextView"
                     android:textColor="#000000"
                     android:textSize="26dp" />
-<<<<<<< HEAD
 
                 <Button
                     android:id="@+id/returnButton"
@@ -240,10 +183,7 @@
                     android:layout_gravity="center_horizontal"
                     android:text="return" />
 
-</LinearLayout>
-=======
             </LinearLayout>
->>>>>>> origin/origin
         </FrameLayout>
     </LinearLayout>
 

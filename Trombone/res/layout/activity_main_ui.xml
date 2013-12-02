@@ -6,7 +6,6 @@
     tools:context=".MainUIActivity" >
 
     <!--
-<<<<<<< HEAD
          The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc.
@@ -25,8 +24,6 @@
         android:textStyle="bold" />
 
     <!--
-=======
->>>>>>> origin/origin
          This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows.
     -->
@@ -35,7 +32,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true" >
-<<<<<<< HEAD
 
         <LinearLayout
             android:id="@+id/fullscreen_content_controls"
@@ -48,21 +44,14 @@
             tools:ignore="UselessParent" >
 
         </LinearLayout>
-=======
->>>>>>> origin/origin
         
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="80dp"
-=======
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="80dp"
             android:layout_marginBottom="100dp"
->>>>>>> origin/origin
             android:src="@drawable/logo" />
 
         <LinearLayout
@@ -71,32 +60,15 @@
             android:gravity="center"
             android:orientation="vertical" >
 
-<<<<<<< HEAD
-=======
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                  >
                 
->>>>>>> origin/origin
             <Button
                 android:id="@+id/playbutton"
                 android:layout_width="160dp"
                 android:layout_height="100dp"
-<<<<<<< HEAD
-                android:layout_marginTop="20dp"
-                android:background="@drawable/button"
-                android:text="연주하기" />
-
-            <Button
-                android:id="@+id/historybutton"
-                android:layout_width="160dp"
-                android:layout_height="100dp"                
-                android:layout_marginTop="20dp"
-                android:background="@drawable/button"
-                android:text="기록보기" />
-
-=======
                 android:layout_marginTop="30dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginLeft="190dp"
@@ -146,16 +118,10 @@
                 android:layout_height="wrap_content"
                  >
             
->>>>>>> origin/origin
             <Button
                 android:id="@+id/calibrationbutton"
                 android:layout_width="160dp"
                 android:layout_height="100dp"
-<<<<<<< HEAD
-                android:layout_marginTop="20dp"
-                android:background="@drawable/button"
-                android:text="Calibration" />
-=======
                 android:layout_marginTop="30dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginLeft="190dp"
@@ -174,7 +140,6 @@
 
             </LinearLayout>
             
->>>>>>> origin/origin
         </LinearLayout>
 
     </FrameLayout>

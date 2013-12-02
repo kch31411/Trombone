@@ -46,13 +46,10 @@
             android:label="@string/title_activity_history"
             android:theme="@style/FullscreenTheme" >
         </activity>
-<<<<<<< HEAD
-=======
         <activity
             android:name="com.example.trombone.TextEntryActivity"
             android:label="Type in the value"
             android:theme="@android:style/Theme.Dialog" />
->>>>>>> origin/origin
     </application>
 
 </manifest>

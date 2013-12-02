@@ -1,10 +1,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-<<<<<<< HEAD
-    android:id = "@+id/display_frame"
-=======
     android:id="@+id/music_sheet_background"
->>>>>>> origin/origin
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
@@ -57,21 +53,14 @@
                 android:textColor="#000000"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> origin/origin
         <TextView
             android:id="@+id/resultText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-<<<<<<< HEAD
             android:textColor="#000000"
-=======
->>>>>>> origin/origin
             android:textSize="24dp" />
 
         <TextView
