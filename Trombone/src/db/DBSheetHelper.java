@@ -146,4 +146,3 @@ public class DBSheetHelper extends SQLiteOpenHelper {
 		return cursor.getCount();
 	}
 }
->>>>>>> origin/origin

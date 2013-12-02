@@ -586,7 +586,10 @@ public class CalibrationActivity extends Activity {
 					}
 
 				if (MaxI > 3 && MajorF > pitches[calibTarget] - 50
-
+							&& MajorF < pitches[calibTarget] + 50
+							&& calibCount < 40) {
+                    calibPitches_sum += MajorF;
+                    calibCount++;
 					progress.setProgress(calibCount * 100 / 40);
 				}
 			}

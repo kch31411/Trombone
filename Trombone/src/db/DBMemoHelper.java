@@ -161,4 +161,3 @@ public class DBMemoHelper extends SQLiteOpenHelper {
 			db.close();
 		}
 }
->>>>>>> origin/origin
