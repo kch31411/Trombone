@@ -30,6 +30,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 /**
@@ -64,6 +66,8 @@ public class CalibrationActivity extends Activity {
 			349.228, 369.994, 391.995, 415.305, 440.000, 466.164,
 			493.883};
 	
+	double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
+			
 	String[] pitchName={"C","C#","D","D#","E","F","F#","G","G#",
 			"A","A#","B"
 	};
@@ -93,6 +97,7 @@ public class CalibrationActivity extends Activity {
 	int nexus7_width = 800;
 	int nexus7_height = 1280;
 	float ratio = 1;
+	int octave = 4; 
 	
 	int lastNoteIndex;
 	int side_padding = 40;
@@ -151,6 +156,15 @@ public class CalibrationActivity extends Activity {
 	}
 
 	@Override
+	protected void onStop(){
+		if (started) {
+			recordTask.cancel(true);
+		}
+		super.onStop();
+		
+	}
+	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		 
@@ -182,15 +196,42 @@ public class CalibrationActivity extends Activity {
 			mainView.setPivotX(0.0f);
 			mainView.setPivotY(0.0f);
 		}
-		
 
 		// calibDB = openOrCreateDatabase("Calibration",MODE_WORLD_WRITEABLE, null);
 		for(int i=0; i<12; i++)
 		{
 			calibPitches[i] = pitches[i];
 		}
+		setDefault();		
+		
 		progress = (ProgressBar) findViewById(R.id.ProgressBar);
 		refText = (EditText)findViewById(R.id.RefEdit);		
+		
+		RadioGroup rd = (RadioGroup) findViewById(R.id.radiogroup1);
+		rd.setOnCheckedChangeListener(new OnCheckedChangeListener() {		
+			@Override
+			public void onCheckedChanged(RadioGroup group, int arg1) {
+				// TODO Auto-generated method stub
+				switch (arg1) {
+				case R.id.radio3:
+					octave = 3;
+					break;
+				case R.id.radio4:
+					octave = 4;
+					break;
+				case R.id.radio5:
+					octave = 5;
+					break;
+				default:
+					octave = 4;
+				}
+				for(int i=0; i<12; i++)
+				{
+					calibPitches[i] = Math.floor(pitches[i]*Math.pow(2,octave-4)*1000)/1000;
+				}
+				showPitch();
+			}
+		});
 		
 		LinearLayout button_L = (LinearLayout) 
 				findViewById(R.id.button_layout);
@@ -357,6 +398,12 @@ public class CalibrationActivity extends Activity {
 					calibPitches[i]=pitches[i];
 				}
 				showPitch();
+				
+				RadioGroup rd = (RadioGroup) findViewById(R.id.radiogroup1);
+				rd.check(R.id.radio4);
+				octave = 4;
+				calib_data = new double[3][12][blockSize + 1];
+				setDefault();
 			}});
 		
 		Button retButton = (Button) findViewById(R.id.returnButton);
@@ -438,8 +485,9 @@ public class CalibrationActivity extends Activity {
 			l.addView(clef);
 			y += 150;
 		}
-		displayMusicSheet(0);	
+		displayMusicSheet(0);
 	}
+
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -563,6 +611,15 @@ public class CalibrationActivity extends Activity {
 				curCanvas.drawLine(x, downy, x, upy, paint);
 			}
 			
+			double[] default_spec = calib_data[octave-3][calibTarget];
+			for (int i = 0; i < default_spec.length; i++) {
+				int x = i;
+				int downy = (int) (100 - (default_spec[i] * 10));
+				int upy = 100;
+				paint.setColor(Color.argb(150, 255, 10, 20));
+				curCanvas.drawLine(x, downy, x, upy, paint);
+			}
+			
 			for (int j=0;j<maxFrequency.length;j++){
 				maxFrequency[j] = maxFrequency[j]
 						*frequency / (blockSize * 2 + 1);
@@ -576,17 +633,19 @@ public class CalibrationActivity extends Activity {
 					Math.floor(maxFrequency[1]*1000)/1000
 					+"\n"+Math.floor(maxFrequency[2]*1000)/1000);
 			
+			double targetPitch = pitches[calibTarget]*Math.pow(2, octave-4);
+			
 			if (calibTarget >= 0) {
 				for (int i = 1; i < 3; i++)
-					if (Math.abs(MajorF - pitches[calibTarget]) > Math
-							.abs(maxFrequency[i] - pitches[calibTarget]))
+					if (Math.abs(MajorF - targetPitch) > Math
+							.abs(maxFrequency[i] - targetPitch))
 					{
 						MajorF = maxFrequency[i];
 						MaxI = maxIntensity[i];
 					}
 
-				if (MaxI > 3 && MajorF > pitches[calibTarget] - 50
-							&& MajorF < pitches[calibTarget] + 50
+				if (MaxI > 3 && MajorF > targetPitch - 50
+							&& MajorF < targetPitch + 50
 							&& calibCount < 40) {
                     calibPitches_sum += MajorF;
                     calibCount++;
@@ -620,6 +679,8 @@ public class CalibrationActivity extends Activity {
 				curCanvas.drawColor(Color.BLACK);
 				for (int i = 0; i < collected_Magnitude.length; i++) 
 				{
+					calib_data[octave-3][calibTarget][i] = collected_Magnitude[i];
+					
 					int x = i;
 					int downy = (int) (100 - (collected_Magnitude[i] * 10));
 					int upy = 100;
@@ -660,7 +721,7 @@ public class CalibrationActivity extends Activity {
 						+" "+entire_maxFrequency[1]+"_"+
 						Math.floor(entire_maxIntensity[1]/entire_sum*1000)/1000
 						+" "+entire_maxFrequency[2]+"_"+
-						Math.floor(entire_maxIntensity[2]/entire_sum*1000)/1000);						;
+						Math.floor(entire_maxIntensity[2]/entire_sum*1000)/1000);
 			}
 
 			if (true) {
@@ -682,11 +743,27 @@ public class CalibrationActivity extends Activity {
 		String s = "";
 		for (int i=0; i<12; i++)
 		{
-			s+=pitchName[i] + " : "+pitches[i];
-			if(pitches[i]!=calibPitches[i])
+			s+=pitchName[i] + " : "+  Math.floor(pitches[i]*Math.pow(2,octave-4)*1000)/1000;
+			if(Math.floor(pitches[i]*Math.pow(2,octave-4)*100)/100!=Math.floor(calibPitches[i]*100)/100)
 				s+="\t -> "+calibPitches[i];
 			s+="\n";
 		}
 		pitchText.setText(s);
+	}
+	
+	public void setDefault(){
+		for (int i=0;i<3;i++)
+		{
+			for (int j=0;j<12;j++)
+			{
+				for (int k=0; k<10; k++) {
+					int index = (int) (pitches[j]*Math.pow(2, i-1) /frequency * (blockSize * 2 + 1));
+					if(index-k>=0)
+						calib_data[i][j][index-k]= 10*Math.pow(0.7, k);
+					if(index+k<blockSize+1)
+						calib_data[i][j][index+k]= 10*Math.pow(0.7, k);
+				}
+			}			
+		}
 	}
 }
