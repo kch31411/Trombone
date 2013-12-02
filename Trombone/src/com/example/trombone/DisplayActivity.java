@@ -80,7 +80,7 @@ public class DisplayActivity extends Activity {
 	double[] ref_pitches;
 	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
 	int[] yPosition_flat={0,1,1,2,2,3,4,4,5,5,6,6};
-	String title = "µµµå¸®";
+	String title = "Always with me";
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -134,6 +134,15 @@ public class DisplayActivity extends Activity {
 		lastNoteIndex = note_index-1;
 	}
 
+	@Override
+	protected void onStop(){
+		if (started) {
+			recordTask.cancel(true);
+		}
+		super.onStop();
+		
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -193,7 +202,7 @@ public class DisplayActivity extends Activity {
 
 		music_sheet = new ArrayList<Note>();
 
-
+/*
 		music_sheet.add(new Note(406,4));
 		music_sheet.add(new Note(401,4));
 		music_sheet.add(new Note(401,4));
@@ -222,8 +231,8 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(306,4));
 		music_sheet.add(new Note(309,4));
 		music_sheet.add(new Note(306,4));
-
-		/*
+*/
+		
 		music_sheet.add(new Note(406, 8, true));
 		music_sheet.add(new Note(406,2));
 		music_sheet.add(new Note(408,2));
@@ -269,10 +278,33 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(408,4));
 		music_sheet.add(new Note(501,4));
 		music_sheet.add(new Note(408,4));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(403,2));
+		music_sheet.add(new Note(403,4));
+		music_sheet.add(new Note(405,2));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(401,8));
+		music_sheet.add(new Note(401,2));
+		music_sheet.add(new Note(401,2));
+		
+		music_sheet.add(new Note(403,4));
+		music_sheet.add(new Note(405,4));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(401,4));
+		music_sheet.add(new Note(406,4));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(410,2));
+		music_sheet.add(new Note(411,4));
+		music_sheet.add(new Note(411,2));
+		music_sheet.add(new Note(410,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(406,12));
 
 		music_sheet.add(new Note(103));
 		music_sheet.add(new Note(108));
-		music_sheet.add(new Note(103, 1, true));	*/
+		music_sheet.add(new Note(103, 1, true));	
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
@@ -748,14 +780,14 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			else if (currentError > 1
 					&& currentCount > 3
-					&& MajorF<pitch2frequency(nextNote.getPitch())*1.12
-					&& MajorF>pitch2frequency(nextNote.getPitch())/1.12) {
+					&& MajorF<pitch2frequency(nextNote.getPitch())*1.04
+					&& MajorF>pitch2frequency(nextNote.getPitch())/1.04) {
 				currentPosition++;
 				currentCount = 0;
 				currentError = 0;
 
-			} else if (MajorF<pitch2frequency(currentNote.getPitch())*1.12
-					&& MajorF>pitch2frequency(currentNote.getPitch())/1.12) {
+			} else if (MajorF<pitch2frequency(currentNote.getPitch())*1.04
+					&& MajorF>pitch2frequency(currentNote.getPitch())/1.04) {
 				currentCount++;
 				currentError = 0;
 			} 
