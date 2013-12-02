@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -23,6 +24,8 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -30,7 +33,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
-
 import classes.Note;
 
 
@@ -68,9 +70,11 @@ public class DisplayActivity extends Activity {
 
 	double[] pitches = { 523.25, 587.32 - 25, 659.25, 698.45 - 10,
 			783.99 - 35, 880.00 - 40, 987.76 - 90, 1046.50 - 15, 1174.66 };
-	String[] pitchName = { "C", "D", "E", "F", "G", "A", "B", "C6", "D6" };
-	String[] musicSheet_code = { "C", "C", "G", "G", "A", "A", "G", "F", "F",
-			"E", "E", "D", "D", "C", "end" };
+
+	double[] ref_pitches;
+	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
+	int[] yPosition_flat={0,1,1,2,2,3,4,4,5,5,6,6};
+	String title = "µµµå¸®";
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -85,6 +89,12 @@ public class DisplayActivity extends Activity {
 	Paint paint;
 	
 	int width, height;
+	int nexus7_width = 800;
+	int nexus7_height = 1280;
+	float ratio = 1;
+	int bar_length = 12; 
+	boolean is_flat = true;
+	
 	int lastNoteIndex;
 	int side_padding = 40;
 
@@ -109,11 +119,10 @@ public class DisplayActivity extends Activity {
 		int count = 0;
 		while (count++ < 3) {
 			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 150, y, music_sheet);
+				note_index = DrawNotes(note_index, 120, y, music_sheet);
 			if (note_index >= 0)
 				note_index = DrawNotes(note_index,
-						(int) ((width - side_padding) / 2) + 50, y, music_sheet);
-
+						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet);
 			y += 150;
 		}
 		lastNoteIndex = note_index-1;
@@ -122,12 +131,26 @@ public class DisplayActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		Intent receivedIntent = getIntent();
+		ref_pitches=receivedIntent.getDoubleArrayExtra("main2display");
+		if(is_flat)
+			yPosition=yPosition_flat;
+		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);  
+	    //set up full screen
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
+	    
 		setContentView(R.layout.activity_display);
 
-		// added
 		resultText = (TextView) findViewById(R.id.resultText);
+		resultText.setText(ref_pitches[1]+"");
 		debugText = (TextView) findViewById(R.id.debugText);
-
+		
+		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
+		titleView.setText(title);
+		
 		startStopButton = (Button) findViewById(R.id.StartStopButton);
 		startStopButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
@@ -164,83 +187,86 @@ public class DisplayActivity extends Activity {
 		
 		music_sheet = new ArrayList<Note>();
 		
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(1));
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(3,3));
-		music_sheet.add(new Note(1));
+
+		music_sheet.add(new Note(406,4));
+		music_sheet.add(new Note(401,4));
+		music_sheet.add(new Note(401,4));
+		music_sheet.add(new Note(401,4));
+		music_sheet.add(new Note(311,4));
+		music_sheet.add(new Note(401,4));
 		
-		music_sheet.add(new Note(0,2));
-		music_sheet.add(new Note(3,2));
-		music_sheet.add(new Note(0,2));
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(-3));
-		music_sheet.add(new Note(1,3));
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(-2,3));
-		music_sheet.add(new Note(-1, 1, true));
+		music_sheet.add(new Note(311,4));
+		music_sheet.add(new Note(404,4));
+		music_sheet.add(new Note(311,2));
+		music_sheet.add(new Note(401,2));
+		music_sheet.add(new Note(406,4));
+		music_sheet.add(new Note(401,4));
+		music_sheet.add(new Note(311,4));
 		
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(-2));
-		music_sheet.add(new Note(-3,2));
-		music_sheet.add(new Note(-2,2));
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-4,2));
-		music_sheet.add(new Note(-1,2));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(1));
+		music_sheet.add(new Note(304,4));
+		music_sheet.add(new Note(309,4));
+		music_sheet.add(new Note(309,4));
+		music_sheet.add(new Note(309,4));
+		music_sheet.add(new Note(306,4));
+		music_sheet.add(new Note(304,4));
 		
-		music_sheet.add(new Note(2,2));
-		music_sheet.add(new Note(2));
-		music_sheet.add(new Note(1));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(0,3));
-		music_sheet.add(new Note(-1, 1, true));
+		music_sheet.add(new Note(304,4));
+		music_sheet.add(new Note(311,4));
+		music_sheet.add(new Note(311,4));
+		music_sheet.add(new Note(306,4));
+		music_sheet.add(new Note(309,4));
+		music_sheet.add(new Note(306,4));
 		
-		music_sheet.add(new Note(-1));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-1, 1, true));	
-
-		/* school bell dangdangdang
-		 * 4/4 beat. hak gyo jong E DDangDDANGADNAGDSNGADSf
-		 *
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(1));
-		music_sheet.add(new Note(1));
-
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-2, 2));
-
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-2));
-		music_sheet.add(new Note(-2));
-
-		music_sheet.add(new Note(-3, 3));
-		music_sheet.add(new Note(-1, 1, true));
-
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(1));
-		music_sheet.add(new Note(1));
-
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-2, 2));
-
-		music_sheet.add(new Note(0));
-		music_sheet.add(new Note(-2));
-		music_sheet.add(new Note(-3));
-		music_sheet.add(new Note(-2));
-
-		music_sheet.add(new Note(-4, 3));
-		music_sheet.add(new Note(-1, 1, true));
-		*/
+		/*
+		music_sheet.add(new Note(406, 8, true));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(410,2));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(501,6));
+		music_sheet.add(new Note(410,2));
+		
+		music_sheet.add(new Note(408,4));
+		music_sheet.add(new Note(501,4));
+		music_sheet.add(new Note(408,4));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(403,2));
+		music_sheet.add(new Note(410,6));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(405,8));
+		
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(405,2));
+		music_sheet.add(new Note(403,4));
+		music_sheet.add(new Note(405,4));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(401,4));
+		music_sheet.add(new Note(406,4));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(410,2));
+		
+		music_sheet.add(new Note(411,4));
+		music_sheet.add(new Note(411,2));
+		music_sheet.add(new Note(410,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(408,8));
+		
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(410,2));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(501,6));
+		music_sheet.add(new Note(410,2));
+		
+		music_sheet.add(new Note(408,4));
+		music_sheet.add(new Note(501,4));
+		music_sheet.add(new Note(408,4));
+		
+		music_sheet.add(new Note(103));
+		music_sheet.add(new Note(108));
+		music_sheet.add(new Note(103, 1, true));	*/
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
@@ -248,18 +274,22 @@ public class DisplayActivity extends Activity {
 		display.getSize(size);
 		width = size.x;
 		height = size.y;
-		height = height / 2; // added
+		
+		getWindow().setLayout(nexus7_width, nexus7_height);
+		
+		FrameLayout mainView = (FrameLayout)
+				findViewById(R.id.display_frame);
+		
+		ratio = (float)width/nexus7_width;
 
-		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
-
-		musicSheet_code = new String[music_sheet.size()];
-		for (int pt = 0; pt < music_sheet.size(); pt++) {
-			Note note = music_sheet.get(pt);
-			if (!note.isRest())
-				musicSheet_code[pt] = pitchName[note.getPitch() + 4]; // /// 0 for G
-			else
-				musicSheet_code[pt] = "_";
+		if (ratio < 1) {
+			mainView.setScaleX((float) ratio);
+			mainView.setScaleY((float) ratio);
+			mainView.setPivotX(0.0f);
+			mainView.setPivotY(0.0f);
 		}
+		
+		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 
 		Paint paint = new Paint();
 		paint.setColor(Color.BLACK);
@@ -285,18 +315,26 @@ public class DisplayActivity extends Activity {
 		int count = 0;
 		while (count++ < 3) {
 			ImageView fiveLine = new ImageView(getBaseContext());
-			Bitmap bitmap = Bitmap.createBitmap((int) width, (int) 150,
+			Bitmap bitmap = Bitmap.createBitmap((int) nexus7_width, (int) 150,
 					Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			fiveLine.setImageBitmap(bitmap);
 
-			for (int i = 20; i <= 100; i += 20)
-				canvas.drawLine(side_padding, i, width - side_padding, i, paint);
+			int startPosition = 19; 
+			int interval = 20;
+			if(ratio<1) interval = 22;
+			
+			for (int i = 0; i <5; i ++)
+				canvas.drawLine(side_padding, startPosition+i*interval, 
+						nexus7_width - side_padding, startPosition+i*interval, paint);
 
-			canvas.drawLine((int) ((width - side_padding) / 2), 20,
-					(int) ((width - side_padding) / 2), 100, paint);
-			canvas.drawLine(width - side_padding, 20, width - side_padding,
-					100, paint);
+			canvas.drawLine((int) ((nexus7_width - side_padding) / 2), startPosition,
+					(int) ((nexus7_width - side_padding) / 2), 
+					startPosition+4*interval, paint);
+
+			canvas.drawLine(nexus7_width - side_padding, startPosition, 
+					nexus7_width - side_padding, 
+					startPosition+4*interval, paint);
 
 			fiveLine.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -446,9 +484,21 @@ public class DisplayActivity extends Activity {
 		super.onPostCreate(savedInstanceState);
 	}
 
-
 	private int getNotePosition(Note note) {
-		return note.getPitch() * -10 + 20;
+		int umm = note.getPitch()%100;
+		int oct = note.getPitch()/100;
+		
+		int note_height = yPosition[umm-1] * -10 + 60;
+		
+		if(oct==5) note_height-=70;
+		if(oct==4&&umm==1) note_height-=10;
+		if(oct<=3) {
+			note_height-=60;
+			note_height/=2;
+			note_height+=90;
+		}
+			
+		return note_height;
 	}
 
 	class MusicSheet {
@@ -464,15 +514,30 @@ public class DisplayActivity extends Activity {
 			Note note = notes.get(pt++);
 			beatSum += note.getBeat();
 
-			if (beatSum > 4) {
+			if (beatSum > bar_length) {
 				return pt - 1;
 			}
 
 			ImageView noteImage = new ImageView(getBaseContext());
 			Bitmap bmNote;
 			if (note.isRest()) {
-				bmNote = BitmapFactory.decodeResource(getResources(),
-						R.drawable.rest_1);
+				switch (note.getBeat()){
+				case 4:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_4);
+					break;
+				case 8:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_8);
+					break;
+				case 16:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_16);
+					break;
+				default:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_4);
+				}
 			} else {
 				switch (note.getBeat()) {
 				case 1:
@@ -491,12 +556,56 @@ public class DisplayActivity extends Activity {
 					bmNote = BitmapFactory.decodeResource(getResources(),
 							R.drawable.note_4);
 					break;
+				case 6:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.note_6);
+					break;
+				case 8:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.note_8);
+					break;
+				case 12:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.note_12);
+					break;
+				case 16:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.note_16);
+					break;
 				default:
 					bmNote = BitmapFactory.decodeResource(getResources(),
 							R.drawable.note_1);
 				}
 			}
-
+			
+			paint.setColor(Color.BLACK);
+			paint.setStrokeWidth(2f);
+			if (note.getPitch() / 100 < 4 || note.getPitch()==401 ) {
+				int ummY = yPosition[note.getPitch()%100-1];
+				ImageView lineImage = new ImageView(getBaseContext());
+				Bitmap bmLine = Bitmap.createBitmap((int) 80, (int) 180,
+						Bitmap.Config.ARGB_8888);
+				Canvas lineCanvas = new Canvas(bmLine);
+				lineImage.setImageBitmap(bmLine); 
+				
+				int lineY = 150;
+				if(ratio<1) lineY+=7;
+				if(ummY%2!=0||note.getPitch()==401) lineY += 6;
+				
+				for (int i=ummY; i<8; i+=2){				
+					lineCanvas.drawLine(0, lineY, 30, lineY, paint);
+					lineY -= 8;
+					if(note.getPitch()==401) break;
+				}
+				lineImage.setLayoutParams(new LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+				lineImage.setPadding(x-5, getNotePosition(note)+y-100, 0, 0);
+				
+				l.addView(lineImage);
+				noteViews.add(lineImage);
+			}
+			// noteCanvas.drawLine(0, 0, 0, 0, p);
+			
 			noteImage.setImageBitmap(bmNote);
 			noteImage.setLayoutParams(new LayoutParams(
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -511,8 +620,8 @@ public class DisplayActivity extends Activity {
 
 			l.addView(noteImage);
 			noteViews.add(noteImage);
-
-			x += 60 * note.getBeat();
+			
+			x += (int)(14*note.getBeat()/((double)bar_length)*16) ;
 		}
 		return -1;
 	}
@@ -575,31 +684,36 @@ public class DisplayActivity extends Activity {
 				// maxIntensity = Math.max(maxIntensity,
 				// Math.abs(toTransform[0][i]));
 			}
-
-			while (musicSheet_code[currentPosition].equals("_"))
+			
+			while (music_sheet.get(currentPosition).isRest())
 				currentPosition++;
 
 			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
-			debugText.setText(f2note(MajorF) + " : " + MajorF + " "
-					+ currentCount);
-
+			
+			Note nextNote = music_sheet.get(currentPosition + 1);
+			Note currentNote = music_sheet.get(currentPosition);
+			
+			resultText.setText(MajorF+" :," +
+					" "+pitch2frequency(currentNote.getPitch()));
+			debugText.setText(currentCount+"");
+			
 			if (maxIntensity < 5)
 				currentError++;
 			else if (currentError > 1
 					&& currentCount > 3
-					&& musicSheet_code[currentPosition + 1]
-							.equals(f2note(MajorF))) {
+					&& MajorF<pitch2frequency(nextNote.getPitch())*1.12
+					&& MajorF>pitch2frequency(nextNote.getPitch())/1.12) {
 				currentPosition++;
 				currentCount = 0;
 				currentError = 0;
 
-			} else if (musicSheet_code[currentPosition].equals(f2note(MajorF))) {
+			} else if (MajorF<pitch2frequency(currentNote.getPitch())*1.12
+					&& MajorF>pitch2frequency(currentNote.getPitch())/1.12) {
 				currentCount++;
 				currentError = 0;
 			} 
 			else if (currentError>2 && currentCount>5 
-					&& musicSheet_code[currentPosition + 1]
-							.equals("_"))
+					&& nextNote.isRest())
 			{
 				currentPosition++;
 				currentCount = 0;
@@ -610,30 +724,17 @@ public class DisplayActivity extends Activity {
 			}
 
 			trackingView.setX(music_sheet.get(currentPosition).x-5);
-			trackingView.setY(music_sheet.get(currentPosition).y+80);
+			trackingView.setY(music_sheet.get(currentPosition).y);
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				displayMusicSheet(lastNoteIndex+1);
 			}
 
-			String musicShow = "<font color='#000000'>";
-			for (int i = 0; i < currentPosition; i++) {
-				musicShow += musicSheet_code[i];
-			}
-			musicShow += "</font> <font color = #FF8080>"
-					+ musicSheet_code[currentPosition]
-							+ "</font> <font color='#000000'>";
-			for (int i = currentPosition + 1; i < musicSheet_code.length - 1; i++) {
-				musicShow += musicSheet_code[i];
-			}
-			musicShow += "</font>";
-			resultText.setText(Html.fromHtml(musicShow));
-
 			for (int i = 0; i < Magnitude.length; i++) {
 				int x = i;
 				int downy = (int) (100 - (Magnitude[i] * 10));
 				int upy = 100;
-
+				paint.setColor(Color.rgb(250, 100, 255));
 				curCanvas.drawLine(x, downy, x, upy, paint);
 			}
 
@@ -650,20 +751,10 @@ public class DisplayActivity extends Activity {
 
 			currentSpec.invalidate();
 		}
-
-		private String f2note(double frequency) {
-			for (int i = 1; i < pitches.length; i++) {
-				if (pitches[i] > frequency) {
-					if ((pitches[i] - frequency) < (pitches[i] - pitches[i - 1]) / 2)
-						return pitchName[i];
-					else if (i >= 1)
-						return pitchName[i - 1];
-					else
-						return "out of range1";
-				}
-			}
-			return "out of range2";
-		}
 	}
-
+	public double pitch2frequency(int in_pitch){
+		int oct = in_pitch/100;
+		int umm = in_pitch%100;
+		return ref_pitches[umm-1]*Math.pow(2,(oct-4)); 
+	}
 }

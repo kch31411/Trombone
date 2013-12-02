@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,6 +28,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
@@ -67,6 +69,9 @@ public class CalibrationActivity extends Activity {
 	};
 	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
 	
+	double collected_Magnitude[] = new double[blockSize + 1];
+	int collected_num = 0;
+
 	double calibPitches_sum = 0;
 	int calibCount = 0;
 	int calibTarget = -1;
@@ -87,6 +92,7 @@ public class CalibrationActivity extends Activity {
 	int width, height;
 	int nexus7_width = 800;
 	int nexus7_height = 1280;
+	float ratio = 1;
 	
 	int lastNoteIndex;
 	int side_padding = 40;
@@ -154,8 +160,6 @@ public class CalibrationActivity extends Activity {
 	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
 	        
 		setContentView(R.layout.activity_calibration);
-		//getWindow().addFlags(WindowManager.LayoutParams. FLAG_LAYOUT_NO_LIMITS)
-		//getWindow().setLayout(852, 1280)
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
@@ -170,16 +174,15 @@ public class CalibrationActivity extends Activity {
 		FrameLayout mainView = (FrameLayout)
 				findViewById(R.id.calibration_frame);
 		
-		float ratioW = (float)width/nexus7_width;
-		float ratioH = (float)height/nexus7_height;
+		ratio = (float)width/nexus7_width;
 
-		if (ratioW < 1 || ratioH < 1) {
-			if(ratioW>ratioH) ratioW = ratioH;
-			mainView.setScaleX((float) ratioW);
-			mainView.setScaleY((float) ratioW);
+		if (ratio < 1) {
+			mainView.setScaleX((float) ratio);
+			mainView.setScaleY((float) ratio);
 			mainView.setPivotX(0.0f);
 			mainView.setPivotY(0.0f);
 		}
+		
 
 		// calibDB = openOrCreateDatabase("Calibration",MODE_WORLD_WRITEABLE, null);
 		for(int i=0; i<12; i++)
@@ -188,6 +191,11 @@ public class CalibrationActivity extends Activity {
 		}
 		progress = (ProgressBar) findViewById(R.id.ProgressBar);
 		refText = (EditText)findViewById(R.id.RefEdit);		
+		
+		LinearLayout button_L = (LinearLayout) 
+				findViewById(R.id.button_layout);
+		button_L.setPadding(100, 0, side_padding, 0);
+		
 		buttonC = (Button) findViewById(R.id.buttonC);
 		buttonC.setBackgroundColor(Color.WHITE);
 		calibButton = buttonC;
@@ -330,6 +338,8 @@ public class CalibrationActivity extends Activity {
 					currentError = 0;
 				} else {
 					started = true;
+					calibTarget = -1;
+					calibCount=0;
 					startStopButton.setText("Stop");
 					recordTask = new RecordAudio();
 					recordTask.execute();
@@ -343,11 +353,24 @@ public class CalibrationActivity extends Activity {
 				reference = Double.parseDouble(refText.getText().toString());
 				for(int i=0;i<12;i++){
 					pitches[i]= Math.floor(
-							ref_pitches[i]*reference/440*100)/100;
+							ref_pitches[i]*reference/440*1000)/1000;
 					calibPitches[i]=pitches[i];
 				}
 				showPitch();
 			}});
+		
+		Button retButton = (Button) findViewById(R.id.returnButton);
+		retButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				Intent data = new Intent();
+				data.putExtra("calib2main", calibPitches);
+				data.putExtra("myData2", "Data 2 value");
+				
+				// Activity finished ok, return the data
+				setResult(RESULT_OK, data);
+				finish();
+			}
+		});
 		
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
 
@@ -377,14 +400,21 @@ public class CalibrationActivity extends Activity {
 			Canvas canvas = new Canvas(bitmap);
 			fiveLine.setImageBitmap(bitmap);
 
-			for (int i = 25; i <= 105; i += 20)
-				canvas.drawLine(side_padding, i, nexus7_width - side_padding, i, paint);
+			int startPosition = 19; 
+			int interval = 20;
+			if(ratio<1) interval = 22;
+			
+			for (int i = 0; i <5; i ++)
+				canvas.drawLine(side_padding, startPosition+i*interval, 
+						nexus7_width - side_padding, startPosition+i*interval, paint);
 
-			canvas.drawLine(nexus7_width - side_padding, 25, 
+			canvas.drawLine(nexus7_width - side_padding, startPosition, 
 					nexus7_width - side_padding,
-					105, paint);
-			canvas.drawLine(110, 125, 140, 125, paint);
-			canvas.drawLine(110+60, 125, 120+60, 125, paint);
+					startPosition+4*interval, paint);
+			canvas.drawLine(110, startPosition+5*interval, 140, 
+					startPosition+5*interval, paint);
+			canvas.drawLine(110+60, startPosition+5*interval, 
+					120+60, startPosition+5*interval, paint);
 
 			fiveLine.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -400,7 +430,6 @@ public class CalibrationActivity extends Activity {
 			clef.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.WRAP_CONTENT));
 			clef.setPadding(side_padding, y, 0, 0);
-
 			Matrix m = new Matrix();
 			m.postScale((float) 0.24, (float) 0.24);
 			clef.setScaleType(ScaleType.MATRIX);
@@ -424,7 +453,8 @@ public class CalibrationActivity extends Activity {
 		
 		calibCount = 0;
 		calibPitches_sum = 0;
-		
+		collected_num=0;
+		collected_Magnitude = new double[blockSize + 1];
 		started = true;
 		startStopButton.setText("Stop");
 		recordTask = new RecordAudio();
@@ -480,6 +510,11 @@ public class CalibrationActivity extends Activity {
 			double Magnitude[] = new double[blockSize + 1];
 			double temp_Magnitude[] = new double[blockSize + 1];	
 			Magnitude[0] = Math.abs(toTransform[0][0]);
+			if (calibTarget >= 0) {
+				collected_Magnitude[0] = collected_Magnitude[0]
+						* (1 - 1 / (double) (collected_num + 1)) + Magnitude[0]
+						/ (double) (collected_num + 1);
+			}
 
 			for (int j = 0; j < maxFrequency.length; j++) {
 				for (int i = 1; i < toTransform[0].length / 2; i++) {
@@ -489,6 +524,12 @@ public class CalibrationActivity extends Activity {
 								+ (toTransform[0][2 * i])
 								* (toTransform[0][2 * i]));
 						temp_Magnitude[i]=Magnitude[i];
+						
+						if(calibTarget>=0){
+						collected_Magnitude[i]=collected_Magnitude[i]
+								*(1-1/(double)(collected_num+1))
+								+Magnitude[i]/(double)(collected_num+1);
+						}
 					}
 					if (maxIntensity[j] < temp_Magnitude[i]) {
 						maxIntensity[j] = temp_Magnitude[i];
@@ -508,12 +549,7 @@ public class CalibrationActivity extends Activity {
 			
 			for (int i = 0; i < Magnitude.length; i++) {
 				int x = i;
-				
-				int scale=1;
-				if(maxIntensity[0]>10)
-					scale = (int) Math.ceil(maxIntensity[0]/10);
-
-				int downy = (int) (100 - (Magnitude[i] * 10/scale));
+				int downy = (int) (100 - (Magnitude[i] * 10));
 				int upy = 100;
 
 				if(i==maxFrequency[0]||i==maxFrequency[1]
@@ -532,35 +568,97 @@ public class CalibrationActivity extends Activity {
 			}
 			
 			double MajorF = maxFrequency[0];
-			MajorF = Math.floor(MajorF*100)/100;
-			resultText.setText(MajorF+" "+
-					Math.floor(maxFrequency[1]*100)/100
-					+" "+Math.floor(maxFrequency[2]*100)/100);
+			double MaxI = maxIntensity[0];
+			
+			MajorF = Math.floor(MajorF*1000)/1000;
+			debugText.setText(MajorF+"\n"+
+					Math.floor(maxFrequency[1]*1000)/1000
+					+"\n"+Math.floor(maxFrequency[2]*1000)/1000);
 			
 			if (calibTarget >= 0) {
 				for (int i = 1; i < 3; i++)
 					if (Math.abs(MajorF - pitches[calibTarget]) > Math
 							.abs(maxFrequency[i] - pitches[calibTarget]))
+					{
 						MajorF = maxFrequency[i];
+						MaxI = maxIntensity[i];
+					}
 
-				if (maxIntensity[0] > 5 && MajorF > pitches[calibTarget] - 50
+				if (MaxI > 3 && MajorF > pitches[calibTarget] - 50
 						&& MajorF < pitches[calibTarget] + 50
 						&& calibCount < 40) {
 					calibPitches_sum += MajorF;
 					calibCount++;
-					debugText.setText(calibCount + "");
-
 					progress.setProgress(calibCount * 100 / 40);
 				}
 			}
+			else{ // not calibrating
+				double error = 0; 
+				for (int i=0;i<Magnitude.length;i++)
+				{
+					int downy = (int) (100 - (collected_Magnitude[i] * 10));
+					int upy = 100;
+					paint.setColor(Color.argb(100, 255, 200, 100));
+					curCanvas.drawLine(i, downy, i, upy, paint);
+					
+					if(collected_Magnitude[i]*1.2>Magnitude[i])
+						error+=collected_Magnitude[i]-Magnitude[i];					
+				}				
+				resultText.setText(error+" ");
+			}
 			
 			if(calibCount>=40){
+				double temp_collected[] = new double[blockSize + 1];
 				started = false;
 				startStopButton.setText("Start");
 				calibButton.setBackgroundColor(Color.argb(0,0,0,0));
 				calibPitches[calibTarget] = Math.floor
-						(calibPitches_sum/calibCount*100)/100;
+						(calibPitches_sum/calibCount*1000)/1000;
 				showPitch();
+				curCanvas.drawColor(Color.BLACK);
+				for (int i = 0; i < collected_Magnitude.length; i++) 
+				{
+					int x = i;
+					int downy = (int) (100 - (collected_Magnitude[i] * 10));
+					int upy = 100;
+					paint.setColor(Color.rgb(255,200,0));
+					curCanvas.drawLine(x, downy, x, upy, paint);
+				}
+				
+				double[] entire_maxFrequency ={0,0,0};
+				double[] entire_maxIntensity = {0,0,0};			
+				double entire_sum = 0;
+				
+				for (int j = 0; j < entire_maxFrequency.length; j++) {
+					for (int i = 0; i < collected_Magnitude.length ; i++) {
+						if(j==0){ 
+							entire_sum += collected_Magnitude[i];
+							temp_collected[i] = collected_Magnitude[i];
+						}
+						if (entire_maxIntensity[j] < temp_collected[i]) {
+							entire_maxIntensity[j] = temp_collected[i];
+							entire_maxFrequency[j] = i;
+						}
+					}
+					for (int i=0; i<15; i++) {
+						int index = (int)(entire_maxFrequency[j]);
+						if(index-i>=0)
+							temp_collected[index-i]=0;
+						if(index+i<collected_Magnitude.length)
+							temp_collected[index+i]=0;
+					}
+					entire_maxFrequency[j]=Math.floor(
+							entire_maxFrequency[j]
+							*frequency / (blockSize * 2 + 1)
+							*1000)/1000;
+					}
+				
+				resultText.setText(entire_maxFrequency[0]+"_"+
+						Math.floor(entire_maxIntensity[0]/entire_sum*1000)/1000
+						+" "+entire_maxFrequency[1]+"_"+
+						Math.floor(entire_maxIntensity[1]/entire_sum*1000)/1000
+						+" "+entire_maxFrequency[2]+"_"+
+						Math.floor(entire_maxIntensity[2]/entire_sum*1000)/1000);						;
 			}
 
 			if (true) {
@@ -584,7 +682,7 @@ public class CalibrationActivity extends Activity {
 		{
 			s+=pitchName[i] + " : "+pitches[i];
 			if(pitches[i]!=calibPitches[i])
-				s+=" -> "+calibPitches[i];
+				s+="\t -> "+calibPitches[i];
 			s+="\n";
 		}
 		pitchText.setText(s);
