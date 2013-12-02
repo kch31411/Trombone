@@ -3,15 +3,27 @@ package com.example.trombone;
 
 import java.util.List;
 
+<<<<<<< HEAD
+=======
+import classes.MusicSheet;
+>>>>>>> origin/origin
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+<<<<<<< HEAD
 import android.widget.Button;
 import android.widget.Toast;
 import classes.MusicSheet;
 import db.DBSheetHelper;
+=======
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+
+import db.*;
+>>>>>>> origin/origin
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -20,6 +32,7 @@ import db.DBSheetHelper;
  * @see SystemUiHider
  */
 public class MainUIActivity extends Activity {
+<<<<<<< HEAD
 	
 	double[] pitches = {261.626, 277.183, 293.665, 311.127, 329.628, 
 			349.228, 369.994, 391.995, 415.305, 440.000, 466.164,
@@ -28,11 +41,27 @@ public class MainUIActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+=======
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);  
+	    //set up full screen
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
+>>>>>>> origin/origin
 
 		setContentView(R.layout.activity_main_ui);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/origin
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
@@ -40,7 +69,10 @@ public class MainUIActivity extends Activity {
 		playBtnCall.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
 				Intent intent = new Intent(MainUIActivity.this, DisplayActivity.class);
+<<<<<<< HEAD
 				intent.putExtra("main2display", pitches);
+=======
+>>>>>>> origin/origin
 				startActivity(intent);
 			}
 		});
@@ -58,10 +90,18 @@ public class MainUIActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(MainUIActivity.this,
 						CalibrationActivity.class);
+<<<<<<< HEAD
 				startActivityForResult(intent,3);
 			}
 		});
 				
+=======
+				startActivity(intent);
+			}
+		});
+		
+		
+>>>>>>> origin/origin
 		DBSheetHelper db = new DBSheetHelper(this); 
 		Log.d("Insert: ", "Inserting ..");
 		db.addMusicSheet(new MusicSheet("a",1,1));
@@ -76,6 +116,7 @@ public class MainUIActivity extends Activity {
 			Log.d("read - ", log);
  		}
 	}
+<<<<<<< HEAD
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -87,4 +128,6 @@ public class MainUIActivity extends Activity {
 	        }
 	    }
 	}
+=======
+>>>>>>> origin/origin
 }
