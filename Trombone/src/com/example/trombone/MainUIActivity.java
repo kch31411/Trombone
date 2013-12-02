@@ -50,8 +50,6 @@ public class MainUIActivity extends Activity {
 			public void onClick(View v) {
 				Log.d("ww","Click");
 				Intent intent = new Intent(MainUIActivity.this, MusicsheetSelectActivity.class);
-				Log.d("ww","Click1");
-				Intent intent = new Intent(MainUIActivity.this, DisplayActivity.class);
 				intent.putExtra("main2display", pitches);
 				startActivity(intent);
 			}
