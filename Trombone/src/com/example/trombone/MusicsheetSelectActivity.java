@@ -1,15 +1,27 @@
 package com.example.trombone;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import classes.MusicSheet;
+
 import com.example.trombone.util.SystemUiHider;
 
+import db.DBSheetHelper;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.util.Log;
 
 /**
@@ -19,6 +31,27 @@ import android.util.Log;
  * @see SystemUiHider
  */
 public class MusicsheetSelectActivity extends Activity {
+
+	private class SpecialAdapter extends ArrayAdapter<String> {
+		public SpecialAdapter(Context context, int resource,
+				List<String> objects) {
+			super(context, resource, objects);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if ( convertView == null ) {
+				TextView tv = new TextView(getApplicationContext());
+				tv.setTextColor(getResources().getColor(R.color.black_overlay));
+				tv.setTextSize(getResources().getDimension(R.dimen.musicsheetname));
+				convertView = tv;
+			}
+			
+			return super.getView(position, convertView, parent);
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,14 +74,25 @@ public class MusicsheetSelectActivity extends Activity {
 			}
 			
 		});
-		/*Button realplayBtnCall = (Button)findViewById(R.id.realplaybutton);
-		Log.d("ww","Click7");
-		realplayBtnCall.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				Log.d("ww","Click");
-				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
-				startActivity(intent);
-			}
-		});
-*/	}
+		
+		DBSheetHelper db = new DBSheetHelper(this); 
+		
+		Log.d("Reading: ", "Reading all contacts..");
+		List<MusicSheet> sheets = db.getAllMusicSheets();
+		ArrayList<String> sheetNames = new ArrayList<String>();
+		SpecialAdapter adapter;
+		adapter = new SpecialAdapter(this, android.R.layout.simple_list_item_1, sheetNames);
+		Log.d("Reading: ", "Reading 1");
+		
+		for (MusicSheet sheet : sheets) {
+			Log.d("Reading: ", "wwwwwww");
+			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
+			Log.d("read - ", log);
+			sheetNames.add(sheet.getName());
+			adapter.notifyDataSetChanged();
+ 		}
+		
+		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
+		lv.setAdapter(adapter);
+	}
 }

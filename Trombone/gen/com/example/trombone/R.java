@@ -19,6 +19,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int buttonBarStyle=0x7f010000;
     }
     public static final class color {
+        public static final int black=0x7f040001;
         public static final int black_overlay=0x7f040000;
     }
     public static final class dimen {
@@ -28,27 +29,29 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050000;
-        public static final int activity_vertical_margin=0x7f050001;
+        public static final int activity_horizontal_margin=0x7f050001;
+        public static final int activity_vertical_margin=0x7f050002;
+        public static final int musicsheetname=0x7f050000;
     }
     public static final class drawable {
         public static final int addicon=0x7f020000;
-        public static final int button=0x7f020001;
-        public static final int calibrationbtn=0x7f020002;
-        public static final int deleteicon=0x7f020003;
-        public static final int high=0x7f020004;
-        public static final int historybtn=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int logo=0x7f020007;
-        public static final int note_1=0x7f020008;
-        public static final int note_2=0x7f020009;
-        public static final int note_3=0x7f02000a;
-        public static final int note_4=0x7f02000b;
-        public static final int playbtn=0x7f02000c;
-        public static final int realplay=0x7f02000d;
-        public static final int rest_1=0x7f02000e;
-        public static final int sharp=0x7f02000f;
-        public static final int sorticon=0x7f020010;
+        public static final int addicon2=0x7f020001;
+        public static final int button=0x7f020002;
+        public static final int calibrationbtn=0x7f020003;
+        public static final int deleteicon=0x7f020004;
+        public static final int high=0x7f020005;
+        public static final int historybtn=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int logo=0x7f020008;
+        public static final int note_1=0x7f020009;
+        public static final int note_2=0x7f02000a;
+        public static final int note_3=0x7f02000b;
+        public static final int note_4=0x7f02000c;
+        public static final int playbtn=0x7f02000d;
+        public static final int realplay=0x7f02000e;
+        public static final int rest_1=0x7f02000f;
+        public static final int sharp=0x7f020010;
+        public static final int sorticon=0x7f020011;
     }
     public static final class id {
         public static final int CurrentSpectrum=0x7f090004;
@@ -84,11 +87,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int music_sheet=0x7f090007;
         public static final int music_sheet_background=0x7f090016;
         public static final int music_sheet_title=0x7f090018;
+        public static final int musicsheetlistview=0x7f090027;
         public static final int pitchText=0x7f090015;
         public static final int playbutton=0x7f09001c;
         public static final int realplaybutton=0x7f090023;
         public static final int resultText=0x7f090006;
-        public static final int scrollView1=0x7f090027;
         public static final int sortmusicsheetbutton=0x7f090026;
         public static final int textView1=0x7f09001d;
         public static final int textView2=0x7f09001f;
