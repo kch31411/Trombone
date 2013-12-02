@@ -13,6 +13,19 @@
         <requestFocus />
     </EditText>
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Opacity" />
+
+    <SeekBar
+        android:id="@+id/opacityBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="255"
+        android:progress="255" />
+
     <Button
         android:id="@+id/btnDone"
         android:layout_width="wrap_content"

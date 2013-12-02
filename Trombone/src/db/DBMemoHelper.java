@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DBMemoHelper extends SQLiteOpenHelper {
 	
@@ -64,7 +65,7 @@ public class DBMemoHelper extends SQLiteOpenHelper {
 		 */
 		
 		// 새로운 Memo를 Sheet에 추가
-		public void addMemo(Memo memo) {
+		public long addMemo(Memo memo) {
 			SQLiteDatabase db = this.getWritableDatabase();
 			
 			ContentValues values = new ContentValues();
@@ -76,8 +77,10 @@ public class DBMemoHelper extends SQLiteOpenHelper {
 			values.put(KEY_MUSICSHEET, memo.getMusicsheet_id());
 			
 			// Inserting Row
-			db.insert(TABLE_SHEETS, null, values);
+			long id = db.insert(TABLE_SHEETS, null, values);
 			db.close();
+			
+			return id;
 		}
 		
 		// id 에 해당하는 Sheet 객체 가져오기
