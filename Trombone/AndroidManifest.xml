@@ -26,8 +26,7 @@
             android:name="com.example.trombone.CalibrationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_calibration"
-            android:theme="@style/FullscreenTheme"
-             >
+            android:theme="@style/FullscreenTheme" >
         </activity>
         <activity
             android:name="com.example.trombone.MainUIActivity"
@@ -50,6 +49,12 @@
             android:name="com.example.trombone.TextEntryActivity"
             android:label="Type in the value"
             android:theme="@android:style/Theme.Dialog" />
+        <activity
+            android:name="com.example.trombone.MusicsheetSelectActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_musicsheet_select"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
     </application>
 
 </manifest>

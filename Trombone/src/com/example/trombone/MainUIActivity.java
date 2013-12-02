@@ -48,7 +48,8 @@ public class MainUIActivity extends Activity {
 		Button playBtnCall = (Button)findViewById(R.id.playbutton);
 		playBtnCall.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MainUIActivity.this, DisplayActivity.class);
+				Log.d("ww","Click");
+				Intent intent = new Intent(MainUIActivity.this, MusicsheetSelectActivity.class);
 				intent.putExtra("main2display", pitches);
 				startActivity(intent);
 			}
@@ -67,6 +68,7 @@ public class MainUIActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(MainUIActivity.this,
 						CalibrationActivity.class);
+		
 				startActivityForResult(intent,3);
 			}
 		});
@@ -79,11 +81,11 @@ public class MainUIActivity extends Activity {
 		
 		Log.d("Reading: ", "Reading all contacts..");
 		List<MusicSheet> sheets = db.getAllMusicSheets();
-		
+		/*
 		for (MusicSheet sheet : sheets) {
 			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
 			Log.d("read - ", log);
- 		}
+ 		}*/
 	}
 	
 	@Override
