@@ -1,18 +1,26 @@
 package com.example.trombone;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import classes.MusicSheet;
+import classes.Note;
 
 import com.example.trombone.util.SystemUiHider;
 
+import db.DBNoteHelper;
 import db.DBSheetHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.util.Log;
@@ -31,6 +40,7 @@ import android.util.Log;
  * @see SystemUiHider
  */
 public class MusicsheetSelectActivity extends Activity {
+	public static final int ADD_SHEET = 1;
 
 	private class SpecialAdapter extends ArrayAdapter<String> {
 		public SpecialAdapter(Context context, int resource,
@@ -47,52 +57,154 @@ public class MusicsheetSelectActivity extends Activity {
 				tv.setTextSize(getResources().getDimension(R.dimen.musicsheetname));
 				convertView = tv;
 			}
-			
+
 			return super.getView(position, convertView, parent);
 		}
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  
-	    //set up full screen
-	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
-	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
+		//set up full screen
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);  
 
 		setContentView(R.layout.activity_musicsheet_select);
-		
-		ImageButton realplayBtnCall = (ImageButton)findViewById(R.id.realplaybutton);
-		realplayBtnCall.setOnClickListener(new ImageButton.OnClickListener() {
+
+		ImageView realplayBtnCall = (ImageView)findViewById(R.id.realplaybutton);
+		realplayBtnCall.setOnClickListener(new ImageView.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
+				intent.putExtra("main2display", getIntent().getDoubleArrayExtra("main2display"));
 				startActivity(intent);
 			}
-			
+
 		});
-		
+
+		ImageView addmusicsheetBtnCall = (ImageView)findViewById(R.id.addmusicsheetbutton);
+		addmusicsheetBtnCall.setOnClickListener(new ImageView.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+				intent.setType("file/*");
+				startActivityForResult(intent, ADD_SHEET);
+			}
+
+		});
+
 		DBSheetHelper db = new DBSheetHelper(this); 
-		
-		Log.d("Reading: ", "Reading all contacts..");
+
 		List<MusicSheet> sheets = db.getAllMusicSheets();
 		ArrayList<String> sheetNames = new ArrayList<String>();
 		SpecialAdapter adapter;
 		adapter = new SpecialAdapter(this, android.R.layout.simple_list_item_1, sheetNames);
-		Log.d("Reading: ", "Reading 1");
-		
+
 		for (MusicSheet sheet : sheets) {
-			Log.d("Reading: ", "wwwwwww");
 			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
-			Log.d("read - ", log);
 			sheetNames.add(sheet.getName());
 			adapter.notifyDataSetChanged();
- 		}
-		
+		}
+
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setAdapter(adapter);
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent result) 
+	{
+		Log.d("aaa", "aaaa");
+		if (resultCode == RESULT_OK) 
+		{
+			Log.d("aaa", "aaaa1");
+			if (requestCode == ADD_SHEET) 
+			{
+				Log.d("aaa", "aaaa2");
+				Uri data = result.getData();
+				File musicsheet = new File(data.toString());
+				
+				readFile(musicsheet);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, result);
+	}
+	
+	private void readFile(File file) {
+		Log.d("aaa", file.getAbsolutePath().substring(6));
+		//if ( file != null && file.exists() ) {
+		if ( true ) {
+			try {
+				Log.d("aaa", "aaaa4");
+				FileInputStream fileinputstream =  new FileInputStream(file.getAbsolutePath().substring(6));
+				Scanner scan = new Scanner(fileinputstream);
+				
+				String name = scan.nextLine();
+				int beat = scan.nextInt();
+				int numberOfNote = scan.nextInt();
+				int page = 1;
+				int order = 1;
+				int currentPageBeat = 0;
+				ArrayList<Note> notes = new ArrayList<Note>();
+				
+				// Note class »ý¼º
+				for ( int i = 0; i < numberOfNote; i++ ) {
+					Note current = new Note(scan.nextInt(), scan.nextInt());
+					current.setIsRest(scan.nextInt());
+					current.setPage(page);
+					current.setOrder(order);
+					notes.add(current);
+					
+					order++;
+					currentPageBeat += current.getBeat();
+					if ( currentPageBeat == beat * 6 ) {
+						page++;
+						order = 1;
+						currentPageBeat = 0;
+					}
+				}
+				
+				// Make MusicSheet DB
+				DBSheetHelper db = new DBSheetHelper(this); 
+				Log.d("Insert: ", "Inserting ..");
+				db.addMusicSheet(new MusicSheet(name, beat, page));
+				int musicsheet_id = db.getMusicSheetsCount() - 1;
+				Log.d("Insert: ", "After inserting MUSICSHEET to DB");
+				
+				// Make Note DB
+				DBNoteHelper notedb = new DBNoteHelper(this);
+				for (Note note : notes) {
+					Log.d("Insert: ", "Inserting ..");
+					note.setMusicsheet_id(musicsheet_id);
+					notedb.addNote(note);
+					Log.d("Insert: ", "After inserting NOTE to DB");
+		 		}
+				
+				// DB TEST
+				for ( int i = 1; i <= page; i++ ) {
+					List<Note> notesOnDB = notedb.getNotes(musicsheet_id, i);
+					for (Note note : notesOnDB ) {
+						String log = "Id: " + note.getId() + 
+								", Page: " + note.getPage() + 
+								", Order: " + note.getOrder() +
+								", Pitch: " + note.getPitch() +
+								", Beat: " + note.getBeat() +
+								", isRest: " + note.getIsRest() +
+								", X: " + note.getX() +
+								", Y: " + note.getY() +
+								", Musicsheet_id: " + note.getMusicsheet_id();
+						Log.d("read - ", log);
+			 		}
+				}
+		 		//////
+		 		
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

@@ -3,13 +3,13 @@ package db;
 import java.util.ArrayList;
 import java.util.List;
 
-import classes.Memo;
 import classes.Note;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DBNoteHelper extends SQLiteOpenHelper {
 	// Database Version
@@ -39,6 +39,7 @@ public class DBNoteHelper extends SQLiteOpenHelper {
 	// Crating Tables
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		Log.d("aaa", "NOTEHELPER onCreate");
 		String CREATE_SHEETS_TABLE = "CREATE TABLE " + TABLE_SHEETS + "("
 				+ KEY_ID + " INTEGER PRIMARY KEY," 
 				+ KEY_PAGE + " INTEGER,"
@@ -72,7 +73,6 @@ public class DBNoteHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
 		ContentValues values = new ContentValues();
-		values.put(KEY_ID, note.getId());
 		values.put(KEY_PAGE, note.getPage());
 		values.put(KEY_ORDER, note.getOrder());
 		values.put(KEY_PITCH, note.getPitch());
@@ -90,7 +90,7 @@ public class DBNoteHelper extends SQLiteOpenHelper {
 	}
 	
 	// musicsheet_id와 page가 주어질 떄 순서대로 Note 정보 가져오기
-	public List<Note> getMemos(int musicsheet_id, int page) {
+	public List<Note> getNotes(int musicsheet_id, int page) {
 		List<Note> noteList = new ArrayList<Note>();
 		// Select All Query
 		String selectQuery = "SELECT * FROM " + TABLE_SHEETS + 

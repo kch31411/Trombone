@@ -36,6 +36,7 @@ public class DBSheetHelper extends SQLiteOpenHelper {
 	// Creating Tables
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		Log.d("aaa", "SHEETHELPER onCreate");
 		String CREATE_SHEETS_TABLE = "CREATE TABLE " + TABLE_SHEETS + "("
 				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT," 
 				+ KEY_BEAT + " INTEGER," + KEY_PAGES + " INTEGER" + ")";
@@ -140,7 +141,6 @@ public class DBSheetHelper extends SQLiteOpenHelper {
 		String countQuery = "SELECT * FROM " + TABLE_SHEETS;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery(countQuery, null);
-		cursor.close();
 		
 		// return count
 		return cursor.getCount();

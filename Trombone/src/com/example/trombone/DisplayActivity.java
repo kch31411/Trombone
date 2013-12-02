@@ -136,6 +136,7 @@ public class DisplayActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.d("Deee", "Before create Display");
 		super.onCreate(savedInstanceState);
 
 		Intent receivedIntent = getIntent();
