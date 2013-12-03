@@ -87,6 +87,10 @@ public class MusicsheetSelectActivity extends Activity {
 					return;
 				
 				int id = ids.get(selectedPos);
+				MusicSheet musicsheet = db.getMusicSheet(id);
+				musicsheet.setPlayCount(musicsheet.getPlayCount() + 1);
+				db.updateMusicSheet(musicsheet);
+				
 				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
 				intent.putExtra("main2display", getIntent().getDoubleArrayExtra("main2display"));
 				intent.putExtra("musicsheet_id", id);
@@ -155,6 +159,7 @@ public class MusicsheetSelectActivity extends Activity {
 		int index = 0;
 		for (MusicSheet sheet : sheets) {
 			ids.add(index, sheet.getId()); // musicsheet id를 모아놓은 ArrayList
+			index++;
 			
 			sheetNames.add(sheet.getName());
 			adapter.notifyDataSetChanged();

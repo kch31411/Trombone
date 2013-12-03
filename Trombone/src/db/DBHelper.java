@@ -29,6 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String MUSICSHEET_KEY_ID = "id";
 	private static final String MUSICSHEET_KEY_NAME = "name";
 	private static final String MUSICSHEET_KEY_BEAT = "beat";
+	private static final String MUSICSHEET_KEY_PLAYCOUNT = "playcount";
 	private static final String MUSICSHEET_KEY_PAGES = "pages";
 	
 	private static final String NOTE_KEY_ID = "id"; // primary key
@@ -63,8 +64,11 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		Log.d("aaa", "SHEETHELPER onCreate above MUSICSHEET");
 		String CREATE_SHEETS_TABLE = "CREATE TABLE " + MUSICSHEET_TABLE_SHEETS + "("
-				+ MUSICSHEET_KEY_ID + " INTEGER PRIMARY KEY," + MUSICSHEET_KEY_NAME + " TEXT," 
-				+ MUSICSHEET_KEY_BEAT + " INTEGER," + MUSICSHEET_KEY_PAGES + " INTEGER" + ")";
+				+ MUSICSHEET_KEY_ID + " INTEGER PRIMARY KEY," 
+				+ MUSICSHEET_KEY_NAME + " TEXT," 
+				+ MUSICSHEET_KEY_BEAT + " INTEGER," 
+				+ MUSICSHEET_KEY_PLAYCOUNT + " INTEGER," 
+				+ MUSICSHEET_KEY_PAGES + " INTEGER" + ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
 		
 		Log.d("aaa", "SHEETHELPER onCreate above NOTE");
@@ -134,6 +138,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		values.put(MUSICSHEET_KEY_NAME, sheet.getName());
 		values.put(MUSICSHEET_KEY_BEAT, sheet.getBeat());
 		values.put(MUSICSHEET_KEY_PAGES, sheet.getPages());
+		values.put(MUSICSHEET_KEY_PLAYCOUNT, sheet.getPlayCount());
 		
 		// Inserting Row
 		long id = db.insert(MUSICSHEET_TABLE_SHEETS, null, values);
@@ -147,7 +152,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
 		Cursor cursor = db.query(MUSICSHEET_TABLE_SHEETS, new String[] { MUSICSHEET_KEY_ID, 
-				MUSICSHEET_KEY_NAME, MUSICSHEET_KEY_BEAT, MUSICSHEET_KEY_PAGES }, MUSICSHEET_KEY_ID + "=?",
+				MUSICSHEET_KEY_NAME, MUSICSHEET_KEY_BEAT, MUSICSHEET_KEY_PAGES, MUSICSHEET_KEY_PLAYCOUNT }, MUSICSHEET_KEY_ID + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if ( cursor != null )
 			cursor.moveToFirst();
@@ -155,7 +160,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
 				cursor.getString(1),
 				Integer.parseInt(cursor.getString(2)),
-				Integer.parseInt(cursor.getString(3)));
+				Integer.parseInt(cursor.getString(3)),
+				Integer.parseInt(cursor.getString(4)));
 		
 		return sheet;
 	}
@@ -177,6 +183,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				sheet.setName(cursor.getString(1));
 				sheet.setBeat(Integer.parseInt(cursor.getString(2)));
 				sheet.setPages(Integer.parseInt(cursor.getString(3)));
+				sheet.setPlayCount(Integer.parseInt(cursor.getString(4)));
 				// Adding sheets to list
 				sheetList.add(sheet);
 			} while (cursor.moveToNext());
@@ -194,6 +201,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		values.put(MUSICSHEET_KEY_NAME, sheet.getName());
 		values.put(MUSICSHEET_KEY_BEAT, sheet.getBeat());
 		values.put(MUSICSHEET_KEY_PAGES, sheet.getPages());
+		values.put(MUSICSHEET_KEY_PLAYCOUNT, sheet.getPlayCount());
 		
 		return db.update(MUSICSHEET_TABLE_SHEETS, values, MUSICSHEET_KEY_ID + " = ?",
 				new String[] { String.valueOf(sheet.getId()) });
