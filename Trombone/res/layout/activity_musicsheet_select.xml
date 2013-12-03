@@ -56,10 +56,11 @@
 
                 <ImageView
                     android:id="@+id/realplaybutton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="128dp"
+                    android:layout_height="128dp"
+                    android:layout_marginRight="5dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/realplay" />
+                    android:src="@drawable/realplay2" />
 
             </LinearLayout>
 
@@ -96,7 +97,7 @@
                     android:layout_height="36dp"
                     android:layout_marginLeft="10dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/deleteicon" />
+                    android:src="@drawable/deleteicon2" />
 
                 <ImageView
                     android:id="@+id/sortmusicsheetbutton"
@@ -104,7 +105,7 @@
                     android:layout_height="36dp"
                     android:layout_marginLeft="10dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/sorticon" />
+                    android:src="@drawable/sorticon2" />
 
             </LinearLayout>
 
