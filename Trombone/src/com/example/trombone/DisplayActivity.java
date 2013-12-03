@@ -442,6 +442,7 @@ public class DisplayActivity extends Activity {
 					
 					Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
 					foo.putExtra("value", ((TextView) v).getText().toString());
+					foo.putExtra("deletable", true);
 					DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
 				}
 			});
@@ -544,6 +545,7 @@ public class DisplayActivity extends Activity {
 	public boolean performLongClick() {
 		Intent foo = new Intent(this, TextEntryActivity.class);
 		foo.putExtra("value", "");
+		foo.putExtra("deletable", false);
 		this.startActivityForResult(foo, MEMO_ADD);
 
 		return true;
@@ -587,6 +589,7 @@ public class DisplayActivity extends Activity {
 							
 							Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
 							foo.putExtra("value", ((TextView) v).getText().toString());
+							foo.putExtra("deletable", true);
 							DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
 						}
 					});
@@ -598,11 +601,21 @@ public class DisplayActivity extends Activity {
 			break;
 		case MEMO_MODIFY:
 			try {
+				boolean deleted = data.getBooleanExtra("delete", false);
 				String value = data.getStringExtra("value");
 				int opacity = data.getIntExtra("opacity", 255);
-
-				if (value != null && value.length() > 0) {
-					FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+				FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+				
+				if (deleted) {
+					// update memo DB
+					for (Memo memo : memoList) {
+						if (memo.getTv().equals(selectedMemo)) {
+							dbhelper.deleteMemo(memo);
+							break;
+						}
+					}
+					f.removeView(selectedMemo);
+				} else if (value != null && value.length() > 0) {
 
 					// update display
 					selectedMemo.setText(value);
@@ -614,6 +627,7 @@ public class DisplayActivity extends Activity {
 							memo.setContent(value);
 							memo.setOpacity(opacity);
 							dbhelper.updateMemo(memo);
+							break;
 						}
 					}
 					

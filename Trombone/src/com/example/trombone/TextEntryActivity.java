@@ -29,6 +29,12 @@ public class TextEntryActivity extends Activity {
         } catch (Exception e) {
         }
         // value
+        
+        if (!getIntent().getBooleanExtra("deletable", false)) {
+        	findViewById(R.id.btnDelete).setVisibility(View.GONE);
+        } else {
+        	findViewById(R.id.btnDelete).setVisibility(View.VISIBLE);
+        }
 
         try {
             et = ((EditText) findViewById(R.id.txtValue));
@@ -41,6 +47,13 @@ public class TextEntryActivity extends Activity {
             @Override
             public void onClick(View v) {
                 executeDone();
+            }
+        });
+        ((Button) findViewById(R.id.btnDelete)).setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                executeDelete();
             }
         });
     }
@@ -56,8 +69,15 @@ public class TextEntryActivity extends Activity {
      */
     private void executeDone() {
         Intent resultIntent = new Intent();
+        resultIntent.putExtra("delete", false);
         resultIntent.putExtra("value", TextEntryActivity.this.et.getText().toString());
         resultIntent.putExtra("opacity", ((SeekBar) findViewById(R.id.opacityBar)).getProgress());
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();
+    }
+    private void executeDelete() {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("delete", true);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
