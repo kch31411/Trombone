@@ -17,6 +17,9 @@ import android.view.WindowManager;
  * @see SystemUiHider
  */
 public class MainUIActivity extends Activity {
+	public final static int CALIBRATION = 3;
+	
+	private int calib_id = -1;
 	
 	double[] pitches = {261.626, 277.183, 293.665, 311.127, 329.628, 
 			349.228, 369.994, 391.995, 415.305, 440.000, 466.164,
@@ -61,17 +64,19 @@ public class MainUIActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(MainUIActivity.this,
 						CalibrationActivity.class);
+				intent.putExtra("calib_id", calib_id);  // XXX : to check whether it works. move it to music sheet activity later
 		
-				startActivityForResult(intent,3);
+				startActivityForResult(intent,CALIBRATION);
 			}
 		});
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    if (resultCode == RESULT_OK && requestCode == 3) {
+	    if (resultCode == RESULT_OK && requestCode == CALIBRATION) {
 	        if (data.hasExtra("calib2main")) {
 	        	pitches = data.getExtras().getDoubleArray("calib2main");
+	        	calib_id = data.getIntExtra("calib_id", -1);
 	            /*Toast.makeText(this, pitches[0]+"",
 	                Toast.LENGTH_SHORT).show();*/
 	        }

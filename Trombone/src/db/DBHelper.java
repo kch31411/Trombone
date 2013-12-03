@@ -24,6 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String NOTE_TABLE_SHEETS = "notes";
 	private static final String MEMO_TABLE_SHEETS = "memos";
 	private static final String HISTORY_TABLE_SHEETS = "histories";
+	private static final String CALIB_TABLE_SHEETS = "calibration_data";
 	
 	// Sheets Table Columns names
 	private static final String MUSICSHEET_KEY_ID = "id";
@@ -54,6 +55,10 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String HISTORY_KEY_DATE = "date";
 	private static final String HISTORY_KEY_SCORE = "score";
 	private static final String HISTORY_KEY_MUSICSHEET = "musicsheet_id"; // foreign key
+
+	private static final String CALIB_KEY_ID = "id"; // primary key
+	private static final String CALIB_KEY_NAME = "name";
+	private static final String CALIB_KEY_PATH = "file_path";
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -108,6 +113,14 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "FOREIGN KEY(" + HISTORY_KEY_MUSICSHEET + ") REFERENCES musicsheets(id)" 
 				+ ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
+		
+		Log.d("aaa", "SHEETHELPER onCreate above CALIB");
+		CREATE_SHEETS_TABLE = "CREATE TABLE " + CALIB_TABLE_SHEETS + "("
+				+ CALIB_KEY_ID + " INTEGER PRIMARY KEY," 
+				+ CALIB_KEY_NAME + " TEXT,"
+				+ CALIB_KEY_PATH + " TEXT"
+				+ ")";
+		db.execSQL(CREATE_SHEETS_TABLE);
 	}
 	
 	// Upgrading database
@@ -117,7 +130,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + MUSICSHEET_TABLE_SHEETS);
 		db.execSQL("DROP TABLE IF EXISTS " + NOTE_TABLE_SHEETS);
 		db.execSQL("DROP TABLE IF EXISTS " + MEMO_TABLE_SHEETS);
-		db.execSQL("DROP TABLE IF EXISTS " + HISTORY_TABLE_SHEETS);
+		db.execSQL("DROP TABLE IF EXISTS " + HISTORY_TABLE_SHEETS);;
+		db.execSQL("DROP TABLE IF EXISTS " + CALIB_TABLE_SHEETS);
 		
 		// Create tables again
 		onCreate(db);
@@ -435,4 +449,40 @@ public class DBHelper extends SQLiteOpenHelper {
 			return historyList;
 		}
 	/////////////////////////////////////////////////////////////////////////
+	
+	/*/////////////////////////////////////////////////////////////////////////
+	 * Calibration
+	 */////////////////////////////////////////////////////////////////////////
+	// 새로운 Calibration data를 추가
+	public long addCalibrationData(CalibrationData calibrationData) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		ContentValues values = new ContentValues();
+		values.put(CALIB_KEY_NAME, calibrationData.getName());
+		values.put(CALIB_KEY_PATH, calibrationData.getFile_path());
+		
+		// Inserting Row
+		long id = db.insert(CALIB_TABLE_SHEETS, null, values);
+		db.close();
+		
+		return id;
+	}
+	
+	// id 에 해당하는 Calibration data 객체 가져오기
+	public CalibrationData getCalibrationData(int id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		Cursor cursor = db.query(CALIB_TABLE_SHEETS, new String[] { CALIB_KEY_ID, 
+				CALIB_KEY_NAME, CALIB_KEY_PATH }, CALIB_KEY_ID + "=?",
+				new String[] { String.valueOf(id) }, null, null, null, null);
+		if ( cursor != null )
+			cursor.moveToFirst();
+		
+		CalibrationData cd = new CalibrationData(
+				Integer.parseInt(cursor.getString(0)),
+				cursor.getString(1),
+				cursor.getString(2));
+		
+		return cd;
+	}
 }

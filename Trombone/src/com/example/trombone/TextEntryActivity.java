@@ -3,6 +3,7 @@ package com.example.trombone;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -34,6 +35,14 @@ public class TextEntryActivity extends Activity {
         	findViewById(R.id.btnDelete).setVisibility(View.GONE);
         } else {
         	findViewById(R.id.btnDelete).setVisibility(View.VISIBLE);
+        }
+        
+        if (!getIntent().getBooleanExtra("enterOpacity", true)) {
+        	findViewById(R.id.textView1).setVisibility(View.GONE);
+        	findViewById(R.id.opacityBar).setVisibility(View.GONE);
+        } else {
+        	findViewById(R.id.textView1).setVisibility(View.VISIBLE);
+        	findViewById(R.id.opacityBar).setVisibility(View.VISIBLE);
         }
 
         try {
