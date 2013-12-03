@@ -18,7 +18,6 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Html;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -31,7 +30,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.Memo;
 import classes.Note;
@@ -53,7 +51,16 @@ public class DisplayActivity extends Activity {
 	int frequency = 8000*2;
 	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+	
+	// for memo modify
+	private TextView selectedMemo;
+	private ArrayList<Memo> memoList = new ArrayList<Memo>();  // TODO get memoList from db
+	
+	// music sheet information
+	private int music_sheet_id = 1;  // TODO : get id from select activity
+	private int page_num = 1;  // TODO : page related works
 
+	DBHelper dbhelper = new DBHelper(this);
 
 	// 시작 위치를 저장을 위한 변수 
 	private float mLastMotionX = 0;
@@ -233,7 +240,6 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(309,4));
 		music_sheet.add(new Note(306,4));
 */
-		
 		music_sheet.add(new Note(406, 8, true));
 		music_sheet.add(new Note(406,2));
 		music_sheet.add(new Note(408,2));
@@ -406,6 +412,43 @@ public class DisplayActivity extends Activity {
 		mHandler = new Handler();
 
 		mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+		
+		// show existing memos
+		// TODO : update when page is changed
+		memoList = dbhelper.getMemos(music_sheet_id, page_num);
+		showMemos(memoList);
+	}
+	
+	private void showMemos(ArrayList<Memo> memos) {
+		for (Memo memo : memos) {
+			FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+
+			TextView memoView = new TextView(this);
+			memoView.setText(memo.getContent());
+			memoView.setLayoutParams(new LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			memoView.setX(memo.getX());
+			memoView.setY(memo.getY());
+			memoView.setTextColor(Color.argb(memo.getOpacity(), 255, 0, 0));
+			memoView.setTextSize(30);
+			
+			memo.setTv(memoView);
+			
+			memoView.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					selectedMemo = (TextView) v;
+					
+					Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
+					foo.putExtra("value", ((TextView) v).getText().toString());
+					foo.putExtra("deletable", true);
+					DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
+				}
+			});
+
+			f.addView(memoView);
+		}
 	}
 
 	@Override
@@ -501,7 +544,8 @@ public class DisplayActivity extends Activity {
 
 	public boolean performLongClick() {
 		Intent foo = new Intent(this, TextEntryActivity.class);
-		foo.putExtra("value", "if modification, original value.");
+		foo.putExtra("value", "");
+		foo.putExtra("deletable", false);
 		this.startActivityForResult(foo, MEMO_ADD);
 
 		return true;
@@ -531,17 +575,21 @@ public class DisplayActivity extends Activity {
 					memoView.setTextSize(30);
 
 					Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
-							opacity, 1, value, 1); // XXX : to be fixed : page, musicsheet id, id
-					DBHelper helper = new DBHelper(this);
-					int id = (int) helper.addMemo(memo);
+							opacity, page_num, value, music_sheet_id, memoView);
+					int id = (int) dbhelper.addMemo(memo);
 					memo.setId(id);
+					
+					memoList.add(memo);
 					
 					memoView.setOnClickListener(new View.OnClickListener() {
 
 						@Override
 						public void onClick(View v) {
+							selectedMemo = (TextView) v;
+							
 							Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
 							foo.putExtra("value", ((TextView) v).getText().toString());
+							foo.putExtra("deletable", true);
 							DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
 						}
 					});
@@ -552,6 +600,40 @@ public class DisplayActivity extends Activity {
 			}
 			break;
 		case MEMO_MODIFY:
+			try {
+				boolean deleted = data.getBooleanExtra("delete", false);
+				String value = data.getStringExtra("value");
+				int opacity = data.getIntExtra("opacity", 255);
+				FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+				
+				if (deleted) {
+					// update memo DB
+					for (Memo memo : memoList) {
+						if (memo.getTv().equals(selectedMemo)) {
+							dbhelper.deleteMemo(memo);
+							break;
+						}
+					}
+					f.removeView(selectedMemo);
+				} else if (value != null && value.length() > 0) {
+
+					// update display
+					selectedMemo.setText(value);
+					selectedMemo.setTextColor(Color.argb(opacity, 255, 0, 0));
+
+					// update memo DB
+					for (Memo memo : memoList) {
+						if (memo.getTv().equals(selectedMemo)) {
+							memo.setContent(value);
+							memo.setOpacity(opacity);
+							dbhelper.updateMemo(memo);
+							break;
+						}
+					}
+					
+				}
+			} catch (Exception e) {
+			}
 			break;
 		default:
 			break;

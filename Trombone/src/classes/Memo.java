@@ -1,11 +1,13 @@
 package classes;
 
+import android.widget.TextView;
+
 public class Memo {
 	public Memo() {
 		super();
 	}
 	public Memo(int id, float x, float y, int opacity, int page, String content,
-			int musicsheet_id) {
+			int musicsheet_id, TextView tv) {
 		super();
 		this.id = id;
 		this.x = x;
@@ -14,6 +16,7 @@ public class Memo {
 		this.page = page;
 		this.content = content;
 		this.musicsheet_id = musicsheet_id;
+		this.tv = tv;
 	}
 	public int getId() {
 		return id;
@@ -24,13 +27,13 @@ public class Memo {
 	public float getX() {
 		return x;
 	}
-	public void setX(int x) {
+	public void setX(float x) {
 		this.x = x;
 	}
 	public float getY() {
 		return y;
 	}
-	public void setY(int y) {
+	public void setY(float y) {
 		this.y = y;
 	}
 	public int getOpacity() {
@@ -57,6 +60,12 @@ public class Memo {
 	public void setMusicsheet_id(int musicsheet_id) {
 		this.musicsheet_id = musicsheet_id;
 	}
+	public TextView getTv() {
+		return tv;
+	}
+	public void setTv(TextView tv) {
+		this.tv = tv;
+	}
 	
 	private int id;
 	private float x;
@@ -65,4 +74,5 @@ public class Memo {
 	private int page;
 	private String content;
 	private int musicsheet_id;
+	private TextView tv;
 }

@@ -45,7 +45,6 @@ public class MusicsheetSelectActivity extends Activity {
 		public SpecialAdapter(Context context, int resource,
 				List<String> objects) {
 			super(context, resource, objects);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

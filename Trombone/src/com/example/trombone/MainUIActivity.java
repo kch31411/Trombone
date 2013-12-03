@@ -1,21 +1,14 @@
 package com.example.trombone;
 
 
-import java.util.List;
-
-import classes.MusicSheet;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-import classes.MusicSheet;
 import android.view.Window;
 import android.view.WindowManager;
-
-import db.*;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
