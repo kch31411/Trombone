@@ -83,8 +83,13 @@ public class MusicsheetSelectActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				if ( selectedPos == -1 )
+					return;
+				
+				int id = ids.get(selectedPos);
 				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
 				intent.putExtra("main2display", getIntent().getDoubleArrayExtra("main2display"));
+				intent.putExtra("musicsheet_id", id);
 				startActivity(intent);
 			}
 
