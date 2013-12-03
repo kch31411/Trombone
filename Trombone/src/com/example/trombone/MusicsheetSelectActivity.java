@@ -97,6 +97,10 @@ public class MusicsheetSelectActivity extends Activity {
 
 		});
 
+		refreshListView();
+	}
+	
+	public void refreshListView() {
 		DBHelper db = new DBHelper(this); 
 
 		List<MusicSheet> sheets = db.getAllMusicSheets();
@@ -113,7 +117,6 @@ public class MusicsheetSelectActivity extends Activity {
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setAdapter(adapter);
 	}
-
 	public void onActivityResult(int requestCode, int resultCode, Intent result) 
 	{
 		Log.d("aaa", "aaaa");
@@ -197,6 +200,7 @@ public class MusicsheetSelectActivity extends Activity {
 			 		}
 				}
 		 		//////
+		 		refreshListView();
 		 		
 			} catch (Exception e) {
 				e.printStackTrace();
