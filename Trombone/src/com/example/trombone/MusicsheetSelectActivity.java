@@ -14,8 +14,7 @@ import classes.Note;
 
 import com.example.trombone.util.SystemUiHider;
 
-import db.DBNoteHelper;
-import db.DBSheetHelper;
+import db.DBHelper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,7 +26,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -99,7 +97,7 @@ public class MusicsheetSelectActivity extends Activity {
 
 		});
 
-		DBSheetHelper db = new DBSheetHelper(this); 
+		DBHelper db = new DBHelper(this); 
 
 		List<MusicSheet> sheets = db.getAllMusicSheets();
 		ArrayList<String> sheetNames = new ArrayList<String>();
@@ -169,24 +167,22 @@ public class MusicsheetSelectActivity extends Activity {
 				}
 				
 				// Make MusicSheet DB
-				DBSheetHelper db = new DBSheetHelper(this); 
+				DBHelper db = new DBHelper(this); 
 				Log.d("Insert: ", "Inserting ..");
-				db.addMusicSheet(new MusicSheet(name, beat, page));
-				int musicsheet_id = db.getMusicSheetsCount() - 1;
+				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page));
 				Log.d("Insert: ", "After inserting MUSICSHEET to DB");
 				
 				// Make Note DB
-				DBNoteHelper notedb = new DBNoteHelper(this);
 				for (Note note : notes) {
 					Log.d("Insert: ", "Inserting ..");
 					note.setMusicsheet_id(musicsheet_id);
-					notedb.addNote(note);
+					db.addNote(note);
 					Log.d("Insert: ", "After inserting NOTE to DB");
 		 		}
 				
 				// DB TEST
 				for ( int i = 1; i <= page; i++ ) {
-					List<Note> notesOnDB = notedb.getNotes(musicsheet_id, i);
+					List<Note> notesOnDB = db.getNotes(musicsheet_id, i);
 					for (Note note : notesOnDB ) {
 						String log = "Id: " + note.getId() + 
 								", Page: " + note.getPage() + 
