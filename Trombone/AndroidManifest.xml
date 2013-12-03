@@ -19,18 +19,21 @@
         <activity
             android:name="com.example.trombone.DisplayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+			android:screenOrientation="portrait"
             android:label="@string/title_activity_display"
             android:theme="@style/FullscreenTheme" >
         </activity>
         <activity
             android:name="com.example.trombone.CalibrationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+			android:screenOrientation="portrait"
             android:label="@string/title_activity_calibration"
             android:theme="@style/FullscreenTheme" >
         </activity>
         <activity
             android:name="com.example.trombone.MainUIActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+			android:screenOrientation="portrait"
             android:label="@string/title_activity_main_ui"
             android:theme="@style/FullscreenTheme" >
             <intent-filter>
@@ -42,6 +45,7 @@
         <activity
             android:name="com.example.trombone.HistoryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+			android:screenOrientation="portrait"
             android:label="@string/title_activity_history"
             android:theme="@style/FullscreenTheme" >
         </activity>
@@ -52,6 +56,7 @@
         <activity
             android:name="com.example.trombone.MusicsheetSelectActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+			android:screenOrientation="portrait"
             android:label="@string/title_activity_musicsheet_select"
             android:theme="@style/FullscreenTheme" >
         </activity>
