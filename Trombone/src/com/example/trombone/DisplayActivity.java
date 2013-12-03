@@ -33,7 +33,7 @@ import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.Memo;
 import classes.Note;
-import db.DBMemoHelper;
+import db.DBHelper;
 
 
 /**
@@ -531,7 +531,7 @@ public class DisplayActivity extends Activity {
 
 					Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
 							opacity, 1, value, 1); // XXX : to be fixed : page, musicsheet id, id
-					DBMemoHelper helper = new DBMemoHelper(this);
+					DBHelper helper = new DBHelper(this);
 					int id = (int) helper.addMemo(memo);
 					memo.setId(id);
 					

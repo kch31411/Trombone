@@ -65,20 +65,6 @@ public class MainUIActivity extends Activity {
 				startActivityForResult(intent,3);
 			}
 		});
-
-		/*DBSheetHelper db = new DBSheetHelper(this); 
-		Log.d("Insert: ", "Inserting ..");
-		db.addMusicSheet(new MusicSheet("a",1,1));
-		db.addMusicSheet(new MusicSheet("b",2,1));
-		db.addMusicSheet(new MusicSheet("c",1,3));
-		
-		Log.d("Reading: ", "Reading all contacts..");
-		List<MusicSheet> sheets = db.getAllMusicSheets();
-		
-		for (MusicSheet sheet : sheets) {
-			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
-			Log.d("read - ", log);
- 		}*/
 	}
 	
 	@Override
