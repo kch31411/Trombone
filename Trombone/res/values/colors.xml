@@ -2,5 +2,5 @@
 
     <color name="black_overlay">#66000000</color>
     <color name="black">#00000000</color>
-
+	<color name="selecteditem">#ece9dd00</color>
 </resources>

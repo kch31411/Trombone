@@ -1,11 +1,8 @@
 package com.example.trombone;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -39,6 +37,7 @@ import android.util.Log;
  */
 public class MusicsheetSelectActivity extends Activity {
 	public static final int ADD_SHEET = 1;
+	public int selectedPos = -1;
 
 	private class SpecialAdapter extends ArrayAdapter<String> {
 		public SpecialAdapter(Context context, int resource,
@@ -53,6 +52,11 @@ public class MusicsheetSelectActivity extends Activity {
 				TextView tv = new TextView(getApplicationContext());
 				tv.setTextColor(getResources().getColor(R.color.black_overlay));
 				tv.setTextSize(getResources().getDimension(R.dimen.musicsheetname));
+				
+				if ( selectedPos == position ) {
+					tv.setBackgroundColor(getResources().getColor(R.color.selecteditem));
+				}
+				
 				convertView = tv;
 			}
 
@@ -86,7 +90,6 @@ public class MusicsheetSelectActivity extends Activity {
 
 		ImageView addmusicsheetBtnCall = (ImageView)findViewById(R.id.addmusicsheetbutton);
 		addmusicsheetBtnCall.setOnClickListener(new ImageView.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -94,10 +97,27 @@ public class MusicsheetSelectActivity extends Activity {
 				intent.setType("file/*");
 				startActivityForResult(intent, ADD_SHEET);
 			}
-
 		});
-
+		
+		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
+		lv.setOnItemClickListener( new ListViewItemClickListener() );
+		//lv.setOnItemLongClickListener( new ListViewItemClickListener() );
 		refreshListView();
+	}
+	
+	private class ListViewItemClickListener implements AdapterView.OnItemClickListener {		
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			if ( selectedPos == position )
+				selectedPos =-1;
+			else
+				selectedPos = position;
+			
+			String log = "id: " + selectedPos;
+			Log.d("aa", log);
+			refreshListView();
+		}
+		
 	}
 	
 	public void refreshListView() {
@@ -109,7 +129,7 @@ public class MusicsheetSelectActivity extends Activity {
 		adapter = new SpecialAdapter(this, android.R.layout.simple_list_item_1, sheetNames);
 
 		for (MusicSheet sheet : sheets) {
-			String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
+			//String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
 			sheetNames.add(sheet.getName());
 			adapter.notifyDataSetChanged();
 		}
@@ -117,6 +137,7 @@ public class MusicsheetSelectActivity extends Activity {
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setAdapter(adapter);
 	}
+	
 	public void onActivityResult(int requestCode, int resultCode, Intent result) 
 	{
 		Log.d("aaa", "aaaa");
@@ -169,6 +190,8 @@ public class MusicsheetSelectActivity extends Activity {
 					}
 				}
 				
+				scan.close();
+				
 				// Make MusicSheet DB
 				DBHelper db = new DBHelper(this); 
 				Log.d("Insert: ", "Inserting ..");
@@ -201,7 +224,6 @@ public class MusicsheetSelectActivity extends Activity {
 				}
 		 		//////
 		 		refreshListView();
-		 		
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
