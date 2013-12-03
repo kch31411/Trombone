@@ -7,6 +7,7 @@ public class Note {
 	private int pitch; // temporary set 0 as G
 	private int beat; // no saenggak yet
 	private boolean isRest;
+	private boolean isAccidental;
 	public int x;
 	public int y;
 	private int musicsheet_id;
@@ -21,6 +22,7 @@ public class Note {
 		this.pitch = pitch;
 		this.beat = beat;
 		this.isRest = rest;
+		this.isAccidental = false;
 		this.x = -100;
 		this.y = -100;
 	}
@@ -29,6 +31,7 @@ public class Note {
 		this.pitch = pitch;
 		this.beat = beat;
 		this.isRest = false;
+		this.isAccidental = false;
 		this.x = -100;
 		this.y = -100;
 	}
@@ -37,6 +40,25 @@ public class Note {
 		this.pitch = pitch;
 		this.beat = 1;
 		this.isRest = false;
+		this.isAccidental = false;
+		this.x = -100;
+		this.y = -100;
+	}
+
+	public Note(boolean isAccidental, int pitch, int beat) {
+		this.pitch = pitch;
+		this.beat = beat;
+		this.isRest = false;
+		this.isAccidental = isAccidental;
+		this.x = -100;
+		this.y = -100;
+	}
+	
+	public Note(boolean isAccidental, int pitch) {
+		this.pitch = pitch;
+		this.beat = 1;
+		this.isRest = false;
+		this.isAccidental = isAccidental;
 		this.x = -100;
 		this.y = -100;
 	}
@@ -116,6 +138,10 @@ public class Note {
 		return isRest;
 	}
 
+	public boolean isAccidental(){
+		return isAccidental;		
+	}
+	
 	public void setRest(boolean isRest) {
 		this.isRest = isRest;
 	}
