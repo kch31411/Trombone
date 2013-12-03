@@ -83,11 +83,11 @@ public class DisplayActivity extends Activity {
 
 	double[] pitches = { 523.25, 587.32 - 25, 659.25, 698.45 - 10,
 			783.99 - 35, 880.00 - 40, 987.76 - 90, 1046.50 - 15, 1174.66 };
-
+			
 	double[] ref_pitches;
 	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
 	int[] yPosition_flat={0,1,1,2,2,3,4,4,5,5,6,6};
-	String title = "Always with me";
+	String title = "sample title";
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -107,7 +107,8 @@ public class DisplayActivity extends Activity {
 	float ratio = 1;
 	int bar_length = 12; 
 	boolean is_flat = true;
-
+	int key_num = 0;
+	
 	int lastNoteIndex;
 	int side_padding = 40;
 
@@ -156,7 +157,8 @@ public class DisplayActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		Intent receivedIntent = getIntent();
-		ref_pitches=receivedIntent.getDoubleArrayExtra("main2display");
+		ref_pitches = receivedIntent.getDoubleArrayExtra("main2display");
+		
 		if(is_flat)
 			yPosition=yPosition_flat;
 
@@ -241,11 +243,12 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(306,4));
 */
 		music_sheet.add(new Note(406, 8, true));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(410,2));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(501,6));
+		music_sheet.add(new Note(true, 402, 8));
+		music_sheet.add(new Note(true, 404,4));
+		music_sheet.add(new Note(true, 407,2));
+		music_sheet.add(new Note(true, 409,3));
+		music_sheet.add(new Note(true, 411,2));
+		music_sheet.add(new Note(true, 411,6));
 		music_sheet.add(new Note(410,2));
 
 		music_sheet.add(new Note(408,4));
@@ -402,7 +405,16 @@ public class DisplayActivity extends Activity {
 			clef.setImageMatrix(m);
 
 			l.addView(clef);
-
+			
+			if(key_num<0)
+			{
+				//// sharp / flat key goes here
+			}
+			else if(key_num>0)
+			{
+				
+			}
+				
 			y += 150;
 		}
 
@@ -783,6 +795,31 @@ public class DisplayActivity extends Activity {
 			l.addView(noteImage);
 			noteViews.add(noteImage);
 
+			if (note.isAccidental()) {
+				ImageView accidental = new ImageView(getBaseContext());
+				Bitmap bmA;
+				
+				
+				if (is_flat)
+					bmA = BitmapFactory.decodeResource(getResources(),
+							R.drawable.flat);
+				else
+					bmA = BitmapFactory.decodeResource(getResources(),
+							R.drawable.sharp);
+												
+				accidental.setImageBitmap(bmA);
+				accidental.setLayoutParams(new LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+				accidental.setPadding(x-20, getNotePosition(note)+y+35, 0, 0);
+				
+				Matrix mA = new Matrix();
+				mA.postScale((float) 0.17, (float) 0.17);
+				accidental.setScaleType(ScaleType.MATRIX);
+				accidental.setImageMatrix(mA);
+				l.addView(accidental);
+				noteViews.add(accidental);
+			}
+
 			x += (int)(14*note.getBeat()/((double)bar_length)*16) ;
 		}
 		return -1;
@@ -899,7 +936,7 @@ public class DisplayActivity extends Activity {
 				paint.setColor(Color.rgb(250, 100, 255));
 				curCanvas.drawLine(x, downy, x, upy, paint);
 			}
-
+						
 			if (true) {
 				if (sampleCount < sampleSize) {
 					for (int i = 0; i < toTransform[0].length; i++) {
