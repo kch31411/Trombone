@@ -1,11 +1,8 @@
 package com.example.trombone;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,7 +24,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,7 +42,6 @@ public class MusicsheetSelectActivity extends Activity {
 		public SpecialAdapter(Context context, int resource,
 				List<String> objects) {
 			super(context, resource, objects);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

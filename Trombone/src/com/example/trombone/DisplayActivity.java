@@ -18,7 +18,6 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Html;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -31,7 +30,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.Memo;
 import classes.Note;
@@ -53,7 +51,9 @@ public class DisplayActivity extends Activity {
 	int frequency = 8000*2;
 	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-
+	
+	// for memo modify
+	private TextView selectedMemo;
 
 	// 시작 위치를 저장을 위한 변수 
 	private float mLastMotionX = 0;
@@ -233,7 +233,6 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(309,4));
 		music_sheet.add(new Note(306,4));
 */
-		
 		music_sheet.add(new Note(406, 8, true));
 		music_sheet.add(new Note(406,2));
 		music_sheet.add(new Note(408,2));
@@ -540,6 +539,8 @@ public class DisplayActivity extends Activity {
 
 						@Override
 						public void onClick(View v) {
+							selectedMemo = (TextView) v;
+							
 							Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
 							foo.putExtra("value", ((TextView) v).getText().toString());
 							DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
@@ -552,6 +553,21 @@ public class DisplayActivity extends Activity {
 			}
 			break;
 		case MEMO_MODIFY:
+			try {
+				String value = data.getStringExtra("value");
+				int opacity = data.getIntExtra("opacity", 255);
+
+				if (value != null && value.length() > 0) {
+					FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+
+					selectedMemo.setText(value);
+					selectedMemo.setTextColor(Color.argb(opacity, 255, 0, 0));
+
+					// TODO : update memo DB
+					// should I change selectedMemo to memo class and make memo class to contain view.
+				}
+			} catch (Exception e) {
+			}
 			break;
 		default:
 			break;
