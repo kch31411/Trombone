@@ -316,7 +316,8 @@ public class DBHelper extends SQLiteOpenHelper {
 				Integer.parseInt(cursor.getString(3)),
 				Integer.parseInt(cursor.getString(4)),
 				cursor.getString(5),
-				Integer.parseInt(cursor.getString(6))
+				Integer.parseInt(cursor.getString(6)),
+				null		// TODO : this should updated on Display activity
 				);
 		
 		return memo;

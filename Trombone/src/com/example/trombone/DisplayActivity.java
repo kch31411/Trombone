@@ -54,6 +54,13 @@ public class DisplayActivity extends Activity {
 	
 	// for memo modify
 	private TextView selectedMemo;
+	private ArrayList<Memo> memoList = new ArrayList<Memo>();  // TODO get memoList from db
+	
+	// music sheet information
+	private int music_sheet_id = 1;  // TODO : get id from select activity
+	private int page_num = 1;  // TODO : page related works
+
+	DBHelper dbhelper = new DBHelper(this);
 
 	// 시작 위치를 저장을 위한 변수 
 	private float mLastMotionX = 0;
@@ -530,10 +537,11 @@ public class DisplayActivity extends Activity {
 					memoView.setTextSize(30);
 
 					Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
-							opacity, 1, value, 1); // XXX : to be fixed : page, musicsheet id, id
-					DBHelper helper = new DBHelper(this);
-					int id = (int) helper.addMemo(memo);
+							opacity, page_num, value, music_sheet_id, memoView);
+					int id = (int) dbhelper.addMemo(memo);
 					memo.setId(id);
+					
+					memoList.add(memo);
 					
 					memoView.setOnClickListener(new View.OnClickListener() {
 
@@ -560,11 +568,19 @@ public class DisplayActivity extends Activity {
 				if (value != null && value.length() > 0) {
 					FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
 
+					// update display
 					selectedMemo.setText(value);
 					selectedMemo.setTextColor(Color.argb(opacity, 255, 0, 0));
 
-					// TODO : update memo DB
-					// should I change selectedMemo to memo class and make memo class to contain view.
+					// update memo DB
+					for (Memo memo : memoList) {
+						if (memo.getTv().equals(selectedMemo)) {
+							memo.setContent(value);
+							memo.setOpacity(opacity);
+							dbhelper.updateMemo(memo);
+						}
+					}
+					
 				}
 			} catch (Exception e) {
 			}
