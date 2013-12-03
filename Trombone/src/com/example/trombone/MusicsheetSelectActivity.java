@@ -38,6 +38,8 @@ import android.util.Log;
 public class MusicsheetSelectActivity extends Activity {
 	public static final int ADD_SHEET = 1;
 	public int selectedPos = -1;
+	public ArrayList<Integer> ids = new ArrayList<Integer>();
+	public DBHelper db = new DBHelper(this); 
 
 	private class SpecialAdapter extends ArrayAdapter<String> {
 		public SpecialAdapter(Context context, int resource,
@@ -88,6 +90,7 @@ public class MusicsheetSelectActivity extends Activity {
 
 		});
 
+		// Add musicsheet
 		ImageView addmusicsheetBtnCall = (ImageView)findViewById(R.id.addmusicsheetbutton);
 		addmusicsheetBtnCall.setOnClickListener(new ImageView.OnClickListener() {
 			@Override
@@ -99,6 +102,24 @@ public class MusicsheetSelectActivity extends Activity {
 			}
 		});
 		
+		// Delete musicsheet
+		ImageView deletemusicsheetBtnCall = (ImageView)findViewById(R.id.deletemusicsheetbutton);
+		deletemusicsheetBtnCall.setOnClickListener(new ImageView.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if ( selectedPos == -1 )
+					return;
+				
+				int id = ids.get(selectedPos);
+				MusicSheet musicsheet = db.getMusicSheet(id);
+				db.deleteMusicSheet(musicsheet);
+				selectedPos = -1;
+				
+				refreshListView();
+			}
+		});
+			
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setOnItemClickListener( new ListViewItemClickListener() );
 		//lv.setOnItemLongClickListener( new ListViewItemClickListener() );
@@ -113,23 +134,23 @@ public class MusicsheetSelectActivity extends Activity {
 			else
 				selectedPos = position;
 			
-			String log = "id: " + selectedPos;
-			Log.d("aa", log);
 			refreshListView();
 		}
 		
 	}
 	
 	public void refreshListView() {
-		DBHelper db = new DBHelper(this); 
+		ids.clear();
 
 		List<MusicSheet> sheets = db.getAllMusicSheets();
 		ArrayList<String> sheetNames = new ArrayList<String>();
 		SpecialAdapter adapter;
 		adapter = new SpecialAdapter(this, android.R.layout.simple_list_item_1, sheetNames);
 
+		int index = 0;
 		for (MusicSheet sheet : sheets) {
-			//String log = "Id: " + sheet.getId() + ", Name: " + sheet.getName() + ", Beat: " + sheet.getBeat() + ", Pages: " + sheet.getPages();
+			ids.add(index, sheet.getId()); // musicsheet id를 모아놓은 ArrayList
+			
 			sheetNames.add(sheet.getName());
 			adapter.notifyDataSetChanged();
 		}
