@@ -412,6 +412,42 @@ public class DisplayActivity extends Activity {
 		mHandler = new Handler();
 
 		mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+		
+		// show existing memos
+		// TODO : update when page is changed
+		memoList = dbhelper.getMemos(music_sheet_id, page_num);
+		showMemos(memoList);
+	}
+	
+	private void showMemos(ArrayList<Memo> memos) {
+		for (Memo memo : memos) {
+			FrameLayout f = (FrameLayout) findViewById(R.id.music_sheet_background);
+
+			TextView memoView = new TextView(this);
+			memoView.setText(memo.getContent());
+			memoView.setLayoutParams(new LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			memoView.setX(memo.getX());
+			memoView.setY(memo.getY());
+			memoView.setTextColor(Color.argb(memo.getOpacity(), 255, 0, 0));
+			memoView.setTextSize(30);
+			
+			memo.setTv(memoView);
+			
+			memoView.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					selectedMemo = (TextView) v;
+					
+					Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
+					foo.putExtra("value", ((TextView) v).getText().toString());
+					DisplayActivity.this.startActivityForResult(foo, MEMO_MODIFY);
+				}
+			});
+
+			f.addView(memoView);
+		}
 	}
 
 	@Override
@@ -507,7 +543,7 @@ public class DisplayActivity extends Activity {
 
 	public boolean performLongClick() {
 		Intent foo = new Intent(this, TextEntryActivity.class);
-		foo.putExtra("value", "if modification, original value.");
+		foo.putExtra("value", "");
 		this.startActivityForResult(foo, MEMO_ADD);
 
 		return true;

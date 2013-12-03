@@ -85,8 +85,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		Log.d("aaa", "SHEETHELPER onCreate above MEMO");
 		CREATE_SHEETS_TABLE = "CREATE TABLE " + MEMO_TABLE_SHEETS + "("
 				+ MEMO_KEY_ID + " INTEGER PRIMARY KEY," 
-				+ MEMO_KEY_X + " INTEGER,"
-				+ MEMO_KEY_Y + " INTEGER,"
+				+ MEMO_KEY_X + " FLOAT,"
+				+ MEMO_KEY_Y + " FLOAT,"
 				+ MEMO_KEY_OPACITY + " INTEGER,"
 				+ MEMO_KEY_PAGE + " INTEGER,"
 				+ MEMO_KEY_CONTENT + " TEXT,"
@@ -311,21 +311,21 @@ public class DBHelper extends SQLiteOpenHelper {
 			cursor.moveToFirst();
 		
 		Memo memo = new Memo(Integer.parseInt(cursor.getString(0)),
-				Integer.parseInt(cursor.getString(1)),
-				Integer.parseInt(cursor.getString(2)),
+				Float.parseFloat(cursor.getString(1)),
+				Float.parseFloat(cursor.getString(2)),
 				Integer.parseInt(cursor.getString(3)),
 				Integer.parseInt(cursor.getString(4)),
 				cursor.getString(5),
 				Integer.parseInt(cursor.getString(6)),
-				null		// TODO : this should updated on Display activity
+				null
 				);
 		
 		return memo;
 	}
 	
 	// musicsheet_id와 page가 주어질 떄 Memo 정보 가져오기
-	public List<Memo> getMemos(int musicsheet_id, int page) {
-		List<Memo> memoList = new ArrayList<Memo>();
+	public ArrayList<Memo> getMemos(int musicsheet_id, int page) {
+		ArrayList<Memo> memoList = new ArrayList<Memo>();
 		// Select All Query
 		String selectQuery = "SELECT * FROM " + MEMO_TABLE_SHEETS + 
 				" WHERE musicsheet_id= '" + musicsheet_id + "'"
@@ -339,8 +339,8 @@ public class DBHelper extends SQLiteOpenHelper {
 			do {
 				Memo memo = new Memo();
 				memo.setId(Integer.parseInt(cursor.getString(0)));
-				memo.setX(Integer.parseInt(cursor.getString(1)));
-				memo.setY(Integer.parseInt(cursor.getString(2)));
+				memo.setX(Float.parseFloat(cursor.getString(1)));
+				memo.setY(Float.parseFloat(cursor.getString(2)));
 				memo.setOpacity(Integer.parseInt(cursor.getString(3)));
 				memo.setPage(Integer.parseInt(cursor.getString(4)));
 				memo.setContent(cursor.getString(5));
