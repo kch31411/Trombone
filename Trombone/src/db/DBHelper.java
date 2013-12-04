@@ -485,4 +485,44 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		return cd;
 	}
+	
+	// get all id list from calibration
+	public List<Integer> getAllCalibrationId() {
+		List<Integer> idList = new ArrayList<Integer>();
+		// Select All Query
+		String selectQuery = "SELECT * FROM " + CALIB_TABLE_SHEETS;
+		
+		SQLiteDatabase db = this.getWritableDatabase();
+		Cursor cursor = db.rawQuery(selectQuery, null);
+		
+		// looping through all rows and adding to list
+		if ( cursor.moveToFirst() ) {
+			do {
+				idList.add(Integer.parseInt(cursor.getString(0)));
+			} while (cursor.moveToNext());
+		}
+		
+		// return sheet list
+		return idList;
+	}	
+	
+	public List<String> getAllCalibrationName() {
+		List<String> nameList = new ArrayList<String>();
+		// Select All Query
+		String selectQuery = "SELECT * FROM " + CALIB_TABLE_SHEETS;
+		
+		SQLiteDatabase db = this.getWritableDatabase();
+		Cursor cursor = db.rawQuery(selectQuery, null);
+		
+		// looping through all rows and adding to list
+		if ( cursor.moveToFirst() ) {
+			do {
+				nameList.add(cursor.getString(1));
+			} while (cursor.moveToNext());
+		}
+		
+		// return sheet list
+		return nameList;
+	}	
+	
 }

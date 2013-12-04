@@ -8,9 +8,7 @@ import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import classes.CalibrationData;
-import classes.Memo;
+import java.util.List;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -33,6 +31,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -42,8 +41,13 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
+import classes.CalibrationData;
+
+import com.example.trombone.util.SystemUiHider;
+
 import db.DBHelper;
 
 /**
@@ -72,7 +76,10 @@ public class CalibrationActivity extends Activity {
 	EditText refText;
 	
 	DBHelper dbhelper = new DBHelper(this);
+	public List<Integer> ids = new ArrayList<Integer>();
+	public List<String> names = new ArrayList<String>();
 
+	
 	int sampleSize = 10;
 	int sampleCount = 0;
 
@@ -85,8 +92,8 @@ public class CalibrationActivity extends Activity {
 
 	double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
 
-	String[] pitchName = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#",
-			"A", "A#", "B" };
+	String[] pitchName = { "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#",
+			"A ", "A#", "B " };
 	int[] yPosition = { 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6 };
 
 	double collected_Magnitude[] = new double[blockSize + 1];
@@ -192,6 +199,8 @@ public class CalibrationActivity extends Activity {
 
 		setContentView(R.layout.activity_calibration);
 		
+		refreshListView();
+		
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
 
@@ -263,7 +272,7 @@ public class CalibrationActivity extends Activity {
 				showPitch();
 			}
 		});
-
+		
 		LinearLayout button_L = (LinearLayout) findViewById(R.id.button_layout);
 		button_L.setPadding(100, 0, side_padding, 0);
 
@@ -517,10 +526,8 @@ public class CalibrationActivity extends Activity {
 			y += 150;
 		}
 		displayMusicSheet(0);
-		
-			
 	}
-
+	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case ENTER_NAME:
@@ -549,6 +556,7 @@ public class CalibrationActivity extends Activity {
 				CalibrationData calibrationData = new CalibrationData(-1, name, path); // XXX : is filepath correct?
 				int id = (int) dbhelper.addCalibrationData(calibrationData);
 				
+				//////////////////////////////////////////??????????????
 				Intent foo = new Intent();
 				foo.putExtra("calib2main", calibPitches);
 				foo.putExtra("myData2", "Data 2 value");
@@ -829,7 +837,7 @@ public class CalibrationActivity extends Activity {
 	public void showPitch() {
 		String s = "";
 		for (int i = 0; i < 12; i++) {
-			s += pitchName[i] + " : "
+			s += pitchName[i] + "\t :  "
 					+ Math.floor(pitches[i] * Math.pow(2, octave - 4) * 1000)
 					/ 1000;
 			if (Math.floor(pitches[i] * Math.pow(2, octave - 4) * 100) / 100 != Math
@@ -854,4 +862,29 @@ public class CalibrationActivity extends Activity {
 			}
 		}
 	}
+	
+	public void refreshListView() {
+		ids.clear();
+		names.clear();
+		
+		ids = dbhelper.getAllCalibrationId();
+		names = dbhelper.getAllCalibrationName();
+		
+		ArrayList<String> calib = new ArrayList<String>();
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+	                android.R.layout.simple_spinner_dropdown_item, calib);
+				
+		for (int i=0; i<names.size()&&i<ids.size(); i++)
+		{
+			calib.add(Integer.toString(ids.get(i))+" "+names.get(i));
+			adapter.notifyDataSetChanged();
+		}
+
+		Spinner spin =  (Spinner) findViewById(R.id.spinner_calib);
+		spin.setAdapter(adapter);
+		
+		// spin.getSelectedItem()
+
+	}
+	
 }
