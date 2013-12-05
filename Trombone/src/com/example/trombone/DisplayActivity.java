@@ -19,6 +19,7 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -49,6 +50,7 @@ public class DisplayActivity extends Activity {
 	
 	private TextView selectedMemo;	// for memo modify
 	private ArrayList<Memo> memoList = new ArrayList<Memo>();
+	private ArrayList<Note> noteList = new ArrayList<Note>();
 
 	// db helper
 	DBHelper dbhelper = new DBHelper(this);
@@ -77,11 +79,13 @@ public class DisplayActivity extends Activity {
 
 	RecordAudio recordTask;
 
+	// TODO : collect view variables in here.
+	TextView pageNumView;
 	ImageView trackingView;
 	ImageView currentSpec;
 	Bitmap curBitmap, rec1Bitmap, rec2Bitmap;
 	Canvas curCanvas, rec1Canvas, rec2Canvas;
-	Paint paint;
+	Paint paint = new Paint();
 
 	int width, height;
 	float ratio = 1;
@@ -99,8 +103,57 @@ public class DisplayActivity extends Activity {
 	double[][] toTransformSample = new double[blockSize * 2 + 1][sampleSize];
 
 	MusicSheet music_sheet;
-	ArrayList<ImageView> noteViews;
+	ArrayList<ImageView> noteViews =  new ArrayList<ImageView>();
 
+	@Override
+	protected void onStop(){
+		if (started) {
+			started = false;
+			recordTask.cancel(true);			
+		}
+		super.onStop();
+	}
+
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);  
+		//set up full screen
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		setContentView(R.layout.activity_display);
+
+		initialize();
+		drawBackground();
+		displayMusicSheet(0);
+		
+		if(is_flat)
+			yPositions=yPosition_flat;
+
+		// start button
+		startStopButton = (Button) findViewById(R.id.StartStopButton);
+		startStopButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				if (started) {
+					started = false;
+					startStopButton.setText("Start");
+					recordTask.cancel(true);
+					currentPosition = 0;
+					currentCount = 0;
+					currentError = 0;
+				} else {
+					started = true;
+					startStopButton.setText("Stop");
+					recordTask = new RecordAudio();
+					recordTask.execute();		// thread call
+				}
+			}
+		});
+		transformer = new RealDoubleFFT(blockSize * 2 + 1);
+	}
+	
 	private void displayMusicSheet(int start) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 
@@ -124,26 +177,37 @@ public class DisplayActivity extends Activity {
 		lastNoteIndex = note_index-1;
 	}
 
-	@Override
-	protected void onStop(){
-		if (started) {
-			started = false;
-			recordTask.cancel(true);			
-		}
-		super.onStop();
-		
-	}
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		Log.d("Deee", "Before create Display");
-		super.onCreate(savedInstanceState);
-
-		Intent receivedIntent = getIntent();
-		calibId = receivedIntent.getIntExtra("calib_id2play", -1);
+	// set initial data
+	private void initialize() {
+		// touch handler
+		mHandler = new Handler();
+		mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 		
+		// spectrum
+		currentSpec = (ImageView) findViewById(R.id.CurrentSpectrum);
+		curBitmap = Bitmap.createBitmap((int) 256, (int) 100,
+				Bitmap.Config.ARGB_8888);
+		curCanvas = new Canvas(curBitmap);
+		currentSpec.setImageBitmap(curBitmap);
+		
+		// view binding
+		resultText = (TextView) findViewById(R.id.resultText);
+		debugText = (TextView) findViewById(R.id.debugText);
+		pageNumView = (TextView) findViewById(R.id.page_number);
+
+		// set music sheet
+		musicSheetId = getIntent().getIntExtra("musicsheet_id", -1); 
+		music_sheet = dbhelper.getMusicSheet(musicSheetId);
+		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
+		titleView.setText(music_sheet.getName());
+
+		updatePage(1);	// first page
+
+		// set calibration data
+		calibId = getIntent().getIntExtra("calib_id2play", -1);
 		try {
-    		CalibrationData cd = dbhelper.getCalibrationData(calibId);    			
+			CalibrationData cd = dbhelper.getCalibrationData(calibId);    			
 			FileInputStream fis = new FileInputStream(cd.getFile_path());
 			ObjectInputStream iis = new ObjectInputStream(fis);
 			calib_data = (double[][][]) iis.readObject();
@@ -151,65 +215,12 @@ public class DisplayActivity extends Activity {
 		}catch (Exception e) {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
-
-		Toast.makeText(this, calibId+"", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, calibId+"", Toast.LENGTH_SHORT).show();  // XXX : for debug
 		
-		if(is_flat)
-			yPositions=yPosition_flat;
-
-		requestWindowFeature(Window.FEATURE_NO_TITLE);  
-		//set up full screen
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);  
-
-		setContentView(R.layout.activity_display);
-		
-		resultText = (TextView) findViewById(R.id.resultText);
-		resultText.setText(ref_pitches[1]+"");
-		debugText = (TextView) findViewById(R.id.debugText);
-
-		startStopButton = (Button) findViewById(R.id.StartStopButton);
-		startStopButton.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				if (started) {
-					started = false;
-					startStopButton.setText("Start");
-					recordTask.cancel(true);
-					currentPosition = 0;
-					currentCount = 0;
-					currentError = 0;
-				} else {
-					started = true;
-					startStopButton.setText("Stop");
-					recordTask = new RecordAudio();
-					recordTask.execute();
-				}
-			}
-		});
-		transformer = new RealDoubleFFT(blockSize * 2 + 1);
-
-		paint = new Paint();
-		paint.setColor(Color.GREEN);
-
-		currentSpec = (ImageView) findViewById(R.id.CurrentSpectrum);
-		curBitmap = Bitmap.createBitmap((int) 256, (int) 100,
-				Bitmap.Config.ARGB_8888);
-		curCanvas = new Canvas(curBitmap);
-		currentSpec.setImageBitmap(curBitmap);
-
-		noteViews = new ArrayList<ImageView>();
-
-		musicSheetId = getIntent().getIntExtra("musicsheet_id", -1); 
-		music_sheet = dbhelper.getMusicSheet(musicSheetId);
-
-		// show existing memos
-		// TODO : update when page is changed
-		memoList = music_sheet.getMemos(pageNum);
-		showMemos(memoList);
-
-		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
-		titleView.setText(music_sheet.getName());
-
+	}
+	
+	private void drawBackground() {
+		// scale layout for multiple devices
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -230,7 +241,8 @@ public class DisplayActivity extends Activity {
 			mainView.setPivotX(0.0f);
 			mainView.setPivotY(0.0f);
 		}
-
+		
+		// now draw background
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 
 		Paint paint = new Paint();
@@ -250,8 +262,7 @@ public class DisplayActivity extends Activity {
 		trackingView.setScaleType(ScaleType.MATRIX);
 
 		l.addView(trackingView);
-
-
+		
 		// Display music sheet
 		int y = 0;
 		int count = 0;
@@ -311,13 +322,6 @@ public class DisplayActivity extends Activity {
 				
 			y += 150;
 		}
-
-		displayMusicSheet(0);
-
-
-		mHandler = new Handler();
-
-		mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 	}
 	
 	private void showMemos(ArrayList<Memo> memos) {
@@ -433,10 +437,6 @@ public class DisplayActivity extends Activity {
 	}
 
 
-	/**
-	 * Remove the longpress detection timer.
-	 * 중간에 취소하는 용도입니다.
-	 */
 	private void removeLongPressCallback() {
 		if (mPendingCheckForLongPress != null) {
 			mHandler.removeCallbacks(mPendingCheckForLongPress);
@@ -856,10 +856,30 @@ public class DisplayActivity extends Activity {
 			currentSpec.invalidate();
 		}
 	}
+	
 	public double pitch2frequency(int in_pitch){
 		int oct = in_pitch/100;
 		int umm = in_pitch%100;
 		return ref_pitches[umm-1]*Math.pow(2,(oct-4)); 
 	}
+	
+	// TODO : call this method when turning page
+	private void updatePage(int page) {
+		if (page > music_sheet.getPages() || page <= 0)
+			Log.d("Warning", "unexpected page : " + page);
+		else {
+			pageNum = page;
+			
+			// show page number on the bottom
+			pageNumView.setText(Integer.toString(page));
 
+			// show existing memos
+			memoList = music_sheet.getMemos(page);
+			showMemos(memoList);
+			
+			// update notes
+			noteList = music_sheet.getNotes(page);
+			// XXX : update display
+		}
+	}
 }
