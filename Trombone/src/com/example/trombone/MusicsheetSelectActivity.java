@@ -197,6 +197,7 @@ public class MusicsheetSelectActivity extends Activity {
 				Scanner scan = new Scanner(fileinputstream);
 				
 				String name = scan.nextLine();
+				int keyNumber = scan.nextInt();
 				int beat = scan.nextInt();
 				int numberOfNote = scan.nextInt();
 				int page = 1;
@@ -208,6 +209,7 @@ public class MusicsheetSelectActivity extends Activity {
 				for ( int i = 0; i < numberOfNote; i++ ) {
 					Note current = new Note(scan.nextInt(), scan.nextInt());
 					current.setIsRest(scan.nextInt());
+					current.setIsAccidental(scan.nextInt());
 					current.setPage(page);
 					current.setOrder(order);
 					notes.add(current);
@@ -223,10 +225,12 @@ public class MusicsheetSelectActivity extends Activity {
 				
 				scan.close();
 				
+				// TODO : KEY NUMBER
+				
 				// Make MusicSheet DB
 				DBHelper db = new DBHelper(this); 
 				Log.d("Insert: ", "Inserting ..");
-				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page));
+				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page, keyNumber));
 				Log.d("Insert: ", "After inserting MUSICSHEET to DB");
 				
 				// Make Note DB
@@ -247,6 +251,7 @@ public class MusicsheetSelectActivity extends Activity {
 								", Pitch: " + note.getPitch() +
 								", Beat: " + note.getBeat() +
 								", isRest: " + note.getIsRest() +
+								", isAccidental: " + note.getIsAccidental() +
 								", X: " + note.getX() +
 								", Y: " + note.getY() +
 								", Musicsheet_id: " + note.getMusicsheet_id();

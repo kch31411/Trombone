@@ -31,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String MUSICSHEET_KEY_NAME = "name";
 	private static final String MUSICSHEET_KEY_BEAT = "beat";
 	private static final String MUSICSHEET_KEY_PLAYCOUNT = "playcount";
+	private static final String MUSICSHEET_KEY_KEYNUMBER = "keyNumber";
 	private static final String MUSICSHEET_KEY_PAGES = "pages";
 	
 	private static final String NOTE_KEY_ID = "id"; // primary key
@@ -39,6 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String NOTE_KEY_PITCH = "pitch";
 	private static final String NOTE_KEY_BEAT = "beat";
 	private static final String NOTE_KEY_ISREST = "isRest";
+	private static final String NOTE_KEY_ISADCCIDENTAL = "isAccidental";
 	private static final String NOTE_KEY_X = "x";
 	private static final String NOTE_KEY_Y = "y";
 	private static final String NOTE_KEY_MUSICSHEET = "musicsheet_id"; // foreign key
@@ -73,6 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ MUSICSHEET_KEY_NAME + " TEXT," 
 				+ MUSICSHEET_KEY_BEAT + " INTEGER," 
 				+ MUSICSHEET_KEY_PLAYCOUNT + " INTEGER," 
+				+ MUSICSHEET_KEY_KEYNUMBER + " INTEGER,"
 				+ MUSICSHEET_KEY_PAGES + " INTEGER" + ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
 		
@@ -84,6 +87,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ NOTE_KEY_PITCH + " INTEGER,"
 				+ NOTE_KEY_BEAT + " INTEGER,"
 				+ NOTE_KEY_ISREST + " INTEGER,"
+				+ NOTE_KEY_ISADCCIDENTAL + " INTEGER,"
 				+ NOTE_KEY_X + " INTEGER,"
 				+ NOTE_KEY_Y + " INTEGER,"
 				+ NOTE_KEY_MUSICSHEET + " INTEGER,"
@@ -153,6 +157,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		values.put(MUSICSHEET_KEY_BEAT, sheet.getBeat());
 		values.put(MUSICSHEET_KEY_PAGES, sheet.getPages());
 		values.put(MUSICSHEET_KEY_PLAYCOUNT, sheet.getPlayCount());
+		values.put(MUSICSHEET_KEY_KEYNUMBER, sheet.getKeyNumber());
 		
 		// Inserting Row
 		long id = db.insert(MUSICSHEET_TABLE_SHEETS, null, values);
@@ -166,16 +171,32 @@ public class DBHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
 		Cursor cursor = db.query(MUSICSHEET_TABLE_SHEETS, new String[] { MUSICSHEET_KEY_ID, 
-				MUSICSHEET_KEY_NAME, MUSICSHEET_KEY_BEAT, MUSICSHEET_KEY_PAGES, MUSICSHEET_KEY_PLAYCOUNT }, MUSICSHEET_KEY_ID + "=?",
+				MUSICSHEET_KEY_NAME, MUSICSHEET_KEY_BEAT, MUSICSHEET_KEY_PAGES, MUSICSHEET_KEY_PLAYCOUNT, MUSICSHEET_KEY_KEYNUMBER }, MUSICSHEET_KEY_ID + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if ( cursor != null )
 			cursor.moveToFirst();
+
+		// memo 가져오기, note 가져오기
+		int pages = Integer.parseInt(cursor.getString(3)); 
+		
+		ArrayList<ArrayList<Note>> note = new ArrayList<ArrayList<Note>>();
+		ArrayList<ArrayList<Memo>> memo = new ArrayList<ArrayList<Memo>>();
+		
+		for (int p = 1; p <= pages; p++) {
+			note.set(p, getNotes(id, p));
+			memo.set(p, getMemos(id, p));
+		}
 		
 		MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
 				cursor.getString(1),
 				Integer.parseInt(cursor.getString(2)),
-				Integer.parseInt(cursor.getString(3)),
-				Integer.parseInt(cursor.getString(4)));
+				pages,
+				Integer.parseInt(cursor.getString(4)),
+				Integer.parseInt(cursor.getString(5)),
+				note,
+				memo);
+		
+		
 		
 		return sheet;
 	}
@@ -192,12 +213,23 @@ public class DBHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to list
 		if ( cursor.moveToFirst() ) {
 			do {
-				MusicSheet sheet = new MusicSheet();
-				sheet.setId(Integer.parseInt(cursor.getString(0)));
-				sheet.setName(cursor.getString(1));
-				sheet.setBeat(Integer.parseInt(cursor.getString(2)));
-				sheet.setPages(Integer.parseInt(cursor.getString(3)));
-				sheet.setPlayCount(Integer.parseInt(cursor.getString(4)));
+				// memo 가져오기, note 가져오기
+				int id = Integer.parseInt(cursor.getString(0));
+				int pages = Integer.parseInt(cursor.getString(3)); 
+				
+				ArrayList<ArrayList<Note>> note = new ArrayList<ArrayList<Note>>();
+				ArrayList<ArrayList<Memo>> memo = new ArrayList<ArrayList<Memo>>();
+				
+				for (int p = 1; p <= pages; p++) {
+					note.set(p, getNotes(id, p));
+					memo.set(p, getMemos(id, p));
+				}
+				
+				MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
+						cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)),
+						Integer.parseInt(cursor.getString(4)), Integer.parseInt(cursor.getString(5)),
+						note, memo);
+				
 				// Adding sheets to list
 				sheetList.add(sheet);
 			} while (cursor.moveToNext());
@@ -216,6 +248,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		values.put(MUSICSHEET_KEY_BEAT, sheet.getBeat());
 		values.put(MUSICSHEET_KEY_PAGES, sheet.getPages());
 		values.put(MUSICSHEET_KEY_PLAYCOUNT, sheet.getPlayCount());
+		values.put(MUSICSHEET_KEY_KEYNUMBER, sheet.getKeyNumber());
 		
 		return db.update(MUSICSHEET_TABLE_SHEETS, values, MUSICSHEET_KEY_ID + " = ?",
 				new String[] { String.valueOf(sheet.getId()) });
@@ -253,6 +286,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		values.put(NOTE_KEY_PITCH, note.getPitch());
 		values.put(NOTE_KEY_BEAT, note.getBeat());
 		values.put(NOTE_KEY_ISREST, note.getIsRest());
+		values.put(NOTE_KEY_ISADCCIDENTAL, note.getIsRest());
 		values.put(NOTE_KEY_X, note.getX());
 		values.put(NOTE_KEY_Y, note.getY());
 		values.put(NOTE_KEY_MUSICSHEET, note.getMusicsheet_id());
@@ -265,8 +299,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	// musicsheet_id와 page가 주어질 떄 순서대로 Note 정보 가져오기
-	public List<Note> getNotes(int musicsheet_id, int page) {
-		List<Note> noteList = new ArrayList<Note>();
+	public ArrayList<Note> getNotes(int musicsheet_id, int page) {
+		ArrayList<Note> noteList = new ArrayList<Note>();
 		// Select All Query
 		String selectQuery = "SELECT * FROM " + NOTE_TABLE_SHEETS + 
 				" WHERE musicsheet_id= '" + musicsheet_id + "'"
@@ -286,9 +320,10 @@ public class DBHelper extends SQLiteOpenHelper {
 				note.setPitch(Integer.parseInt(cursor.getString(3)));
 				note.setBeat(Integer.parseInt(cursor.getString(4)));
 				note.setIsRest(Integer.parseInt(cursor.getString(5)));
-				note.setX(Integer.parseInt(cursor.getString(6)));
-				note.setY(Integer.parseInt(cursor.getString(7)));
-				note.setMusicsheet_id(Integer.parseInt(cursor.getString(8)));
+				note.setIsAccidental(Integer.parseInt(cursor.getString(6)));
+				note.setX(Integer.parseInt(cursor.getString(7)));
+				note.setY(Integer.parseInt(cursor.getString(8)));
+				note.setMusicsheet_id(Integer.parseInt(cursor.getString(9)));
 				
 				// Adding sheets to list
 				noteList.add(note);

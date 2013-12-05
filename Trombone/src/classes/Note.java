@@ -18,11 +18,11 @@ public class Note {
 		super();
 	}
 
-	public Note(int pitch, int beat, boolean rest) {
+	public Note(int pitch, int beat, int rest,  int accidental) {
 		this.pitch = pitch;
 		this.beat = beat;
-		this.isRest = rest;
-		this.isAccidental = false;
+		this.isRest = (rest == 1) ? true : false;
+		this.isAccidental = (accidental == 1) ? true : false;
 		this.x = -100;
 		this.y = -100;
 	}
@@ -127,11 +127,25 @@ public class Note {
 		return 0;
 	}
 
-	public void setIsRest(int isRest) {
-		if ( isRest == 1 )
+	public void setIsRest(int a) {
+		if ( a == 1 )
 			this.isRest = true;
 		else
 			this.isRest = false;
+	}
+	
+	public int getIsAccidental() {
+		if ( isAccidental )
+			return 1;
+		
+		return 0;
+	}
+
+	public void setIsAccidental(int a) {
+		if ( a == 1 )
+			this.isAccidental = true;
+		else
+			this.isAccidental = false;
 	}
 	
 	public boolean isRest() {
