@@ -175,13 +175,28 @@ public class DBHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if ( cursor != null )
 			cursor.moveToFirst();
+
+		// memo 가져오기, note 가져오기
+		int pages = Integer.parseInt(cursor.getString(3)); 
+		
+		ArrayList<ArrayList<Note>> note = new ArrayList<ArrayList<Note>>();
+		ArrayList<ArrayList<Memo>> memo = new ArrayList<ArrayList<Memo>>();
+		
+		for (int p = 1; p <= pages; p++) {
+			note.set(p, getNotes(id, p));
+			memo.set(p, getMemos(id, p));
+		}
 		
 		MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
 				cursor.getString(1),
 				Integer.parseInt(cursor.getString(2)),
-				Integer.parseInt(cursor.getString(3)),
+				pages,
 				Integer.parseInt(cursor.getString(4)),
-				Integer.parseInt(cursor.getString(5)));
+				Integer.parseInt(cursor.getString(5)),
+				note,
+				memo);
+		
+		
 		
 		return sheet;
 	}
@@ -198,13 +213,23 @@ public class DBHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to list
 		if ( cursor.moveToFirst() ) {
 			do {
-				MusicSheet sheet = new MusicSheet();
-				sheet.setId(Integer.parseInt(cursor.getString(0)));
-				sheet.setName(cursor.getString(1));
-				sheet.setBeat(Integer.parseInt(cursor.getString(2)));
-				sheet.setPages(Integer.parseInt(cursor.getString(3)));
-				sheet.setPlayCount(Integer.parseInt(cursor.getString(4)));
-				sheet.setKeyNumber(Integer.parseInt(cursor.getString(5)));
+				// memo 가져오기, note 가져오기
+				int id = Integer.parseInt(cursor.getString(0));
+				int pages = Integer.parseInt(cursor.getString(3)); 
+				
+				ArrayList<ArrayList<Note>> note = new ArrayList<ArrayList<Note>>();
+				ArrayList<ArrayList<Memo>> memo = new ArrayList<ArrayList<Memo>>();
+				
+				for (int p = 1; p <= pages; p++) {
+					note.set(p, getNotes(id, p));
+					memo.set(p, getMemos(id, p));
+				}
+				
+				MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
+						cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)),
+						Integer.parseInt(cursor.getString(4)), Integer.parseInt(cursor.getString(5)),
+						note, memo);
+				
 				// Adding sheets to list
 				sheetList.add(sheet);
 			} while (cursor.moveToNext());
@@ -274,8 +299,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	// musicsheet_id와 page가 주어질 떄 순서대로 Note 정보 가져오기
-	public List<Note> getNotes(int musicsheet_id, int page) {
-		List<Note> noteList = new ArrayList<Note>();
+	public ArrayList<Note> getNotes(int musicsheet_id, int page) {
+		ArrayList<Note> noteList = new ArrayList<Note>();
 		// Select All Query
 		String selectQuery = "SELECT * FROM " + NOTE_TABLE_SHEETS + 
 				" WHERE musicsheet_id= '" + musicsheet_id + "'"

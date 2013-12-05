@@ -223,10 +223,12 @@ public class MusicsheetSelectActivity extends Activity {
 				
 				scan.close();
 				
+				// TODO : KEY NUMBER
+				
 				// Make MusicSheet DB
 				DBHelper db = new DBHelper(this); 
 				Log.d("Insert: ", "Inserting ..");
-				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page));
+				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page, 9999999)); // XXX : tmp keynumber
 				Log.d("Insert: ", "After inserting MUSICSHEET to DB");
 				
 				// Make Note DB

@@ -32,6 +32,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.Memo;
+import classes.MusicSheet;
 import classes.Note;
 import db.DBHelper;
 
@@ -116,7 +117,7 @@ public class DisplayActivity extends Activity {
 
 	double[][] toTransformSample = new double[blockSize * 2 + 1][sampleSize];
 
-	ArrayList<Note> music_sheet;
+	MusicSheet music_sheet;
 	ArrayList<ImageView> noteViews;
 
 	private void displayMusicSheet(int start) {
@@ -133,10 +134,10 @@ public class DisplayActivity extends Activity {
 		int count = 0;
 		while (count++ < 3) {
 			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 120, y, music_sheet);
+				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(page_num));
 			if (note_index >= 0)
 				note_index = DrawNotes(note_index,
-						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet);
+						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(page_num));
 			y += 150;
 		}
 		lastNoteIndex = note_index-1;
@@ -207,114 +208,13 @@ public class DisplayActivity extends Activity {
 
 		noteViews = new ArrayList<ImageView>();
 
-		// temporary music sheet
-		// TODO : consider beat
+		music_sheet_id = getIntent().getIntExtra("musicsheet_id", -1); 
+		music_sheet = dbhelper.getMusicSheet(music_sheet_id);
 
-		music_sheet = new ArrayList<Note>();
-
-/*
-		music_sheet.add(new Note(406,4));
-		music_sheet.add(new Note(401,4));
-		music_sheet.add(new Note(401,4));
-		music_sheet.add(new Note(401,4));
-		music_sheet.add(new Note(311,4));
-		music_sheet.add(new Note(401,4));
-
-		music_sheet.add(new Note(311,4));
-		music_sheet.add(new Note(404,4));
-		music_sheet.add(new Note(311,2));
-		music_sheet.add(new Note(401,2));
-		music_sheet.add(new Note(406,4));
-		music_sheet.add(new Note(401,4));
-		music_sheet.add(new Note(311,4));
-
-		music_sheet.add(new Note(304,4));
-		music_sheet.add(new Note(309,4));
-		music_sheet.add(new Note(309,4));
-		music_sheet.add(new Note(309,4));
-		music_sheet.add(new Note(306,4));
-		music_sheet.add(new Note(304,4));
-
-		music_sheet.add(new Note(304,4));
-		music_sheet.add(new Note(311,4));
-		music_sheet.add(new Note(311,4));
-		music_sheet.add(new Note(306,4));
-		music_sheet.add(new Note(309,4));
-		music_sheet.add(new Note(306,4));
-*/
-/*		music_sheet.add(new Note(406, 8, true));
-		music_sheet.add(new Note(true, 402, 8));
-		music_sheet.add(new Note(true, 404,4));
-		music_sheet.add(new Note(true, 407,2));
-		music_sheet.add(new Note(true, 409,3));
-		music_sheet.add(new Note(true, 411,2));
-		music_sheet.add(new Note(true, 411,6));
-		music_sheet.add(new Note(410,2));
-
-		music_sheet.add(new Note(408,4));
-		music_sheet.add(new Note(501,4));
-		music_sheet.add(new Note(408,4));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(403,2));
-		music_sheet.add(new Note(410,6));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(405,8));
-
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(405,2));
-		music_sheet.add(new Note(403,4));
-		music_sheet.add(new Note(405,4));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(401,4));
-		music_sheet.add(new Note(406,4));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(410,2));
-
-		music_sheet.add(new Note(411,4));
-		music_sheet.add(new Note(411,2));
-		music_sheet.add(new Note(410,2));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(408,8));
-
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(410,2));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(501,6));
-		music_sheet.add(new Note(410,2));
-
-		music_sheet.add(new Note(408,4));
-		music_sheet.add(new Note(501,4));
-		music_sheet.add(new Note(408,4));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(403,2));
-		music_sheet.add(new Note(403,4));
-		music_sheet.add(new Note(405,2));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(401,8));
-		music_sheet.add(new Note(401,2));
-		music_sheet.add(new Note(401,2));
-		
-		music_sheet.add(new Note(403,4));
-		music_sheet.add(new Note(405,4));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(401,4));
-		music_sheet.add(new Note(406,4));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(410,2));
-		music_sheet.add(new Note(411,4));
-		music_sheet.add(new Note(411,2));
-		music_sheet.add(new Note(410,2));
-		music_sheet.add(new Note(408,2));
-		music_sheet.add(new Note(406,2));
-		music_sheet.add(new Note(406,12));
-
-		music_sheet.add(new Note(103));
-		music_sheet.add(new Note(108));
-		music_sheet.add(new Note(103, 1, true));	*/
+		// show existing memos
+		// TODO : update when page is changed
+		memoList = music_sheet.getMemos(page_num);
+		showMemos(memoList);
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
@@ -424,11 +324,6 @@ public class DisplayActivity extends Activity {
 		mHandler = new Handler();
 
 		mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
-		
-		// show existing memos
-		// TODO : update when page is changed
-		memoList = dbhelper.getMemos(music_sheet_id, page_num);
-		showMemos(memoList);
 	}
 	
 	private void showMemos(ArrayList<Memo> memos) {
@@ -675,11 +570,6 @@ public class DisplayActivity extends Activity {
 		return note_height;
 	}
 
-	class MusicSheet {
-		// C major, G minor ...
-		// overall beat
-	}
-
 	public int DrawNotes(int pt, int x, int y, ArrayList<Note> notes) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 
@@ -884,13 +774,13 @@ public class DisplayActivity extends Activity {
 				// Math.abs(toTransform[0][i]));
 			}
 
-			while (music_sheet.get(currentPosition).isRest())
+			while (music_sheet.getNotes(page_num).get(currentPosition).isRest())
 				currentPosition++;
 
 			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
 
-			Note nextNote = music_sheet.get(currentPosition + 1);
-			Note currentNote = music_sheet.get(currentPosition);
+			Note nextNote = music_sheet.getNotes(page_num).get(currentPosition + 1);
+			Note currentNote = music_sheet.getNotes(page_num).get(currentPosition);
 
 			resultText.setText(MajorF+" :," +
 					" "+pitch2frequency(currentNote.getPitch()));
@@ -922,8 +812,8 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 
-			trackingView.setX(music_sheet.get(currentPosition).x-5);
-			trackingView.setY(music_sheet.get(currentPosition).y);
+			trackingView.setX(music_sheet.getNotes(page_num).get(currentPosition).x-5);
+			trackingView.setY(music_sheet.getNotes(page_num).get(currentPosition).y);
 
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				displayMusicSheet(lastNoteIndex+1);
