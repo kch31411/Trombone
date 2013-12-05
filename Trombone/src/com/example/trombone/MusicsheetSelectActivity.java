@@ -207,6 +207,7 @@ public class MusicsheetSelectActivity extends Activity {
 				for ( int i = 0; i < numberOfNote; i++ ) {
 					Note current = new Note(scan.nextInt(), scan.nextInt());
 					current.setIsRest(scan.nextInt());
+					current.setIsAccidental(scan.nextInt());
 					current.setPage(page);
 					current.setOrder(order);
 					notes.add(current);
@@ -246,6 +247,7 @@ public class MusicsheetSelectActivity extends Activity {
 								", Pitch: " + note.getPitch() +
 								", Beat: " + note.getBeat() +
 								", isRest: " + note.getIsRest() +
+								", isAccidental: " + note.getIsAccidental() +
 								", X: " + note.getX() +
 								", Y: " + note.getY() +
 								", Musicsheet_id: " + note.getMusicsheet_id();

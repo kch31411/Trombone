@@ -242,7 +242,7 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(309,4));
 		music_sheet.add(new Note(306,4));
 */
-		music_sheet.add(new Note(406, 8, true));
+/*		music_sheet.add(new Note(406, 8, true));
 		music_sheet.add(new Note(true, 402, 8));
 		music_sheet.add(new Note(true, 404,4));
 		music_sheet.add(new Note(true, 407,2));
@@ -314,7 +314,7 @@ public class DisplayActivity extends Activity {
 
 		music_sheet.add(new Note(103));
 		music_sheet.add(new Note(108));
-		music_sheet.add(new Note(103, 1, true));	
+		music_sheet.add(new Note(103, 1, true));	*/
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();

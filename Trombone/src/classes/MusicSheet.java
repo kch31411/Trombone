@@ -10,17 +10,19 @@ public class MusicSheet {
 	private int pages;
 	private String name;
 	private int playCount;
+	private int keyNumber;
 	private Note[][] note;
 	private Memo[][] memo;
 	
 	
-	public MusicSheet(int id, String name, int beat, int pages, int playCount) {
+	public MusicSheet(int id, String name, int beat, int pages, int playCount, int keyNumber) {
 		// TODO Auto-generated constructor stub
 		this.id = id;
 		this.name = name;
 		this.beat = beat;
 		this.pages = pages;
 		this.playCount = playCount;
+		this.keyNumber = keyNumber;
 		
 		// memo 가져오기, note 가져오기
 	}
@@ -66,5 +68,11 @@ public class MusicSheet {
 	}
 	public void setPlayCount(int playCount) {
 		this.playCount = playCount;
+	}
+	public int getKeyNumber() {
+		return keyNumber;
+	}
+	public void setKeyNumber(int keyNumber) {
+		this.keyNumber = keyNumber;
 	}
 }
