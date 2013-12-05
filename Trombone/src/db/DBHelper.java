@@ -525,4 +525,10 @@ public class DBHelper extends SQLiteOpenHelper {
 		return nameList;
 	}	
 	
+	public void deleteCalibration(int id) {
+		SQLiteDatabase db = this.getWritableDatabase();	
+		db.delete(CALIB_TABLE_SHEETS, CALIB_KEY_ID + "=?", 
+				new String[] { String.valueOf(id)});
+		db.close();
+	}
 }

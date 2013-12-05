@@ -40,7 +40,8 @@ public class MusicsheetSelectActivity extends Activity {
 	public int selectedPos = -1;
 	public ArrayList<Integer> ids = new ArrayList<Integer>();
 	public DBHelper db = new DBHelper(this); 
-
+	int calib_id;
+	
 	private class SpecialAdapter extends ArrayAdapter<String> {
 		public SpecialAdapter(Context context, int resource,
 				List<String> objects) {
@@ -93,9 +94,9 @@ public class MusicsheetSelectActivity extends Activity {
 				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
 				intent.putExtra("main2display", getIntent().getDoubleArrayExtra("main2display"));
 				intent.putExtra("musicsheet_id", id);
+				intent.putExtra("calib_id2play",  getIntent().getIntExtra("calib_id2play", -1));
 				startActivity(intent);
 			}
-
 		});
 
 		// Add musicsheet

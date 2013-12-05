@@ -12,6 +12,8 @@ import java.util.List;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -31,6 +33,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,6 +47,7 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
 
@@ -122,6 +127,8 @@ public class CalibrationActivity extends Activity {
 	float ratio = 1;
 	int octave = 4;
 
+	int selected_db = -1;
+	
 	int lastNoteIndex;
 	int side_padding = 40;
 
@@ -181,13 +188,21 @@ public class CalibrationActivity extends Activity {
 
 	@Override
 	protected void onStop() {
-		if (started) {
-			recordTask.cancel(true);
-		}
 		super.onStop();
-
+		if (started) {
+			started = false;
+			recordTask.cancel(true);		
+		}
 	}
-
+	
+	@Override
+	public void finish() {
+	    Intent data = new Intent();
+	    data.putExtra("calib_id2main", selected_db);
+	    setResult(RESULT_OK, data);
+	    super.finish();
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -196,7 +211,8 @@ public class CalibrationActivity extends Activity {
 		// set up full screen
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+		
 		setContentView(R.layout.activity_calibration);
 		
 		refreshListView();
@@ -223,26 +239,54 @@ public class CalibrationActivity extends Activity {
 		}
 
 		// get latest calibration data
-		try {
+		/*try {
 			int calib_id = getIntent().getIntExtra("calib_id", -1);
 			CalibrationData cd = dbhelper.getCalibrationData(calib_id);
 			
 			FileInputStream fis = new FileInputStream(cd.getFile_path());
 			ObjectInputStream iis = new ObjectInputStream(fis);
-			calib_data = (double[][][]) iis.readObject();
+			// calib_data = (double[][][]) iis.readObject();
 			iis.close();
 					
 		} catch (Exception e) {
 			Log.d("ccccc", "exception : " + e.toString());
-		}
+		} */
 
 		// calibDB = openOrCreateDatabase("Calibration",MODE_WORLD_WRITEABLE, null);
+		
 		for(int i=0; i<12; i++)
 		{
 			calibPitches[i] = pitches[i];
 		}
 		setDefault();		
 
+		if (dbhelper.getAllCalibrationId().size() < 1) {
+			try {
+				Log.d("ccccc", "get activity result");
+
+				String path = CALIB_PATH + "default.clb";
+				File file = new File(CALIB_PATH);
+				if (!file.exists())
+					file.mkdirs();
+
+				// save calibration data as file
+				FileOutputStream fos = new FileOutputStream(path);
+				ObjectOutputStream oos = new ObjectOutputStream(fos);
+				oos.writeObject(calib_data);
+				oos.close();
+
+				// insert calibration data DB
+				CalibrationData calibrationData = new CalibrationData(-1,
+						"default", path); // XXX : is filepath correct?
+				dbhelper.addCalibrationData(calibrationData);
+				refreshListView();
+			} catch (Exception e) {
+				Log.d("ccccc", "exception : " + e.toString());
+			}
+		}
+		
+		selected_db = 1;
+		
 		progress = (ProgressBar) findViewById(R.id.ProgressBar);
 		refText = (EditText)findViewById(R.id.RefEdit);		
 
@@ -444,8 +488,8 @@ public class CalibrationActivity extends Activity {
 				setDefault();
 			}});
 
-		Button retButton = (Button) findViewById(R.id.returnButton);
-		retButton.setOnClickListener(new Button.OnClickListener() {
+		Button addButton = (Button) findViewById(R.id.addButton);
+		addButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {				
 				Intent foo = new Intent(CalibrationActivity.this, TextEntryActivity.class);
 				foo.putExtra("value", "");
@@ -453,7 +497,43 @@ public class CalibrationActivity extends Activity {
 				foo.putExtra("enterOpacity", false);
 				foo.putExtra("title", "Instrument Name");
 				CalibrationActivity.this.startActivityForResult(foo, ENTER_NAME);
+			}
+		});
+		
+		Button delButton = (Button) findViewById(R.id.delButton);
+		delButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				if (selected_db == 1) {
+					Toast.makeText(CalibrationActivity.this, 
+							"default cannot be deleted", Toast.LENGTH_SHORT).show();
+				} else if (selected_db > 1) {
+					AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+							CalibrationActivity.this);
 
+					alertDialog.setTitle("Delete Calibration...");
+					alertDialog.setMessage("Are you sure to delete this?");
+
+					// Setting Positive "Yes" Button
+					alertDialog.setPositiveButton("YES",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									dbhelper.deleteCalibration(selected_db);
+									refreshListView();
+								}
+							});
+
+					// Setting Negative "NO" Button
+					alertDialog.setNegativeButton("NO",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									dialog.cancel();
+								}
+							});
+
+					alertDialog.show();
+				}
 			}
 		});
 
@@ -554,17 +634,18 @@ public class CalibrationActivity extends Activity {
 				
 				// insert calibration data DB
 				CalibrationData calibrationData = new CalibrationData(-1, name, path); // XXX : is filepath correct?
-				int id = (int) dbhelper.addCalibrationData(calibrationData);
-				
+				dbhelper.addCalibrationData(calibrationData);
+				refreshListView();
 				//////////////////////////////////////////??????????????
+				/*
 				Intent foo = new Intent();
 				foo.putExtra("calib2main", calibPitches);
 				foo.putExtra("myData2", "Data 2 value");
 				foo.putExtra("calib_id", id);
 
 				// Activity finished ok, return the data
-				setResult(RESULT_OK, foo);
-				finish();
+				setResult(RESULT_OK, foo);*/
+				//finish();
 			} catch (Exception e) {
 				Log.d("ccccc", "exception : " + e.toString());
 			}
@@ -882,9 +963,27 @@ public class CalibrationActivity extends Activity {
 
 		Spinner spin =  (Spinner) findViewById(R.id.spinner_calib);
 		spin.setAdapter(adapter);
-		
-		// spin.getSelectedItem()
+        spin.setOnItemSelectedListener(new OnItemSelectedListener() {
+        	@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+        		selected_db = ids.get(position);
+        		try {
+	        		CalibrationData cd = dbhelper.getCalibrationData(selected_db);    			
+	    			FileInputStream fis = new FileInputStream(cd.getFile_path());
+	    			ObjectInputStream iis = new ObjectInputStream(fis);
+	    			calib_data = (double[][][]) iis.readObject();
+	    			iis.close();
+        		}catch (Exception e) {
+        			Log.d("ccccc", "exception : " + e.toString());
+        		} 
+			}
 
-	}
-	
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				selected_db = -1;
+			}
+		// spin.getSelectedItem()
+        });
+	}	
 }

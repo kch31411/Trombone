@@ -1,5 +1,7 @@
 package com.example.trombone;
 
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 import android.app.ActionBar.LayoutParams;
@@ -30,7 +32,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
+import classes.CalibrationData;
 import classes.Memo;
 import classes.Note;
 import db.DBHelper;
@@ -51,6 +55,7 @@ public class DisplayActivity extends Activity {
 	int frequency = 8000*2;
 	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+	int calib_id = 1;
 	
 	// for memo modify
 	private TextView selectedMemo;
@@ -83,7 +88,8 @@ public class DisplayActivity extends Activity {
 
 	double[] pitches = { 523.25, 587.32 - 25, 659.25, 698.45 - 10,
 			783.99 - 35, 880.00 - 40, 987.76 - 90, 1046.50 - 15, 1174.66 };
-			
+	double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
+
 	double[] ref_pitches;
 	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
 	int[] yPosition_flat={0,1,1,2,2,3,4,4,5,5,6,6};
@@ -145,7 +151,8 @@ public class DisplayActivity extends Activity {
 	@Override
 	protected void onStop(){
 		if (started) {
-			recordTask.cancel(true);
+			started = false;
+			recordTask.cancel(true);			
 		}
 		super.onStop();
 		
@@ -158,6 +165,19 @@ public class DisplayActivity extends Activity {
 
 		Intent receivedIntent = getIntent();
 		ref_pitches = receivedIntent.getDoubleArrayExtra("main2display");
+		calib_id = receivedIntent.getIntExtra("calib_id2play", -1);
+		
+		try {
+    		CalibrationData cd = dbhelper.getCalibrationData(calib_id);    			
+			FileInputStream fis = new FileInputStream(cd.getFile_path());
+			ObjectInputStream iis = new ObjectInputStream(fis);
+			calib_data = (double[][][]) iis.readObject();
+			iis.close();
+		}catch (Exception e) {
+			Log.d("ccccc", "exception : " + e.toString());
+		} 
+
+		Toast.makeText(this, calib_id+"", Toast.LENGTH_SHORT).show();
 		
 		if(is_flat)
 			yPosition=yPosition_flat;
@@ -168,7 +188,7 @@ public class DisplayActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);  
 
 		setContentView(R.layout.activity_display);
-
+		
 		resultText = (TextView) findViewById(R.id.resultText);
 		resultText.setText(ref_pitches[1]+"");
 		debugText = (TextView) findViewById(R.id.debugText);
@@ -243,12 +263,11 @@ public class DisplayActivity extends Activity {
 		music_sheet.add(new Note(306,4));
 */
 		music_sheet.add(new Note(406, 8, true));
-		music_sheet.add(new Note(true, 402, 8));
-		music_sheet.add(new Note(true, 404,4));
-		music_sheet.add(new Note(true, 407,2));
-		music_sheet.add(new Note(true, 409,3));
-		music_sheet.add(new Note(true, 411,2));
-		music_sheet.add(new Note(true, 411,6));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(408,2));
+		music_sheet.add(new Note(410,2));
+		music_sheet.add(new Note(406,2));
+		music_sheet.add(new Note(501,6));
 		music_sheet.add(new Note(410,2));
 
 		music_sheet.add(new Note(408,4));
@@ -892,22 +911,43 @@ public class DisplayActivity extends Activity {
 			Note nextNote = music_sheet.get(currentPosition + 1);
 			Note currentNote = music_sheet.get(currentPosition);
 
-			resultText.setText(MajorF+" :," +
-					" "+pitch2frequency(currentNote.getPitch()));
-			debugText.setText(currentCount+"");
+			double errorCurrent = 0;
+			double errorNext = 0;
+			debugText.setText((currentNote.getPitch()/100-3)+" "+(currentNote.getPitch()%100-1));
+			for (int i = 0; i < Magnitude.length; i++) {
+				int x = i;
+				int downy = (int) (100 - (calib_data[currentNote.getPitch()/100-3]
+						[currentNote.getPitch()%100-1][i] * 10));
+				int upy = 100;
+				paint.setColor(Color.argb(150, 255, 10, 20));
+				curCanvas.drawLine(x, downy, x, upy, paint);
+				
+				double spec_current = calib_data[currentNote.getPitch()/100-3]
+						[currentNote.getPitch()%100-1][i];
+				double spec_next = calib_data[nextNote.getPitch()/100-3]
+						[nextNote.getPitch()%100-1][i];
+				
+				if (spec_current * 1.2 > Magnitude[i])
+					errorCurrent += spec_current - Magnitude[i];
+				if (spec_next * 1.2 > Magnitude[i])
+					errorNext += spec_current - Magnitude[i];
+			}
+			resultText.setText(errorCurrent + " " + errorNext);
+			
+			//debugText.setText(currentCount+"");
 
 			if (maxIntensity < 5)
 				currentError++;
-			else if (currentError > 1
+			else if (currentError > 3
 					&& currentCount > 3
-					&& MajorF<pitch2frequency(nextNote.getPitch())*1.04
-					&& MajorF>pitch2frequency(nextNote.getPitch())/1.04) {
+					&& errorNext<150){ // MajorF<pitch2frequency(nextNote.getPitch())*1.04
+					//&&  MajorF>pitch2frequency(nextNote.getPitch())/1.04) {
 				currentPosition++;
 				currentCount = 0;
 				currentError = 0;
 
-			} else if (MajorF<pitch2frequency(currentNote.getPitch())*1.04
-					&& MajorF>pitch2frequency(currentNote.getPitch())/1.04) {
+			} else if (errorCurrent<150){ // (MajorF<pitch2frequency(currentNote.getPitch())*1.04
+					//&& MajorF>pitch2frequency(currentNote.getPitch())/1.04) {
 				currentCount++;
 				currentError = 0;
 			} 

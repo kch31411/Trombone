@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp" >
+            android:layout_marginTop="40dp" >
 
             <EditText
                 android:id="@+id/RefEdit"
@@ -222,28 +222,48 @@
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:max="100"
-                    android:progress="0" />
-
-                <TextView
+                    android:progress="0" /><TextView
                     android:id="@+id/pitchText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="100dp"
                     android:text="TextView"
                     android:textColor="#000000"
-                    android:textSize="20dp" /><Button
-                    android:id="@+id/returnButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="return" />
+                    android:textSize="20dp" />
 
-                <Spinner
-                    android:background="#c8c1a4"
-                    android:id="@+id/spinner_calib"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal" >
+
+                    <Spinner
+                        android:id="@+id/spinner_calib"
+                        android:layout_width="400dp"
+                        android:layout_height="wrap_content"
+                        android:background="#c8c1a4" />
+                    
+                    <Button
+	                    android:id="@+id/delButton"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:layout_gravity="center_horizontal"
+	                    android:layout_marginLeft="20dp"
+	                    android:background="#eedd33"
+	                    android:text="delete" />
+                    
+                    <Button
+	                    android:id="@+id/addButton"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:layout_gravity="center_horizontal"
+	                    android:layout_marginLeft="20dp"
+	                    android:background="#33ddee"
+	                    android:text="add" />
+                </LinearLayout>
             </LinearLayout>
+
         </FrameLayout>
 
     </LinearLayout>

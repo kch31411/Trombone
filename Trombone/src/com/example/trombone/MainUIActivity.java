@@ -6,9 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.example.trombone.util.SystemUiHider;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -19,7 +22,7 @@ import android.view.WindowManager;
 public class MainUIActivity extends Activity {
 	public final static int CALIBRATION = 3;
 	
-	private int calib_id = -1;
+	private int calib_id = 1;
 	
 	double[] pitches = {261.626, 277.183, 293.665, 311.127, 329.628, 
 			349.228, 369.994, 391.995, 415.305, 440.000, 466.164,
@@ -46,6 +49,7 @@ public class MainUIActivity extends Activity {
 			public void onClick(View v) {
 				Log.d("ww","Click");
 				Intent intent = new Intent(MainUIActivity.this, MusicsheetSelectActivity.class);
+				intent.putExtra("calib_id2play", calib_id);
 				intent.putExtra("main2display", pitches);
 				startActivity(intent);
 			}
@@ -74,11 +78,9 @@ public class MainUIActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    if (resultCode == RESULT_OK && requestCode == CALIBRATION) {
-	        if (data.hasExtra("calib2main")) {
-	        	pitches = data.getExtras().getDoubleArray("calib2main");
-	        	calib_id = data.getIntExtra("calib_id", -1);
-	            /*Toast.makeText(this, pitches[0]+"",
-	                Toast.LENGTH_SHORT).show();*/
+	        if (data.hasExtra("calib_id2main")) {
+	        	calib_id = data.getIntExtra("calib_id2main", -1);
+	            Toast.makeText(this, calib_id+"", Toast.LENGTH_SHORT).show();
 	        }
 	    }
 	}
