@@ -34,6 +34,7 @@ public class MainUIActivity extends Activity {
 			}
 		});
 		
+		
 		Button historyBtnCall = (Button)findViewById(R.id.historybutton);
 		historyBtnCall.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
