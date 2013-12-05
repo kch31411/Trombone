@@ -196,6 +196,7 @@ public class MusicsheetSelectActivity extends Activity {
 				Scanner scan = new Scanner(fileinputstream);
 				
 				String name = scan.nextLine();
+				int keyNumber = scan.nextInt();
 				int beat = scan.nextInt();
 				int numberOfNote = scan.nextInt();
 				int page = 1;
@@ -228,7 +229,7 @@ public class MusicsheetSelectActivity extends Activity {
 				// Make MusicSheet DB
 				DBHelper db = new DBHelper(this); 
 				Log.d("Insert: ", "Inserting ..");
-				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page, 9999999)); // XXX : tmp keynumber
+				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page, keyNumber));
 				Log.d("Insert: ", "After inserting MUSICSHEET to DB");
 				
 				// Make Note DB
