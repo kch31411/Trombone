@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -40,60 +39,37 @@ import classes.MusicSheet;
 import classes.Note;
 import db.DBHelper;
 
+import static classes.Constants.*;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- * 
- * @see SystemUiHider
- */
 public class DisplayActivity extends Activity {
-	// request code
-	public static final int MEMO_ADD = 1;
-	public static final int MEMO_MODIFY = 2;
-
-	// added
-	int frequency = 8000*2;
-	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-	int calib_id = 1;
-	
-	// for memo modify
-	private TextView selectedMemo;
-	private ArrayList<Memo> memoList = new ArrayList<Memo>();  // TODO get memoList from db
-	
 	// music sheet information
-	private int music_sheet_id = 1;  // TODO : get id from select activity
-	private int page_num = 1;  // TODO : page related works
+	private int musicSheetId;
+	private int calibId;
+	private int pageNum = 1;  // TODO : page related works
+	
+	private TextView selectedMemo;	// for memo modify
+	private ArrayList<Memo> memoList = new ArrayList<Memo>();
 
+	// db helper
 	DBHelper dbhelper = new DBHelper(this);
 
-	// 시작 위치를 저장을 위한 변수 
+	// handling long touch for memo addition
 	private float mLastMotionX = 0;
 	private float mLastMotionY = 0;
-	// 마우스 move 로 일정범위 벗어나면 취소하기 위한 값
 	private int mTouchSlop;
-
-	// long click을 위한 변수들 
 	private boolean mHasPerformedLongPress;
 	private CheckForLongPress mPendingCheckForLongPress;
-
 	private Handler mHandler = null;
 
 	private RealDoubleFFT transformer;
-	int blockSize = 256;
 	Button startStopButton;
 	boolean started = false;
 	int sampleSize = 10;
 	int sampleCount = 0;
 
-	double[] pitches = { 523.25, 587.32 - 25, 659.25, 698.45 - 10,
-			783.99 - 35, 880.00 - 40, 987.76 - 90, 1046.50 - 15, 1174.66 };
 	double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
 
 	double[] ref_pitches;
-	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
-	int[] yPosition_flat={0,1,1,2,2,3,4,4,5,5,6,6};
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -108,12 +84,12 @@ public class DisplayActivity extends Activity {
 	Paint paint;
 
 	int width, height;
-	int nexus7_width = 800;
-	int nexus7_height = 1280;
 	float ratio = 1;
 	int bar_length = 12; 
-	boolean is_flat = true;
+	boolean is_flat = true;	// XXX : hansol a   i gae mu ya?
 	int key_num = 0;
+	
+	int[] yPositions = yPosition;
 	
 	int lastNoteIndex;
 	int side_padding = 40;
@@ -139,10 +115,10 @@ public class DisplayActivity extends Activity {
 		int count = 0;
 		while (count++ < 3) {
 			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(page_num));
+				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(pageNum));
 			if (note_index >= 0)
 				note_index = DrawNotes(note_index,
-						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(page_num));
+						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(pageNum));
 			y += 150;
 		}
 		lastNoteIndex = note_index-1;
@@ -164,11 +140,10 @@ public class DisplayActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		Intent receivedIntent = getIntent();
-		ref_pitches = receivedIntent.getDoubleArrayExtra("main2display");
-		calib_id = receivedIntent.getIntExtra("calib_id2play", -1);
+		calibId = receivedIntent.getIntExtra("calib_id2play", -1);
 		
 		try {
-    		CalibrationData cd = dbhelper.getCalibrationData(calib_id);    			
+    		CalibrationData cd = dbhelper.getCalibrationData(calibId);    			
 			FileInputStream fis = new FileInputStream(cd.getFile_path());
 			ObjectInputStream iis = new ObjectInputStream(fis);
 			calib_data = (double[][][]) iis.readObject();
@@ -177,10 +152,10 @@ public class DisplayActivity extends Activity {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
 
-		Toast.makeText(this, calib_id+"", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, calibId+"", Toast.LENGTH_SHORT).show();
 		
 		if(is_flat)
-			yPosition=yPosition_flat;
+			yPositions=yPosition_flat;
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  
 		//set up full screen
@@ -224,12 +199,12 @@ public class DisplayActivity extends Activity {
 
 		noteViews = new ArrayList<ImageView>();
 
-		music_sheet_id = getIntent().getIntExtra("musicsheet_id", -1); 
-		music_sheet = dbhelper.getMusicSheet(music_sheet_id);
+		musicSheetId = getIntent().getIntExtra("musicsheet_id", -1); 
+		music_sheet = dbhelper.getMusicSheet(musicSheetId);
 
 		// show existing memos
 		// TODO : update when page is changed
-		memoList = music_sheet.getMemos(page_num);
+		memoList = music_sheet.getMemos(pageNum);
 		showMemos(memoList);
 
 		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
@@ -501,7 +476,7 @@ public class DisplayActivity extends Activity {
 					memoView.setTextSize(30);
 
 					Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
-							opacity, page_num, value, music_sheet_id, memoView);
+							opacity, pageNum, value, musicSheetId, memoView);
 					int id = (int) dbhelper.addMemo(memo);
 					memo.setId(id);
 					
@@ -576,7 +551,7 @@ public class DisplayActivity extends Activity {
 		int umm = note.getPitch()%100;
 		int oct = note.getPitch()/100;
 
-		int note_height = yPosition[umm-1] * -10 + 60;
+		int note_height = yPositions[umm-1] * -10 + 60;
 
 		if(oct==5) note_height-=70;
 		if(oct==4&&umm==1) note_height-=10;
@@ -664,7 +639,7 @@ public class DisplayActivity extends Activity {
 			paint.setColor(Color.BLACK);
 			paint.setStrokeWidth(2f);
 			if (note.getPitch() / 100 < 4 || note.getPitch()==401 ) {
-				int ummY = yPosition[note.getPitch()%100-1];
+				int ummY = yPositions[note.getPitch()%100-1];
 				ImageView lineImage = new ImageView(getBaseContext());
 				Bitmap bmLine = Bitmap.createBitmap((int) 80, (int) 180,
 						Bitmap.Config.ARGB_8888);
@@ -793,13 +768,13 @@ public class DisplayActivity extends Activity {
 				// Math.abs(toTransform[0][i]));
 			}
 
-			while (music_sheet.getNotes(page_num).get(currentPosition).isRest())
+			while (music_sheet.getNotes(pageNum).get(currentPosition).isRest())
 				currentPosition++;
 
 			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
 
-			Note nextNote = music_sheet.getNotes(page_num).get(currentPosition + 1);
-			Note currentNote = music_sheet.getNotes(page_num).get(currentPosition);
+			Note nextNote = music_sheet.getNotes(pageNum).get(currentPosition + 1);
+			Note currentNote = music_sheet.getNotes(pageNum).get(currentPosition);
 
 			double errorCurrent = 0;
 			double errorNext = 0;
@@ -852,8 +827,8 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 
-			trackingView.setX(music_sheet.getNotes(page_num).get(currentPosition).x-5);
-			trackingView.setY(music_sheet.getNotes(page_num).get(currentPosition).y);
+			trackingView.setX(music_sheet.getNotes(pageNum).get(currentPosition).x-5);
+			trackingView.setY(music_sheet.getNotes(pageNum).get(currentPosition).y);
 
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				displayMusicSheet(lastNoteIndex+1);

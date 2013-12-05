@@ -1,9 +1,10 @@
 package classes;
 
+import static classes.Constants.*;
+
 public class CalibrationData {
 	private int id;
 	private String name;
-	public final static int blockSize = 256;
 	private double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
 	private String file_path;
 	
@@ -54,8 +55,4 @@ public class CalibrationData {
 	public void setCalib_data(double[][][] calib_data) {
 		this.calib_data = calib_data;
 	}
-	
-	
-	
-
 }

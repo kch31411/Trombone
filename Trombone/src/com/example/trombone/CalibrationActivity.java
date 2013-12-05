@@ -51,29 +51,11 @@ import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
 
-import com.example.trombone.util.SystemUiHider;
-
 import db.DBHelper;
+import static classes.Constants.*;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- * 
- * @see SystemUiHider
- */
-public class CalibrationActivity extends Activity {
-	public final static int ENTER_NAME = 1;
-
-	public final static String CALIB_PATH = "/storage/sdcard0/Trombone/";
-	
-	// added
-	int frequency = 8000 * 2;
-	int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-	int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-	
-
+public class CalibrationActivity extends Activity {	
 	private RealDoubleFFT transformer;
-	int blockSize = 256;
 	Button startStopButton, buttonC, buttonCs, buttonD, buttonDs, buttonE,
 			buttonF, buttonFs, buttonG, buttonGs, buttonA, buttonAs, buttonB,
 			RefButton;
@@ -99,7 +81,6 @@ public class CalibrationActivity extends Activity {
 
 	String[] pitchName = { "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#",
 			"A ", "A#", "B " };
-	int[] yPosition = { 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6 };
 
 	double collected_Magnitude[] = new double[blockSize + 1];
 	int collected_num = 0;
@@ -122,8 +103,6 @@ public class CalibrationActivity extends Activity {
 	Paint paint;
 
 	int width, height;
-	int nexus7_width = 800;
-	int nexus7_height = 1280;
 	float ratio = 1;
 	int octave = 4;
 
@@ -496,7 +475,7 @@ public class CalibrationActivity extends Activity {
 				foo.putExtra("deletable", false);
 				foo.putExtra("enterOpacity", false);
 				foo.putExtra("title", "Instrument Name");
-				CalibrationActivity.this.startActivityForResult(foo, ENTER_NAME);
+				CalibrationActivity.this.startActivityForResult(foo, CALIB_ENTER_NAME);
 			}
 		});
 		
@@ -610,7 +589,7 @@ public class CalibrationActivity extends Activity {
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case ENTER_NAME:
+		case CALIB_ENTER_NAME:
 			try {
 				Log.d("ccccc", "get activity result");
 				

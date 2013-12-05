@@ -37,10 +37,11 @@ import android.util.Log;
  */
 public class MusicsheetSelectActivity extends Activity {
 	public static final int ADD_SHEET = 1;
+	
 	public int selectedPos = -1;
 	public ArrayList<Integer> ids = new ArrayList<Integer>();
 	public DBHelper db = new DBHelper(this); 
-	int calib_id;
+	int calibId;
 	
 	private class SpecialAdapter extends ArrayAdapter<String> {
 		public SpecialAdapter(Context context, int resource,
