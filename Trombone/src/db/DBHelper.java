@@ -175,18 +175,16 @@ public class DBHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if ( cursor != null )
 			cursor.moveToFirst();
-
+		Log.d("ddddd","debbbb");
 		// memo 가져오기, note 가져오기
 		int pages = Integer.parseInt(cursor.getString(3)); 
 		
 		ArrayList<ArrayList<Note>> note = new ArrayList<ArrayList<Note>>();
 		ArrayList<ArrayList<Memo>> memo = new ArrayList<ArrayList<Memo>>();
-		
 		for (int p = 1; p <= pages; p++) {
-			note.set(p, getNotes(id, p));
-			memo.set(p, getMemos(id, p));
+			note.add(getNotes(id, p));
+			memo.add(getMemos(id, p));
 		}
-		
 		MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
 				cursor.getString(1),
 				Integer.parseInt(cursor.getString(2)),
@@ -221,8 +219,8 @@ public class DBHelper extends SQLiteOpenHelper {
 				ArrayList<ArrayList<Memo>> memo = new ArrayList<ArrayList<Memo>>();
 				
 				for (int p = 1; p <= pages; p++) {
-					note.set(p, getNotes(id, p));
-					memo.set(p, getMemos(id, p));
+					note.add(getNotes(id, p));
+					memo.add(getMemos(id, p));
 				}
 				
 				MusicSheet sheet = new MusicSheet(Integer.parseInt(cursor.getString(0)),
@@ -309,7 +307,6 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor cursor = db.rawQuery(selectQuery, null);
-		
 		// looping through all rows and adding to list
 		if ( cursor.moveToFirst() ) {
 			do {
@@ -329,7 +326,6 @@ public class DBHelper extends SQLiteOpenHelper {
 				noteList.add(note);
 			} while (cursor.moveToNext());
 		}
-		
 		// return sheet list
 		return noteList;
 	}
@@ -390,7 +386,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor cursor = db.rawQuery(selectQuery, null);
-		
+		Log.d("ddddd","debbbb3");
 		// looping through all rows and adding to list
 		if ( cursor.moveToFirst() ) {
 			do {
@@ -407,7 +403,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				memoList.add(memo);
 			} while (cursor.moveToNext());
 		}
-		
+		Log.d("ddddd","debbbb3"+memoList.size());
 		// return sheet list
 		return memoList;
 	}

@@ -223,6 +223,7 @@ public class MusicsheetSelectActivity extends Activity {
 					}
 				}
 				
+				Log.d("ddd",notes.size()+" size");
 				scan.close();
 				
 				// TODO : KEY NUMBER

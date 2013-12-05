@@ -817,10 +817,10 @@ public class DisplayActivity extends Activity {
 				double spec_next = calib_data[nextNote.getPitch()/100-3]
 						[nextNote.getPitch()%100-1][i];
 				
-				if (spec_current * 1.2 > Magnitude[i])
-					errorCurrent += spec_current - Magnitude[i];
-				if (spec_next * 1.2 > Magnitude[i])
-					errorNext += spec_current - Magnitude[i];
+				if (spec_current * 0.8 > Magnitude[i])
+					errorCurrent += spec_current * 0.8 - Magnitude[i];
+				if (spec_next * 0.8 > Magnitude[i])
+					errorNext += spec_current * 0.8 - Magnitude[i];
 			}
 			resultText.setText(errorCurrent + " " + errorNext);
 			
