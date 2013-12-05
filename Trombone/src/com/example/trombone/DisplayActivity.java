@@ -88,7 +88,6 @@ public class DisplayActivity extends Activity {
 	double[] ref_pitches;
 	int[] yPosition={0,0,1,1,2,3,3,4,4,5,5,6};
 	int[] yPosition_flat={0,1,1,2,2,3,4,4,5,5,6,6};
-	String title = "sample title";
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -174,9 +173,6 @@ public class DisplayActivity extends Activity {
 		resultText.setText(ref_pitches[1]+"");
 		debugText = (TextView) findViewById(R.id.debugText);
 
-		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
-		titleView.setText(title);
-
 		startStopButton = (Button) findViewById(R.id.StartStopButton);
 		startStopButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
@@ -215,6 +211,9 @@ public class DisplayActivity extends Activity {
 		// TODO : update when page is changed
 		memoList = music_sheet.getMemos(page_num);
 		showMemos(memoList);
+
+		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
+		titleView.setText(music_sheet.getName());
 
 		// get dimension of device
 		Display display = getWindowManager().getDefaultDisplay();
