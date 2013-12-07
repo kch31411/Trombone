@@ -176,7 +176,7 @@ public class DisplayActivity extends Activity {
 						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(pageNum));
 			y += 150;
 		}
-		lastNoteIndex = note_index-1;
+		lastNoteIndex = music_sheet.getNotes(pageNum).size()-1;
 	}
 
 	
@@ -802,13 +802,13 @@ public class DisplayActivity extends Activity {
 				// Math.abs(toTransform[0][i]));
 			}
 
-			while (music_sheet.getNotes(pageNum).get(currentPosition).isRest())
+			while (music_sheet.getNote(pageNum, currentPosition).isRest())
 				currentPosition++;
 
 			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
 			
-			Note nextNote = music_sheet.getNotes(pageNum).get(currentPosition + 1);
-			Note currentNote = music_sheet.getNotes(pageNum).get(currentPosition);
+			Note nextNote = music_sheet.getNote(pageNum, currentPosition+1);
+			Note currentNote = music_sheet.getNote(pageNum, currentPosition);
 
 			double errorCurrent = 0;
 			double errorNext = 0;
@@ -861,8 +861,8 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 
-			trackingView.setX(music_sheet.getNotes(pageNum).get(currentPosition).x+55);
-			trackingView.setY(music_sheet.getNotes(pageNum).get(currentPosition).y);
+			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+55);
+			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
 
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
