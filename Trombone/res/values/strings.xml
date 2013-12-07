@@ -13,4 +13,9 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_musicsheet_select">MusicsheetSelectActivity</string>
 
+    <string-array name="sortingcriteria">
+        <item>최신 순</item>
+        <item>플레이 순</item>
+        <item>이름 순</item>
+    </string-array>
 </resources>

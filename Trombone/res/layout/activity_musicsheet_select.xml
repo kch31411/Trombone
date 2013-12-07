@@ -87,7 +87,7 @@
                     android:id="@+id/addmusicsheetbutton"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:layout_marginLeft="360dp"
+                    android:layout_marginLeft="300dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/addicon2" />
 
@@ -99,13 +99,13 @@
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/deleteicon2" />
 
-                <ImageView
-                    android:id="@+id/sortmusicsheetbutton"
-                    android:layout_width="36dp"
+                <Spinner
+                    android:id="@+id/sortingCriteriaSpinner"
+                    android:layout_width="match_parent"
                     android:layout_height="36dp"
-                    android:layout_marginLeft="10dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/sorticon2" />
+                    android:entries="@array/sortingcriteria"
+                     />
 
             </LinearLayout>
 

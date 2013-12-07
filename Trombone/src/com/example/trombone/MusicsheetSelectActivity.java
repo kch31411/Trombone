@@ -6,28 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 import classes.MusicSheet;
 import classes.Note;
 
 import com.example.trombone.util.SystemUiHider;
 
 import db.DBHelper;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.util.Log;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -42,6 +44,7 @@ public class MusicsheetSelectActivity extends Activity {
 	public ArrayList<Integer> ids = new ArrayList<Integer>();
 	public DBHelper db = new DBHelper(this); 
 	int calibId;
+	private Spinner mSpinner;
 	
 	private class SpecialAdapter extends ArrayAdapter<String> {
 		public SpecialAdapter(Context context, int resource,
@@ -130,6 +133,25 @@ public class MusicsheetSelectActivity extends Activity {
 			}
 		});
 			
+		mSpinner = (Spinner)findViewById(R.id.sortingCriteriaSpinner);
+		mSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				// TODO Auto-generated method stub
+				String selectedItem = parent.getItemAtPosition(position).toString();
+				Toast.makeText(getApplicationContext(), selectedItem, 
+					Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				Toast.makeText(getApplicationContext(), "악보의 정렬 조건을 선택해주세요.", 
+						Toast.LENGTH_SHORT).show();
+			}
+		});
+		
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setOnItemClickListener( new ListViewItemClickListener() );
 		//lv.setOnItemLongClickListener( new ListViewItemClickListener() );
