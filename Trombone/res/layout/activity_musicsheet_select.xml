@@ -87,7 +87,7 @@
                     android:id="@+id/addmusicsheetbutton"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:layout_marginLeft="300dp"
+                    android:layout_marginLeft="310dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/addicon2" />
 
