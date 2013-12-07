@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.essence.chart.Chart;
+import com.essence.chart.ChartCallback;
+import com.essence.chart.GridData;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -13,6 +17,8 @@ import android.view.WindowManager;
  * @see SystemUiHider
  */
 public class HistoryActivity extends Activity {
+	private Chart chart;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -23,6 +29,13 @@ public class HistoryActivity extends Activity {
 	                WindowManager.LayoutParams.FLAG_FULLSCREEN);  
 
 		setContentView(R.layout.activity_history);
+		
+		chart = (Chart) findViewById(R.id.history_chart);
+		
+		// TODO : display multiple lines, series
+		chart.setChartType(Chart.Chart_Type_Line);
+
+		 // chart.setYAxisMaximum(true, 2000);
 
 	}
 
