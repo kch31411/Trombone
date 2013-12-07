@@ -215,7 +215,6 @@ public class DisplayActivity extends Activity {
 		}catch (Exception e) {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
-		Toast.makeText(this, calibId+"", Toast.LENGTH_SHORT).show();  // XXX : for debug
 		
 	}
 	
@@ -864,7 +863,6 @@ public class DisplayActivity extends Activity {
 		return ref_pitches[umm-1]*Math.pow(2,(oct-4)); 
 	}
 	
-	// TODO : call this method when turning page
 	private void updatePage(int page) {
 		if (page > music_sheet.getPages() || page <= 0)
 			Log.d("Warning", "unexpected page : " + page);
