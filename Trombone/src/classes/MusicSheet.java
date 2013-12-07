@@ -76,4 +76,24 @@ public class MusicSheet {
 	public ArrayList<Memo> getMemos(int page) {
 		return memo.get(page-1);
 	}
+	public Note getNote(int page, int index) {
+		// also give note in prev or next page
+		// simply assume that it do not pointing 2 pages before or after
+		int curr_size = getNotes(page).size();
+		int new_index = index;
+		int new_page = page;
+		if (index >= curr_size) {
+			new_index = index - curr_size;
+			new_page = page + 1;
+			
+			if (new_page > pages || new_index >= getNotes(new_page).size()) return null;
+		} else if (index < 0) {
+			new_index = index + getNotes(page-1).size();
+			new_page = page - 1;
+
+			if (new_page < 1 || new_index < 0) return null;
+		}
+		
+		return getNotes(new_page).get(new_index);
+	}
 }
