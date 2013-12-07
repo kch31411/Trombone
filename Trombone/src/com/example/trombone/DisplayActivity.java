@@ -90,8 +90,7 @@ public class DisplayActivity extends Activity {
 	int width, height;
 	float ratio = 1;
 	int bar_length = 12; 
-	boolean is_flat = true;	// XXX : hansol a   i gae mu ya?
-	int key_num = 0;
+	int keyNumber = 0;
 	
 	int[] yPositions = yPosition;
 	
@@ -126,12 +125,15 @@ public class DisplayActivity extends Activity {
 		setContentView(R.layout.activity_display);
 
 		initialize();
+
+		keyNumber = music_sheet.getKeyNumber();
+		if(keyNumber<0)
+			yPositions=yPosition_flat;
+		bar_length = music_sheet.getBeat();		
+		
 		drawBackground();
 		displayMusicSheet(0);
 		
-		if(is_flat)
-			yPositions=yPosition_flat;
-
 		// start button
 		startStopButton = (Button) findViewById(R.id.StartStopButton);
 		startStopButton.setOnClickListener(new Button.OnClickListener() {
@@ -281,8 +283,8 @@ public class DisplayActivity extends Activity {
 				canvas.drawLine(side_padding, startPosition+i*interval, 
 						nexus7_width - side_padding, startPosition+i*interval, paint);
 
-			canvas.drawLine((int) ((nexus7_width - side_padding) / 2), startPosition,
-					(int) ((nexus7_width - side_padding) / 2), 
+			canvas.drawLine((int) ((nexus7_width - side_padding + 100) / 2), startPosition,
+					(int) ((nexus7_width - side_padding + 100) / 2), 
 					startPosition+4*interval, paint);
 
 			canvas.drawLine(nexus7_width - side_padding, startPosition, 
@@ -311,15 +313,49 @@ public class DisplayActivity extends Activity {
 
 			l.addView(clef);
 			
-			if(key_num<0)
+			if(keyNumber<0)
 			{
-				//// sharp / flat key goes here
-			}
-			else if(key_num>0)
-			{
+				int[] flat_position = {7,10,6,9,5,8,4};
+				for (int i=0; i<(keyNumber*-1) && i<7; i++)
+				{
+					ImageView iv = new ImageView(getBaseContext());
+					Bitmap btm = BitmapFactory.decodeResource(getResources(),
+							R.drawable.flat);
+					iv.setImageBitmap(btm);
+					iv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+							LayoutParams.WRAP_CONTENT));
+					iv.setPadding(side_padding+8*i+50, y+flat_position[i]*-10 +105, 0, 0);
+
+					Matrix mat = new Matrix();
+					mat.postScale((float) 0.17, (float) 0.17);
+					iv.setScaleType(ScaleType.MATRIX);
+					iv.setImageMatrix(mat);
+
+					l.addView(iv);
+				}
 				
 			}
-				
+			else if(keyNumber>0)
+			{
+				int[] sharp_position = {11,8,12,9,6,10,7};
+				for (int i=0; i<(keyNumber) && i<7; i++)
+				{
+					ImageView iv = new ImageView(getBaseContext());
+					Bitmap btm = BitmapFactory.decodeResource(getResources(),
+							R.drawable.sharp);
+					iv.setImageBitmap(btm);
+					iv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+							LayoutParams.WRAP_CONTENT));
+					iv.setPadding(side_padding+8*i+50, y+sharp_position[i]*-10 +110, 0, 0);
+
+					Matrix mat = new Matrix();
+					mat.postScale((float) 0.14, (float) 0.14);
+					iv.setScaleType(ScaleType.MATRIX);
+					iv.setImageMatrix(mat);
+
+					l.addView(iv);
+				}
+			}
 			y += 150;
 		}
 	}
@@ -667,7 +703,7 @@ public class DisplayActivity extends Activity {
 			noteImage.setImageBitmap(bmNote);
 			noteImage.setLayoutParams(new LayoutParams(
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			noteImage.setPadding(x, getNotePosition(note) + y, 0, 0);
+			noteImage.setPadding(x+60, getNotePosition(note) + y, 0, 0);
 			note.x = x;
 			note.y = y;
 
@@ -683,7 +719,7 @@ public class DisplayActivity extends Activity {
 				ImageView accidental = new ImageView(getBaseContext());
 				Bitmap bmA;
 				
-				if (is_flat)
+				if (keyNumber<0)
 					bmA = BitmapFactory.decodeResource(getResources(),
 							R.drawable.flat);
 				else
@@ -693,7 +729,7 @@ public class DisplayActivity extends Activity {
 				accidental.setImageBitmap(bmA);
 				accidental.setLayoutParams(new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				accidental.setPadding(x-20, getNotePosition(note)+y+35, 0, 0);
+				accidental.setPadding(x+40, getNotePosition(note)+y+35, 0, 0);
 				
 				Matrix mA = new Matrix();
 				mA.postScale((float) 0.17, (float) 0.17);
