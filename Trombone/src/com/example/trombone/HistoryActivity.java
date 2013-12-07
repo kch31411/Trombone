@@ -34,6 +34,12 @@ public class HistoryActivity extends Activity {
 		
 		// TODO : display multiple lines, series
 		chart.setChartType(Chart.Chart_Type_Line);
+		chart.setLegendVisible(true);
+		chart.setTitle("Score history");
+		chart.setTitleFontSize(30);
+		
+		// XXX : need to be horizontal??
+		
 
 		 // chart.setYAxisMaximum(true, 2000);
 
