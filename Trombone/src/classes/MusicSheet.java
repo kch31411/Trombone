@@ -71,9 +71,9 @@ public class MusicSheet {
 		this.keyNumber = keyNumber;
 	}
 	public ArrayList<Note> getNotes(int page) {
-		return note.get(page);
+		return note.get(page-1);
 	}
 	public ArrayList<Memo> getMemos(int page) {
-		return memo.get(page);
+		return memo.get(page-1);
 	}
 }
