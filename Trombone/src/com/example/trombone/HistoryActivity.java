@@ -52,6 +52,10 @@ public class HistoryActivity extends Activity {
 		
 		chart.setSourceData(gridData, 0);
 		
+		// TODO : set data name (music sheet title)
+		
+		// TODO : set X-axis name correctly 
+		
 
 		 // chart.setYAxisMaximum(true, 2000);
 
