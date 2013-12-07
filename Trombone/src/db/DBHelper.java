@@ -209,10 +209,23 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	// 모든 Sheet 정보 가져오기
-	public List<MusicSheet> getAllMusicSheets() {
+	public List<MusicSheet> getAllMusicSheets(int oper) {
 		List<MusicSheet> sheetList = new ArrayList<MusicSheet>();
 		// Select All Query
-		String selectQuery = "SELECT * FROM " + MUSICSHEET_TABLE_SHEETS;
+		String selectQuery = "SELECT * FROM " + MUSICSHEET_TABLE_SHEETS
+				+ " ORDER BY ";
+		if ( oper == 1 ) {
+			// 최신순
+			selectQuery = selectQuery + MUSICSHEET_KEY_ID + " DESC"; 
+		}
+		else if ( oper == 2 ) {
+			// 이름순
+			selectQuery = selectQuery + MUSICSHEET_KEY_NAME + " ASC";
+		}
+		else if ( oper == 3 ) {
+			// 플레이순 
+			selectQuery = selectQuery + MUSICSHEET_KEY_PLAYCOUNT + " DESC";
+		}
 		
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor cursor = db.rawQuery(selectQuery, null);

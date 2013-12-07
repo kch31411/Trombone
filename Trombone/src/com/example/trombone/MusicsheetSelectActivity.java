@@ -44,6 +44,7 @@ public class MusicsheetSelectActivity extends Activity {
 	public ArrayList<Integer> ids = new ArrayList<Integer>();
 	public DBHelper db = new DBHelper(this); 
 	int calibId;
+	int criteria = 1;
 	private Spinner mSpinner;
 	
 	private class SpecialAdapter extends ArrayAdapter<String> {
@@ -129,7 +130,7 @@ public class MusicsheetSelectActivity extends Activity {
 				db.deleteMusicSheet(musicsheet);
 				selectedPos = -1;
 				
-				refreshListView();
+				refreshListView(criteria);
 			}
 		});
 			
@@ -140,8 +141,11 @@ public class MusicsheetSelectActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				// TODO Auto-generated method stub
 				String selectedItem = parent.getItemAtPosition(position).toString();
-				Toast.makeText(getApplicationContext(), selectedItem, 
+				Toast.makeText(getApplicationContext(), selectedItem + "으로 정렬되었습니다.", 
 					Toast.LENGTH_SHORT).show();
+				
+				criteria = position + 1;
+				refreshListView(criteria);
 			}
 
 			@Override
@@ -155,7 +159,7 @@ public class MusicsheetSelectActivity extends Activity {
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setOnItemClickListener( new ListViewItemClickListener() );
 		//lv.setOnItemLongClickListener( new ListViewItemClickListener() );
-		refreshListView();
+		refreshListView(criteria);
 	}
 	
 	private class ListViewItemClickListener implements AdapterView.OnItemClickListener {		
@@ -166,15 +170,15 @@ public class MusicsheetSelectActivity extends Activity {
 			else
 				selectedPos = position;
 			
-			refreshListView();
+			refreshListView(criteria);
 		}
 		
 	}
 	
-	public void refreshListView() {
+	public void refreshListView(int oper) {
 		ids.clear();
 
-		List<MusicSheet> sheets = db.getAllMusicSheets();
+		List<MusicSheet> sheets = db.getAllMusicSheets(oper);
 		ArrayList<String> sheetNames = new ArrayList<String>();
 		SpecialAdapter adapter;
 		adapter = new SpecialAdapter(this, android.R.layout.simple_list_item_1, sheetNames);
@@ -283,7 +287,7 @@ public class MusicsheetSelectActivity extends Activity {
 			 		}
 				}
 		 		//////
-		 		refreshListView();
+		 		refreshListView(criteria);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
