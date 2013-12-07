@@ -807,7 +807,7 @@ public class DisplayActivity extends Activity {
 				currentPosition++;
 
 			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
-
+			
 			Note nextNote = music_sheet.getNotes(pageNum).get(currentPosition + 1);
 			Note currentNote = music_sheet.getNotes(pageNum).get(currentPosition);
 
@@ -862,11 +862,11 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 
-			trackingView.setX(music_sheet.getNotes(pageNum).get(currentPosition).x-5);
+			trackingView.setX(music_sheet.getNotes(pageNum).get(currentPosition).x+55);
 			trackingView.setY(music_sheet.getNotes(pageNum).get(currentPosition).y);
 
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
-				displayMusicSheet(lastNoteIndex+1);
+				displayMusicSheet(lastNoteIndex+1);				
 			}
 
 			for (int i = 0; i < Magnitude.length; i++) {
