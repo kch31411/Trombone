@@ -678,10 +678,9 @@ public class DisplayActivity extends Activity {
 			l.addView(noteImage);
 			noteViews.add(noteImage);
 
-			if (note.isAccidental()) {
+			if (note.isAccidental()) { 
 				ImageView accidental = new ImageView(getBaseContext());
 				Bitmap bmA;
-				
 				
 				if (is_flat)
 					bmA = BitmapFactory.decodeResource(getResources(),
@@ -700,7 +699,7 @@ public class DisplayActivity extends Activity {
 				accidental.setScaleType(ScaleType.MATRIX);
 				accidental.setImageMatrix(mA);
 				l.addView(accidental);
-				noteViews.add(accidental);
+				noteViews.add(accidental); 
 			}
 
 			x += (int)(14*note.getBeat()/((double)bar_length)*16) ;

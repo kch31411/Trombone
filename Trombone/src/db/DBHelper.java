@@ -40,7 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String NOTE_KEY_PITCH = "pitch";
 	private static final String NOTE_KEY_BEAT = "beat";
 	private static final String NOTE_KEY_ISREST = "isRest";
-	private static final String NOTE_KEY_ISADCCIDENTAL = "isAccidental";
+	private static final String NOTE_KEY_ISACCIDENTAL = "isAccidental";
 	private static final String NOTE_KEY_X = "x";
 	private static final String NOTE_KEY_Y = "y";
 	private static final String NOTE_KEY_MUSICSHEET = "musicsheet_id"; // foreign key
@@ -87,11 +87,11 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ NOTE_KEY_PITCH + " INTEGER,"
 				+ NOTE_KEY_BEAT + " INTEGER,"
 				+ NOTE_KEY_ISREST + " INTEGER,"
-				+ NOTE_KEY_ISADCCIDENTAL + " INTEGER,"
+				+ NOTE_KEY_ISACCIDENTAL + " INTEGER,"
 				+ NOTE_KEY_X + " INTEGER,"
 				+ NOTE_KEY_Y + " INTEGER,"
 				+ NOTE_KEY_MUSICSHEET + " INTEGER,"
-				+ "FOREIGN KEY(" + NOTE_KEY_MUSICSHEET + ") REFERENCES musicsheets(id)" 
+				+ "FOREIGN KEY(" + NOTE_KEY_MUSICSHEET + ") REFERENCES musicsheets(id) ON DELETE CASCADE" 
 				+ ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
 		
@@ -104,7 +104,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ MEMO_KEY_PAGE + " INTEGER,"
 				+ MEMO_KEY_CONTENT + " TEXT,"
 				+ MEMO_KEY_MUSICSHEET + " INTEGER,"
-				+ "FOREIGN KEY(" + MEMO_KEY_MUSICSHEET + ") REFERENCES musicsheets(id)" 
+				+ "FOREIGN KEY(" + MEMO_KEY_MUSICSHEET + ") REFERENCES musicsheets(id) ON DELETE CASCADE" 
 				+ ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
 		
@@ -114,7 +114,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ HISTORY_KEY_DATE + " TEXT,"
 				+ HISTORY_KEY_SCORE + " INTEGER,"
 				+ HISTORY_KEY_MUSICSHEET + " INTEGER,"
-				+ "FOREIGN KEY(" + HISTORY_KEY_MUSICSHEET + ") REFERENCES musicsheets(id)" 
+				+ "FOREIGN KEY(" + HISTORY_KEY_MUSICSHEET + ") REFERENCES musicsheets(id) ON DELETE CASCADE" 
 				+ ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
 		
@@ -125,6 +125,15 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ CALIB_KEY_PATH + " TEXT"
 				+ ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
+	}
+	
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+	    super.onOpen(db);
+	    if (!db.isReadOnly()) {
+	        // Enable foreign key constraints
+	        db.execSQL("PRAGMA foreign_keys=ON;");
+	    }
 	}
 	
 	// Upgrading database
@@ -284,7 +293,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		values.put(NOTE_KEY_PITCH, note.getPitch());
 		values.put(NOTE_KEY_BEAT, note.getBeat());
 		values.put(NOTE_KEY_ISREST, note.getIsRest());
-		values.put(NOTE_KEY_ISADCCIDENTAL, note.getIsRest());
+		values.put(NOTE_KEY_ISACCIDENTAL, note.getIsAccidental());
 		values.put(NOTE_KEY_X, note.getX());
 		values.put(NOTE_KEY_Y, note.getY());
 		values.put(NOTE_KEY_MUSICSHEET, note.getMusicsheet_id());
