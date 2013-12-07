@@ -40,6 +40,18 @@ public class HistoryActivity extends Activity {
 		
 		// XXX : need to be horizontal??
 		
+		// TODO : set history data
+		int nRow = 2;
+		int nCol = 2;
+		GridData gridData = new GridData(nRow, nCol);
+		for (int i = 0; i < nRow; i++) {
+			for (int j = 0; j < nCol; j++) {
+				gridData.setCell(i, j, 10*i + 5*j);   // XXX : dummy value
+			}
+		}
+		
+		chart.setSourceData(gridData, 0);
+		
 
 		 // chart.setYAxisMaximum(true, 2000);
 
