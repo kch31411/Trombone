@@ -47,6 +47,8 @@ public class DisplayActivity extends Activity {
 	private int musicSheetId;
 	private int calibId;
 	private int pageNum = 1;  // TODO : page related works
+	int lastNoteIndex;
+	int currentPosition = 0;
 	
 	private TextView selectedMemo;	// for memo modify
 	private ArrayList<Memo> memoList = new ArrayList<Memo>();
@@ -75,7 +77,6 @@ public class DisplayActivity extends Activity {
 
 	int currentCount = 0;
 	int currentError = 0;
-	int currentPosition = 0;
 
 	RecordAudio recordTask;
 
@@ -95,7 +96,6 @@ public class DisplayActivity extends Activity {
 	
 	int[] yPositions = yPosition;
 	
-	int lastNoteIndex;
 	int side_padding = 40;
 
 	TextView resultText, debugText;
@@ -127,7 +127,7 @@ public class DisplayActivity extends Activity {
 
 		initialize();
 		drawBackground();
-		displayMusicSheet(0);
+		displayMusicSheet(pageNum);
 		
 		if(is_flat)
 			yPositions=yPosition_flat;
@@ -154,7 +154,7 @@ public class DisplayActivity extends Activity {
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
 	}
 	
-	private void displayMusicSheet(int start) {
+	private void displayMusicSheet(int page) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 
 		for (ImageView iv : noteViews) {
@@ -163,7 +163,7 @@ public class DisplayActivity extends Activity {
 		noteViews.clear();
 
 		// Display music sheet
-		int note_index = start;
+		int note_index = 0;
 		int y = 0;
 		int count = 0;
 		while (count++ < 3) {
@@ -831,7 +831,8 @@ public class DisplayActivity extends Activity {
 			trackingView.setY(music_sheet.getNotes(pageNum).get(currentPosition).y);
 
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
-				displayMusicSheet(lastNoteIndex+1);
+				// turn to next page.
+				updatePage(pageNum + 1);
 			}
 
 			for (int i = 0; i < Magnitude.length; i++) {
@@ -879,7 +880,10 @@ public class DisplayActivity extends Activity {
 			
 			// update notes
 			noteList = music_sheet.getNotes(page);
-			// XXX : update display
+			displayMusicSheet(page);
+			
+			// initialize current playing position as 0
+			currentPosition = 0;
 		}
 	}
 }
