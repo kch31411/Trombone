@@ -147,7 +147,7 @@ public class MusicsheetSelectActivity extends Activity {
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getApplicationContext(), "¾Çº¸ÀÇ Á¤·Ä Á¶°ÇÀ» ¼±ÅÃÇØÁÖ¼¼¿ä.", 
+				Toast.makeText(getApplicationContext(), "ï¿½Çºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½ï¿½.", 
 						Toast.LENGTH_SHORT).show();
 			}
 		});
@@ -181,7 +181,7 @@ public class MusicsheetSelectActivity extends Activity {
 
 		int index = 0;
 		for (MusicSheet sheet : sheets) {
-			ids.add(index, sheet.getId()); // musicsheet id¸¦ ¸ð¾Æ³õÀº ArrayList
+			ids.add(index, sheet.getId()); // musicsheet idï¿½ï¿½ ï¿½ï¿½Æ³ï¿½ï¿½ï¿½ ArrayList
 			index++;
 			
 			sheetNames.add(sheet.getName());
@@ -217,7 +217,7 @@ public class MusicsheetSelectActivity extends Activity {
 			try {
 				Log.d("aaa", "aaaa4");
 				FileInputStream fileinputstream =  new FileInputStream(file.getAbsolutePath().substring(6));
-				Scanner scan = new Scanner(fileinputstream);
+				Scanner scan = new Scanner(fileinputstream, "KSC5601"); 
 				
 				String name = scan.nextLine();
 				int keyNumber = scan.nextInt();
@@ -228,7 +228,7 @@ public class MusicsheetSelectActivity extends Activity {
 				int currentPageBeat = 0;
 				ArrayList<Note> notes = new ArrayList<Note>();
 				
-				// Note class »ý¼º
+				// Note class ï¿½ï¿½
 				for ( int i = 0; i < numberOfNote; i++ ) {
 					Note current = new Note(scan.nextInt(), scan.nextInt());
 					current.setIsRest(scan.nextInt());

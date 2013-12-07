@@ -166,7 +166,7 @@ public class DisplayActivity extends Activity {
 
 		// Display music sheet
 		int note_index = 0;
-		int y = 0;
+		int y = 80;
 		int count = 0;
 		while (count++ < 3) {
 			if (note_index >= 0)
@@ -265,7 +265,7 @@ public class DisplayActivity extends Activity {
 		l.addView(trackingView);
 		
 		// Display music sheet
-		int y = 0;
+		int y = 80;
 		int count = 0;
 		while (count++ < 3) {
 			ImageView fiveLine = new ImageView(getBaseContext());
@@ -282,8 +282,8 @@ public class DisplayActivity extends Activity {
 				canvas.drawLine(side_padding, startPosition+i*interval, 
 						nexus7_width - side_padding, startPosition+i*interval, paint);
 
-			canvas.drawLine((int) ((nexus7_width - side_padding + 100) / 2), startPosition,
-					(int) ((nexus7_width - side_padding + 100) / 2), 
+			canvas.drawLine((int) ((nexus7_width - side_padding + 140) / 2), startPosition,
+					(int) ((nexus7_width - side_padding + 140) / 2), 
 					startPosition+4*interval, paint);
 
 			canvas.drawLine(nexus7_width - side_padding, startPosition, 
@@ -398,11 +398,11 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_DOWN:
 			mLastMotionX = event.getX();
-			mLastMotionY = event.getY();   // ½ÃÀÛ À§Ä¡ ÀúÀå
+			mLastMotionY = event.getY();   // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 
 			mHasPerformedLongPress = false;   
 
-			postCheckForLongClick(0);     //  Long click message ¼³Á¤
+			postCheckForLongClick(0);     //  Long click message ï¿½ï¿½ï¿½ï¿½
 
 			break;
 
@@ -412,7 +412,7 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// ÀÏÁ¤ ¹üÀ§ ¹þ¾î³ª¸é  Ãë¼ÒÇÔ
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î³ªï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -431,10 +431,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long ClickÀ» Ã³¸®µÇÁö ¾Ê¾ÒÀ¸¸é Á¦°ÅÇÔ.
+				// Long Clickï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 				removeLongPressCallback();
 
-				// Short Click Ã³¸® ·çÆ¾À» ¿©±â¿¡ ³ÖÀ¸¸é µË´Ï´Ù.
+				// Short Click Ã³ï¿½ï¿½ ï¿½ï¿½Æ¾ï¿½ï¿½ ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë´Ï´ï¿½.
 				performOneClick(); 
 
 			}
@@ -447,7 +447,7 @@ public class DisplayActivity extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	// Long ClickÀ» Ã³¸®ÇÒ  Runnable ÀÔ´Ï´Ù. 
+	// Long Clickï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½  Runnable ï¿½Ô´Ï´ï¿½. 
 	class CheckForLongPress implements Runnable {
 
 		public void run() {
@@ -457,7 +457,7 @@ public class DisplayActivity extends Activity {
 		}
 	}
 
-	// Long Click Ã³¸® ¼³Á¤À» À§ÇÑ ÇÔ¼ö 
+	// Long Click Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -467,8 +467,8 @@ public class DisplayActivity extends Activity {
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
 				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// ¿©±â¼­  ½Ã½ºÅÛÀÇ  getLongPressTimeout() ÈÄ¿¡ message ¼öÇàÇÏ°Ô ÇÕ´Ï´Ù.  
-		// Ãß°¡ delay°¡ ÇÊ¿äÇÑ °æ¿ì¸¦ À§ÇØ¼­  ÆÄ¶ó¹ÌÅÍ·Î Á¶Àý°¡´ÉÇÏ°Ô ÇÕ´Ï´Ù.
+		// ï¿½ï¿½ï¿½â¼­  ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½  getLongPressTimeout() ï¿½Ä¿ï¿½ message ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Õ´Ï´ï¿½.  
+		// ï¿½ß°ï¿½ delayï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ì¸¦ ï¿½ï¿½ï¿½Ø¼ï¿½  ï¿½Ä¶ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Õ´Ï´ï¿½.
 	}
 
 
@@ -692,7 +692,7 @@ public class DisplayActivity extends Activity {
 				}
 				lineImage.setLayoutParams(new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				lineImage.setPadding(x-5, getNotePosition(note)+y-100, 0, 0);
+				lineImage.setPadding(x+55, getNotePosition(note)+y-100, 0, 0);
 
 				l.addView(lineImage);
 				noteViews.add(lineImage);
@@ -717,8 +717,11 @@ public class DisplayActivity extends Activity {
 			if (note.isAccidental()) { 
 				ImageView accidental = new ImageView(getBaseContext());
 				Bitmap bmA;
-				
-				if (keyNumber<0)
+				int umm = note.getPitch()%100;
+				if(umm!=2&&umm!=4&&umm!=7&&umm!=9&&umm!=11)
+					bmA = BitmapFactory.decodeResource(getResources(),
+							R.drawable.natural);
+				else if (keyNumber<0)
 					bmA = BitmapFactory.decodeResource(getResources(),
 							R.drawable.flat);
 				else
@@ -738,7 +741,7 @@ public class DisplayActivity extends Activity {
 				noteViews.add(accidental); 
 			}
 
-			x += (int)(14*note.getBeat()/((double)bar_length)*16) ;
+			x += (int)(16*note.getBeat()/((double)bar_length)*16) ;
 		}
 		return -1;
 	}
