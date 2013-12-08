@@ -48,11 +48,11 @@
                    android:textSize="30dp"
                    android:textStyle="bold" />
 
-                <Gallery
-                    android:id="@+id/gallery1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="296dp"
-                    android:layout_weight="0.89" />
+               <ImageView
+                   android:id="@+id/preview"
+                   android:layout_width="wrap_content"
+                   android:layout_height="296dp"
+                   android:layout_weight="0.89" />
 
                 <ImageView
                     android:id="@+id/realplaybutton"

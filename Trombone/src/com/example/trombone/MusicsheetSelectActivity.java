@@ -9,6 +9,8 @@ import java.util.Scanner;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -162,6 +164,22 @@ public class MusicsheetSelectActivity extends Activity {
 		refreshListView(criteria);
 	}
 	
+	private void refreshPreview() {
+		if ( selectedPos == -1 )
+			return;
+		
+		int id = ids.get(selectedPos);
+		String previewPath = "/storage/emulated/0/DCIM/TROMBONE/" + id + ".png";
+		
+		Log.d("for captrue", "capture showPreview1");
+		ImageView iv = (ImageView)findViewById(R.id.preview);
+		Log.d("for captrue", "capture showPreview2");
+		Bitmap bm = BitmapFactory.decodeFile(previewPath);
+		Log.d("for captrue", "capture showPreview3");
+		iv.setImageBitmap(bm);
+		Log.d("for captrue", "capture showPreview4");
+	}
+	
 	private class ListViewItemClickListener implements AdapterView.OnItemClickListener {		
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -194,6 +212,8 @@ public class MusicsheetSelectActivity extends Activity {
 
 		ListView lv = (ListView)findViewById(R.id.musicsheetlistview);
 		lv.setAdapter(adapter);
+		
+		refreshPreview();
 	}
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent result) 
