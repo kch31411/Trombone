@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -39,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
+import classes.History;
 import classes.Memo;
 import classes.MusicSheet;
 import classes.Note;
@@ -114,6 +118,16 @@ public class DisplayActivity extends Activity {
 			started = false;
 			recordTask.cancel(true);			
 		}
+		
+		// XXX : This is temporary.
+		// This history construction must be done when play is end.
+		Date cDate = new Date();
+		String fDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+		
+		Random random = new Random();
+		History history = new History(-1, fDate, random.nextInt(100), musicSheetId);
+		dbhelper.addHistory(history);
+		
 		super.onStop();
 	}
 
