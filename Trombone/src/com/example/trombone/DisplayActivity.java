@@ -122,6 +122,7 @@ public class DisplayActivity extends Activity {
 		
 		Random random = new Random();
 		History history = new History(-1, fDate, random.nextInt(100), musicSheetId);
+		dbhelper.addHistory(history);
 		
 		super.onStop();
 	}

@@ -1,19 +1,23 @@
 package com.example.trombone;
 
 
+import java.util.ArrayList;
 import java.util.List;
-
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 import com.essence.chart.Chart;
-import com.essence.chart.ChartCallback;
 import com.essence.chart.GridData;
 
-import static classes.Constants.*; 
+import static classes.Constants.*;
 import classes.*;
 import db.DBHelper;
 
@@ -26,6 +30,8 @@ import db.DBHelper;
 public class HistoryActivity extends Activity {
 	private Chart scoreChart, countChart;
 	DBHelper dbhelper = new DBHelper(this);
+	List<MusicSheet> musicSheets;
+	private MusicSheet selected_ms;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,34 +46,59 @@ public class HistoryActivity extends Activity {
 
 		scoreChart = (Chart) findViewById(R.id.history_score_chart);
 		countChart = (Chart) findViewById(R.id.history_count_chart);
+		Spinner spin =  (Spinner) findViewById(R.id.spinner_history);
 
 		// set height of charts
-		LayoutParams layoutParamsChart = scoreChart.getLayoutParams();
-		layoutParamsChart.height = (int) (0.5 * nexus7_height);
+		LayoutParams layoutParamsChart = spin.getLayoutParams();
+		int spinHeight = layoutParamsChart.height;
+		
+		layoutParamsChart = scoreChart.getLayoutParams();
+		layoutParamsChart.height = (int) (0.5 * (nexus7_height - spinHeight));
 		scoreChart.setLayoutParams(layoutParamsChart);
 
 		layoutParamsChart = countChart.getLayoutParams();
-		layoutParamsChart.height = (int) (0.5 * nexus7_height);
+		layoutParamsChart.height = (int) (0.5 *(nexus7_height - spinHeight));
 		countChart.setLayoutParams(layoutParamsChart);
+		
+		// spinner
+		musicSheets = dbhelper.getAllMusicSheets(1);
+		selected_ms = musicSheets.get(0);
+		
+		ArrayList<String> sheetNames = new ArrayList<String>();
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+	                android.R.layout.simple_spinner_dropdown_item, sheetNames);
+				
+		for (MusicSheet ms : musicSheets)
+		{
+			sheetNames.add(ms.getName());
+			adapter.notifyDataSetChanged();
+		}
+
+		spin.setAdapter(adapter);
+        spin.setOnItemSelectedListener(new OnItemSelectedListener() {
+        	@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+        		selected_ms = musicSheets.get(position);
+        		updateScoreHistory();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+        		selected_ms = musicSheets.get(0);
+			}
+        });
+		
 
 		// score chart
 		scoreChart.setChartType(Chart.Chart_Type_Line);
 		scoreChart.setLegendVisible(true);
 		// XXX : legend name
-		scoreChart.setTitle("Score history");
+		scoreChart.setTitle("Score history of " + selected_ms.getName());
 		scoreChart.setTitleFontSize(30);
 		
-		// TODO : set history data
-		int nRow = 3;
-		int nCol = 1;
-		GridData gridData = new GridData(nRow, nCol);
-		for (int i = 0; i < nRow; i++) {
-			for (int j = 0; j < nCol; j++) {
-				gridData.setCell(i, j, 10*i + 5*j);   // XXX : dummy value
-			}
-		}
-
-		scoreChart.setSourceData(gridData, 0);
+		updateScoreHistory();
+		
 
 		// TODO : set data name (music sheet title)
 
@@ -82,10 +113,9 @@ public class HistoryActivity extends Activity {
 		countChart.setTitle("Hits");
 		countChart.setTitleFontSize(30);
 
-		List<MusicSheet> musicSheets = dbhelper.getAllMusicSheets(1);
-		nRow = 2;
-		nCol = musicSheets.size();
-		gridData = new GridData(nRow, nCol);
+		int nRow = 2;
+		int nCol = musicSheets.size();
+		GridData gridData = new GridData(nRow, nCol);
 		for (int j = 0; j < nCol; j++) {
 			MusicSheet musicSheet = musicSheets.get(j);
 			gridData.setCell(0, j, musicSheet.getName());
@@ -95,6 +125,26 @@ public class HistoryActivity extends Activity {
 
 		countChart.setSourceData(gridData, 1);
 
+	}
+	
+	private void updateScoreHistory() {
+		int musicSheetId = selected_ms.getId();
+		List<History> histories = dbhelper.getHitories(musicSheetId);
+
+		scoreChart.setTitle("Score history of " + selected_ms.getName());
+		
+		int nRow = histories.size();
+		int nCol = 2;
+		GridData gridData = new GridData(nRow, nCol);
+		
+		for (int i = 0; i < nRow; i++) {
+			History history = histories.get(i);
+			gridData.setCell(i, 0, history.getDate());
+			gridData.setCell(i, 1, history.getScore());
+		}
+
+		scoreChart.setSourceData(gridData, 0);
+		scoreChart.postInvalidate();
 	}
 
 }

@@ -230,7 +230,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor cursor = db.rawQuery(selectQuery, null);
 		
-		// looping through all rows and adding to list
+		// looping through all rows and adding to listf
 		if ( cursor.moveToFirst() ) {
 			do {
 				// memo 가져오기, note 가져오기
@@ -475,7 +475,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	// musicsheet_id가 주어질 떄 Memo 정보 가져오기
-	public List<History> getMemos(int musicsheet_id) {
+	public List<History> getHitories(int musicsheet_id) {
 			List<History> historyList = new ArrayList<History>();
 			// Select All Query
 			String selectQuery = "SELECT * FROM " + HISTORY_TABLE_SHEETS + 
