@@ -178,12 +178,13 @@ public class DisplayActivity extends Activity {
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
 		
 		// Capture musicsheet for preview
-		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE";
+		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/";
 		File directory = new File(directoryPath);
 		if ( !directory.isDirectory() )
-			directory.mkdir();
+			directory.mkdirs();
+		
 		Log.d("for captrue", "capture make directry");
-		String previewPath = "/storage/emulated/0/DCIM/TROMBONE/" + musicSheetId + ".png";
+		String previewPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/" + musicSheetId + ".png";
 		File preview = new File(previewPath);
 		if ( preview != null && preview.exists() )
 		{
@@ -201,7 +202,7 @@ public class DisplayActivity extends Activity {
 		FrameLayout screen = (FrameLayout) findViewById(R.id.music_sheet);
 		screen.setDrawingCacheEnabled(true);
 		screen.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-		screen.layout(0, 0, screen.getMeasuredWidth(), screen.getMeasuredHeight()); 
+		screen.layout(0, 0, screen.getMeasuredWidth(), screen.getMeasuredHeight()/5*3); 
 		screen.buildDrawingCache();
 		
 		Bitmap bm = Bitmap.createBitmap(screen.getDrawingCache());
@@ -214,7 +215,7 @@ public class DisplayActivity extends Activity {
 	private void savePreview(Bitmap bm) {
 		Log.d("for captrue", "capture savePreview");
 		FileOutputStream stream;
-		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE/";
+		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/";
 		String path = musicSheetId + ".png";
 		
 		try {
@@ -222,13 +223,9 @@ public class DisplayActivity extends Activity {
 			file.createNewFile();
 			Log.d("for captrue", file.getAbsolutePath());
 	
-			Log.d("for captrue", "capture savePreview2");
 			stream = new FileOutputStream(file);
-			Log.d("for captrue", "capture savePreview3");
 			bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
-			Log.d("for captrue", "capture savePreview4");
 		} catch (Exception e) {
-			Log.d("for captrue", "capture savePreview5");
 			e.printStackTrace();
 		}
 	}
