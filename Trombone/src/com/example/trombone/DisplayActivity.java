@@ -174,12 +174,13 @@ public class DisplayActivity extends Activity {
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
 		
 		// Capture musicsheet for preview
-		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE";
+		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/";
 		File directory = new File(directoryPath);
 		if ( !directory.isDirectory() )
-			directory.mkdir();
+			directory.mkdirs();
+		
 		Log.d("for captrue", "capture make directry");
-		String previewPath = "/storage/emulated/0/DCIM/TROMBONE/" + musicSheetId + ".png";
+		String previewPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/" + musicSheetId + ".png";
 		File preview = new File(previewPath);
 		if ( preview != null && preview.exists() )
 		{
@@ -210,7 +211,7 @@ public class DisplayActivity extends Activity {
 	private void savePreview(Bitmap bm) {
 		Log.d("for captrue", "capture savePreview");
 		FileOutputStream stream;
-		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE/";
+		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/";
 		String path = musicSheetId + ".png";
 		
 		try {

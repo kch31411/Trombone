@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -97,6 +96,8 @@ public class MusicsheetSelectActivity extends Activity {
 				MusicSheet musicsheet = db.getMusicSheet(id);
 				musicsheet.setPlayCount(musicsheet.getPlayCount() + 1);
 				db.updateMusicSheet(musicsheet);
+				selectedPos = -1;
+				refreshListView(criteria);
 				
 				Intent intent = new Intent(MusicsheetSelectActivity.this, DisplayActivity.class);
 				intent.putExtra("main2display", getIntent().getDoubleArrayExtra("main2display"));
@@ -169,15 +170,15 @@ public class MusicsheetSelectActivity extends Activity {
 			return;
 		
 		int id = ids.get(selectedPos);
-		String previewPath = "/storage/emulated/0/DCIM/TROMBONE/" + id + ".png";
+		String previewPath = "/storage/emulated/0/DCIM/TROMBONE_PREVIEW/" + id + ".png";
 		
-		Log.d("for captrue", "capture showPreview1");
 		ImageView iv = (ImageView)findViewById(R.id.preview);
-		Log.d("for captrue", "capture showPreview2");
 		Bitmap bm = BitmapFactory.decodeFile(previewPath);
-		Log.d("for captrue", "capture showPreview3");
 		iv.setImageBitmap(bm);
-		Log.d("for captrue", "capture showPreview4");
+		
+		TextView tv = (TextView)findViewById(R.id.previewTitle);
+		MusicSheet sheet = db.getMusicSheet(id);
+		tv.setText(sheet.getName());
 	}
 	
 	private class ListViewItemClickListener implements AdapterView.OnItemClickListener {		
@@ -218,13 +219,10 @@ public class MusicsheetSelectActivity extends Activity {
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent result) 
 	{
-		Log.d("aaa", "aaaa");
 		if (resultCode == RESULT_OK) 
 		{
-			Log.d("aaa", "aaaa1");
 			if (requestCode == ADD_SHEET) 
 			{
-				Log.d("aaa", "aaaa2");
 				Uri data = result.getData();
 				File musicsheet = new File(data.toString());
 				
@@ -235,11 +233,9 @@ public class MusicsheetSelectActivity extends Activity {
 	}
 	
 	private void readFile(File file) {
-		Log.d("aaa", file.getAbsolutePath().substring(6));
 		//if ( file != null && file.exists() ) {
 		if ( true ) {
-			try {
-				Log.d("aaa", "aaaa4");
+			try {				
 				FileInputStream fileinputstream =  new FileInputStream(file.getAbsolutePath().substring(6));
 				Scanner scan = new Scanner(fileinputstream);
 				
@@ -270,43 +266,20 @@ public class MusicsheetSelectActivity extends Activity {
 					}
 				}
 				
-				Log.d("ddd",notes.size()+" size");
 				scan.close();
 				
 				// TODO : KEY NUMBER
 				
 				// Make MusicSheet DB
 				DBHelper db = new DBHelper(this); 
-				Log.d("Insert: ", "Inserting ..");
 				int musicsheet_id = (int)db.addMusicSheet(new MusicSheet(name, beat, page, keyNumber));
-				Log.d("Insert: ", "After inserting MUSICSHEET to DB");
 				
 				// Make Note DB
 				for (Note note : notes) {
-					Log.d("Insert: ", "Inserting ..");
 					note.setMusicsheet_id(musicsheet_id);
 					db.addNote(note);
-					Log.d("Insert: ", "After inserting NOTE to DB");
 		 		}
-				
-				// DB TEST
-				for ( int i = 1; i <= page; i++ ) {
-					List<Note> notesOnDB = db.getNotes(musicsheet_id, i);
-					for (Note note : notesOnDB ) {
-						String log = "Id: " + note.getId() + 
-								", Page: " + note.getPage() + 
-								", Order: " + note.getOrder() +
-								", Pitch: " + note.getPitch() +
-								", Beat: " + note.getBeat() +
-								", isRest: " + note.getIsRest() +
-								", isAccidental: " + note.getIsAccidental() +
-								", X: " + note.getX() +
-								", Y: " + note.getY() +
-								", Musicsheet_id: " + note.getMusicsheet_id();
-						Log.d("read - ", log);
-			 		}
-				}
-		 		//////
+			
 		 		refreshListView(criteria);
 			} catch (Exception e) {
 				e.printStackTrace();
