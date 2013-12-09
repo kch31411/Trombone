@@ -522,7 +522,7 @@ public class CalibrationActivity extends Activity {
 		paint.setColor(Color.GREEN);
 
 		currentSpec = (ImageView) findViewById(R.id.CurrentSpectrum);
-		curBitmap = Bitmap.createBitmap((int) 256, (int) 100,
+		curBitmap = Bitmap.createBitmap((int) blockSize, (int) 100,
 				Bitmap.Config.ARGB_8888);
 		curCanvas = new Canvas(curBitmap);
 		currentSpec.setImageBitmap(curBitmap);

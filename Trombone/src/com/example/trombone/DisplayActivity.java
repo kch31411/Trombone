@@ -262,7 +262,7 @@ public class DisplayActivity extends Activity {
 		
 		// spectrum
 		currentSpec = (ImageView) findViewById(R.id.CurrentSpectrum);
-		curBitmap = Bitmap.createBitmap((int) 256, (int) 100,
+		curBitmap = Bitmap.createBitmap((int) blockSize, (int) 100,
 				Bitmap.Config.ARGB_8888);
 		curCanvas = new Canvas(curBitmap);
 		currentSpec.setImageBitmap(curBitmap);
@@ -472,11 +472,11 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_DOWN:
 			mLastMotionX = event.getX();
-			mLastMotionY = event.getY();   // ���� ��ġ ����
+			mLastMotionY = event.getY();   // 占쏙옙占쏙옙 占쏙옙치 占쏙옙占쏙옙
 
 			mHasPerformedLongPress = false;   
 
-			postCheckForLongClick(0);     //  Long click message ����
+			postCheckForLongClick(0);     //  Long click message 占쏙옙占쏙옙
 
 			break;
 
@@ -486,7 +486,7 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// ���� ���� �����  �����
+			// 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏘나占쏙옙  占쏙옙占쏙옙占�
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -505,10 +505,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long Click�� ó������ �ʾ����� ������.
+				// Long Click占쏙옙 처占쏙옙占쏙옙占쏙옙 占십억옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙.
 				removeLongPressCallback();
 
-				// Short Click ó�� ��ƾ�� ���⿡ ������ �˴ϴ�.
+				// Short Click 처占쏙옙 占쏙옙틴占쏙옙 占쏙옙占썩에 占쏙옙占쏙옙占쏙옙 占싯니댐옙.
 				performOneClick(); 
 
 			}
@@ -521,7 +521,7 @@ public class DisplayActivity extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	// Long Click�� ó����  Runnable �Դϴ�. 
+	// Long Click占쏙옙 처占쏙옙占쏙옙  Runnable 占쌉니댐옙. 
 	class CheckForLongPress implements Runnable {
 
 		public void run() {
@@ -531,7 +531,7 @@ public class DisplayActivity extends Activity {
 		}
 	}
 
-	// Long Click ó�� ������ ���� �Լ� 
+	// Long Click 처占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쌉쇽옙 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -541,8 +541,8 @@ public class DisplayActivity extends Activity {
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
 				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// ���⼭  �ý�����  getLongPressTimeout() �Ŀ� message �����ϰ� �մϴ�.  
-		// �߰� delay�� �ʿ��� ��츦 ���ؼ�  �Ķ���ͷ� ������ϰ� �մϴ�.
+		// 占쏙옙占썩서  占시쏙옙占쏙옙占쏙옙  getLongPressTimeout() 占식울옙 message 占쏙옙占쏙옙占싹곤옙 占쌌니댐옙.  
+		// 占쌩곤옙 delay占쏙옙 占십울옙占쏙옙 占쏙옙痢�占쏙옙占쌔쇽옙  占식띰옙占쏙옙庫占�占쏙옙占쏙옙占쏙옙構占�占쌌니댐옙.
 	}
 
 
