@@ -806,8 +806,8 @@ public class CalibrationActivity extends Activity {
 					paint.setColor(Color.argb(100, 255, 200, 100));
 					curCanvas.drawLine(i, downy, i, upy, paint);
 
-					if (collected_Magnitude[i] * 1.2 > Magnitude[i])
-						error += collected_Magnitude[i] - Magnitude[i];
+					if (collected_Magnitude[i] * 0.8 > Magnitude[i])
+						error += collected_Magnitude[i]*0.8 - Magnitude[i];
 				}
 				resultText.setText(error + " ");
 			}

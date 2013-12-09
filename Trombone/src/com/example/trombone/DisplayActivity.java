@@ -112,6 +112,10 @@ public class DisplayActivity extends Activity {
 	MusicSheet music_sheet;
 	ArrayList<ImageView> noteViews =  new ArrayList<ImageView>();
 
+	double [] errors = new double[11];
+	double [] scores = new double[11];
+	double [] counters = new double[11];
+
 	@Override
 	protected void onStop(){
 		if (started) {
@@ -886,9 +890,8 @@ public class DisplayActivity extends Activity {
 			Note nextNote = music_sheet.getNote(pageNum, currentPosition+1);
 			Note currentNote = music_sheet.getNote(pageNum, currentPosition);
 
-			double errorCurrent = 0;
-			double errorNext = 0;
-			debugText.setText((currentNote.getPitch()/100-3)+" "+(currentNote.getPitch()%100-1));
+			//double errorCurrent = 0;
+			//double errorNext = 0;
 			for (int i = 0; i < Magnitude.length; i++) {
 				int x = i;
 				int downy = (int) (100 - (calib_data[currentNote.getPitch()/100-3]
@@ -897,36 +900,75 @@ public class DisplayActivity extends Activity {
 				paint.setColor(Color.argb(150, 255, 10, 20));
 				curCanvas.drawLine(x, downy, x, upy, paint);
 				
-				double spec_current = calib_data[currentNote.getPitch()/100-3]
-						[currentNote.getPitch()%100-1][i];
-				double spec_next = calib_data[nextNote.getPitch()/100-3]
-						[nextNote.getPitch()%100-1][i];
+		//		double spec_current = calib_data[currentNote.getPitch()/100-3]
+		//				[currentNote.getPitch()%100-1][i];
+		//		double spec_next = calib_data[nextNote.getPitch()/100-3]
+		//				[nextNote.getPitch()%100-1][i];
 				
-				if (spec_current * 0.8 > Magnitude[i])
+				for (int j=0; j<errors.length; j++)
+				{
+					if(currentPosition-5+j>=0){
+						Note Note_temp = music_sheet.getNote(pageNum, currentPosition-5+j);
+						double spec_temp = calib_data[Note_temp.getPitch()/100-3]
+								[Note_temp.getPitch()%100-1][i];
+						if (spec_temp * 0.8 > Magnitude[i])
+							errors[j] += spec_temp * 0.8 - Magnitude[i];
+					}
+				}
+				
+			/*	if (spec_current * 0.8 > Magnitude[i])
 					errorCurrent += spec_current * 0.8 - Magnitude[i];
 				if (spec_next * 0.8 > Magnitude[i])
-					errorNext += spec_current * 0.8 - Magnitude[i];
+					errorNext += spec_next * 0.8 - Magnitude[i]; */
 			}
-			resultText.setText(errorCurrent + " " + errorNext);
+			String s = "";
+			for (int j=0; j<errors.length; j++)
+			{
+				if(currentPosition-5+j>=0){
+					if(errors[j]!=0 && errors[j]<120) counters[j]++;
+					else counters[j] = 0;
+					if(counters[j]>=3) scores[j]+=1*4;//(float)(Math.abs(j-5)+10);					
+				}
+				s+=Math.floor(scores[j]*10)/10+"\t";
+				errors[j]=0;
+				
+				if(j>5 && scores[j]>4 && scores[5]+1<scores[j] ) {
+					currentPosition += j-5;
+					errors = new double [11];
+					scores = new double [11];
+					counters = new double[11];
+					currentCount = 0;
+					currentError = 0;
+				}
+				if(scores[j]>1) scores[j]= (double)scores[j]*4/5;
+				else scores[j]=0;
+			}
+			resultText.setText(s);
+			//resultText.setText(scores[0]+" "+scores[1]+" "+scores[2]+" "+scores[3]+" "+scores[4]
+			//		+"\n"+scores[5]+" "+scores[6]+" "+scores[7]+" "+scores[8]+" "+scores[9]+" "+scores[10]+" ");
 			
 			//debugText.setText(currentCount+"");
 
+			/*
 			if (maxIntensity < 5)
 				currentError++;
-			else if (currentError > 3
-					&& currentCount > 3
-					&& errorNext<150){ // MajorF<pitch2frequency(nextNote.getPitch())*1.04
+			else if (currentError > 1
+					&& currentCount > 2
+					&& errorNext<100){ // MajorF<pitch2frequency(nextNote.getPitch())*1.04
 					//&&  MajorF>pitch2frequency(nextNote.getPitch())/1.04) {
 				currentPosition++;
+				errors = new double [11];
+				scores = new double [11];
+				counters = new double[11];
 				currentCount = 0;
 				currentError = 0;
 
-			} else if (errorCurrent<150){ // (MajorF<pitch2frequency(currentNote.getPitch())*1.04
+			} else if (errorCurrent<100){ // (MajorF<pitch2frequency(currentNote.getPitch())*1.04
 					//&& MajorF>pitch2frequency(currentNote.getPitch())/1.04) {
 				currentCount++;
 				currentError = 0;
 			} 
-			else if (currentError>2 && currentCount>5 
+			else if (currentError>1 && currentCount>5 
 					&& nextNote.isRest())
 			{
 				currentPosition++;
@@ -936,7 +978,7 @@ public class DisplayActivity extends Activity {
 			else {
 				currentError++;
 			}
-
+*/
 			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+55);
 			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
 

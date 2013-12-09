@@ -143,7 +143,7 @@ public class MusicsheetSelectActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				// TODO Auto-generated method stub
 				String selectedItem = parent.getItemAtPosition(position).toString();
-				Toast.makeText(getApplicationContext(), selectedItem + "À¸·Î Á¤·ÄµÇ¾ú½À´Ï´Ù.", 
+				Toast.makeText(getApplicationContext(), selectedItem + "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÄµÇ¾ï¿½ï¿½ï¿½Ï´ï¿½.", 
 					Toast.LENGTH_SHORT).show();
 				
 				criteria = position + 1;
@@ -242,7 +242,7 @@ public class MusicsheetSelectActivity extends Activity {
 				Log.d("aaa", "aaaa4");
 				FileInputStream fileinputstream =  new FileInputStream(file.getAbsolutePath().substring(6));
 				Scanner scan = new Scanner(fileinputstream, "KSC5601"); 
-				
+								
 				String name = scan.nextLine();
 				int keyNumber = scan.nextInt();
 				int beat = scan.nextInt();
