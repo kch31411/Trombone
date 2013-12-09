@@ -198,7 +198,7 @@ public class DisplayActivity extends Activity {
 		FrameLayout screen = (FrameLayout) findViewById(R.id.music_sheet);
 		screen.setDrawingCacheEnabled(true);
 		screen.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-		screen.layout(0, 0, screen.getMeasuredWidth(), screen.getMeasuredHeight()); 
+		screen.layout(0, 0, screen.getMeasuredWidth(), screen.getMeasuredHeight()/5*3); 
 		screen.buildDrawingCache();
 		
 		Bitmap bm = Bitmap.createBitmap(screen.getDrawingCache());
@@ -219,13 +219,9 @@ public class DisplayActivity extends Activity {
 			file.createNewFile();
 			Log.d("for captrue", file.getAbsolutePath());
 	
-			Log.d("for captrue", "capture savePreview2");
 			stream = new FileOutputStream(file);
-			Log.d("for captrue", "capture savePreview3");
 			bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
-			Log.d("for captrue", "capture savePreview4");
 		} catch (Exception e) {
-			Log.d("for captrue", "capture savePreview5");
 			e.printStackTrace();
 		}
 	}
