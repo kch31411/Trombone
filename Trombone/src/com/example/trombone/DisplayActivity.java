@@ -1,8 +1,14 @@
 package com.example.trombone;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -24,6 +30,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
+import classes.History;
 import classes.Memo;
 import classes.MusicSheet;
 import classes.Note;
@@ -110,6 +118,16 @@ public class DisplayActivity extends Activity {
 			started = false;
 			recordTask.cancel(true);			
 		}
+		
+		// XXX : This is temporary.
+		// This history construction must be done when play is end.
+		Date cDate = new Date();
+		String fDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+		
+		Random random = new Random();
+		History history = new History(-1, fDate, random.nextInt(100), musicSheetId);
+		dbhelper.addHistory(history);
+		
 		super.onStop();
 	}
 
@@ -154,6 +172,61 @@ public class DisplayActivity extends Activity {
 			}
 		});
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
+		
+		// Capture musicsheet for preview
+		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE";
+		File directory = new File(directoryPath);
+		if ( !directory.isDirectory() )
+			directory.mkdir();
+		Log.d("for captrue", "capture make directry");
+		String previewPath = "/storage/emulated/0/DCIM/TROMBONE/" + musicSheetId + ".png";
+		File preview = new File(previewPath);
+		if ( preview != null && preview.exists() )
+		{
+			Log.d("for captrue", "capture file exist");
+		}
+		else
+		{
+			Log.d("for captrue", "capture file does not exist");
+			capturePreview();
+		}
+	}
+	
+	private void capturePreview() {
+		Log.d("for captrue", "capture capturePreview");
+		FrameLayout screen = (FrameLayout) findViewById(R.id.music_sheet);
+		screen.setDrawingCacheEnabled(true);
+		screen.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+		screen.layout(0, 0, screen.getMeasuredWidth(), screen.getMeasuredHeight()); 
+		screen.buildDrawingCache();
+		
+		Bitmap bm = Bitmap.createBitmap(screen.getDrawingCache());
+		screen.destroyDrawingCache();
+		screen.setDrawingCacheEnabled(false);
+		
+		savePreview(bm);
+	}
+	
+	private void savePreview(Bitmap bm) {
+		Log.d("for captrue", "capture savePreview");
+		FileOutputStream stream;
+		String directoryPath = "/storage/emulated/0/DCIM/TROMBONE/";
+		String path = musicSheetId + ".png";
+		
+		try {
+			File file = new File(directoryPath, path);
+			file.createNewFile();
+			Log.d("for captrue", file.getAbsolutePath());
+	
+			Log.d("for captrue", "capture savePreview2");
+			stream = new FileOutputStream(file);
+			Log.d("for captrue", "capture savePreview3");
+			bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			Log.d("for captrue", "capture savePreview4");
+		} catch (Exception e) {
+			Log.d("for captrue", "capture savePreview5");
+			e.printStackTrace();
+		}
 	}
 	
 	private void displayMusicSheet(int page) {

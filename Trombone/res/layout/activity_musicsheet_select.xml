@@ -48,11 +48,11 @@
                    android:textSize="30dp"
                    android:textStyle="bold" />
 
-                <Gallery
-                    android:id="@+id/gallery1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="296dp"
-                    android:layout_weight="0.89" />
+               <ImageView
+                   android:id="@+id/preview"
+                   android:layout_width="wrap_content"
+                   android:layout_height="296dp"
+                   android:layout_weight="0.89" />
 
                 <ImageView
                     android:id="@+id/realplaybutton"
@@ -87,7 +87,7 @@
                     android:id="@+id/addmusicsheetbutton"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:layout_marginLeft="300dp"
+                    android:layout_marginLeft="310dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/addicon2" />
 
