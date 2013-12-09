@@ -205,7 +205,7 @@ public class MusicsheetSelectActivity extends Activity {
 
 		int index = 0;
 		for (MusicSheet sheet : sheets) {
-			ids.add(index, sheet.getId()); // musicsheet id�� ��Ƴ��� ArrayList
+			ids.add(index, sheet.getId()); // musicsheet 
 			index++;
 			
 			sheetNames.add(sheet.getName());

@@ -8,16 +8,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.TextView;
 
 import com.essence.chart.Chart;
 import com.essence.chart.GridData;
 
-import static classes.Constants.*;
 import classes.*;
 import db.DBHelper;
 
@@ -29,6 +28,7 @@ import db.DBHelper;
  */
 public class HistoryActivity extends Activity {
 	private Chart scoreChart, countChart;
+	private TextView scoreTitle, countTitle;
 	DBHelper dbhelper = new DBHelper(this);
 	List<MusicSheet> musicSheets;
 	private MusicSheet selected_ms;
@@ -46,19 +46,9 @@ public class HistoryActivity extends Activity {
 
 		scoreChart = (Chart) findViewById(R.id.history_score_chart);
 		countChart = (Chart) findViewById(R.id.history_count_chart);
+		scoreTitle = (TextView) findViewById(R.id.history_score_title);
+		countTitle = (TextView) findViewById(R.id.history_count_title);
 		Spinner spin =  (Spinner) findViewById(R.id.spinner_history);
-
-		// set height of charts
-		LayoutParams layoutParamsChart = spin.getLayoutParams();
-		int spinHeight = layoutParamsChart.height;
-		
-		layoutParamsChart = scoreChart.getLayoutParams();
-		layoutParamsChart.height = (int) (0.5 * (nexus7_height - spinHeight));
-		scoreChart.setLayoutParams(layoutParamsChart);
-
-		layoutParamsChart = countChart.getLayoutParams();
-		layoutParamsChart.height = (int) (0.5 *(nexus7_height - spinHeight));
-		countChart.setLayoutParams(layoutParamsChart);
 		
 		// spinner
 		musicSheets = dbhelper.getAllMusicSheets(1);
@@ -92,26 +82,18 @@ public class HistoryActivity extends Activity {
 
 		// score chart
 		scoreChart.setChartType(Chart.Chart_Type_Line);
-		scoreChart.setLegendVisible(true);
-		// XXX : legend name
-		scoreChart.setTitle("Score history of " + selected_ms.getName());
-		scoreChart.setTitleFontSize(30);
+		scoreChart.setLegendVisible(false);
+		scoreChart.setTitleVisible(false);
 		
 		updateScoreHistory();
 		
-
-		// TODO : set data name (music sheet title)
-
-		// TODO : set X-axis name correctly 
-
 
 		// chart.setYAxisMaximum(true, 2000);
 
 		// count chart
 		countChart.setChartType(Chart.Chart_Type_Clustered_Column);
 		countChart.setLegendVisible(false);
-		countChart.setTitle("Hits");
-		countChart.setTitleFontSize(30);
+		countChart.setTitleVisible(false);
 
 		int nRow = 2;
 		int nCol = musicSheets.size();
@@ -130,8 +112,11 @@ public class HistoryActivity extends Activity {
 	private void updateScoreHistory() {
 		int musicSheetId = selected_ms.getId();
 		List<History> histories = dbhelper.getHitories(musicSheetId);
-
-		scoreChart.setTitle("Score history of " + selected_ms.getName());
+		
+		String title = "Score history of " + selected_ms.getName();
+		scoreTitle.setText(title);
+		//scoreChart.setTitle("Score history of Always with me");
+		//scoreChart.setTitle("Score history of " + selected_ms.getName() + "------");
 		
 		int nRow = histories.size();
 		int nCol = 2;

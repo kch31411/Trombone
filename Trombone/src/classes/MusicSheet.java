@@ -21,6 +21,7 @@ public class MusicSheet {
 		this.beat = beat;
 		this.pages = pages;
 		this.keyNumber = keyNumber;
+		this.playCount = 0;
 	}
 	public MusicSheet(int id, String name, int beat, int pages, int playCount, int keyNumber,
 			ArrayList<ArrayList<Note>> note, ArrayList<ArrayList<Memo>> memo) {
