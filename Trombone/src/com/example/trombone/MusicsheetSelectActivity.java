@@ -143,7 +143,7 @@ public class MusicsheetSelectActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				// TODO Auto-generated method stub
 				String selectedItem = parent.getItemAtPosition(position).toString();
-				Toast.makeText(getApplicationContext(), selectedItem + "으로 정렬되었습니다.", 
+				Toast.makeText(getApplicationContext(), "Sorted by " + selectedItem, 
 					Toast.LENGTH_SHORT).show();
 				
 				criteria = position + 1;
