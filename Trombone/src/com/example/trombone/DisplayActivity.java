@@ -2,7 +2,6 @@ package com.example.trombone;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
@@ -25,7 +24,6 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -39,7 +37,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
 import classes.History;
@@ -103,7 +100,10 @@ public class DisplayActivity extends Activity {
 	
 	int[] yPositions = yPosition;
 	
+	// drawing related.
 	int side_padding = 40;
+	int top_padding = 80;
+	int space_five_line = 150;
 
 	TextView resultText, debugText;
 
@@ -115,6 +115,10 @@ public class DisplayActivity extends Activity {
 	double [] errors = new double[11];
 	double [] scores = new double[11];
 	double [] counters = new double[11];
+	
+	double tracking_velocity;
+	double tracking_x;
+	double tracking_y;
 
 	@Override
 	protected void onStop(){
@@ -229,31 +233,7 @@ public class DisplayActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-	
-	private void displayMusicSheet(int page) {
-		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
-
-		for (ImageView iv : noteViews) {
-			l.removeView(iv);
-		}
-		noteViews.clear();
-
-		// Display music sheet
-		int note_index = 0;
-		int y = 80;
-		int count = 0;
-		while (count++ < 3) {
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(pageNum));
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index,
-						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(pageNum));
-			y += 150;
-		}
-		lastNoteIndex = music_sheet.getNotes(pageNum).size()-1;
-	}
-
-	
+		
 	// set initial data
 	private void initialize() {
 		// touch handler
@@ -339,11 +319,11 @@ public class DisplayActivity extends Activity {
 		l.addView(trackingView);
 		
 		// Display music sheet
-		int y = 80;
+		int y = top_padding;
 		int count = 0;
 		while (count++ < 3) {
 			ImageView fiveLine = new ImageView(getBaseContext());
-			Bitmap bitmap = Bitmap.createBitmap((int) nexus7_width, (int) 150,
+			Bitmap bitmap = Bitmap.createBitmap((int) nexus7_width, (int) space_five_line,
 					Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			fiveLine.setImageBitmap(bitmap);
@@ -429,7 +409,7 @@ public class DisplayActivity extends Activity {
 					l.addView(iv);
 				}
 			}
-			y += 150;
+			y += space_five_line;
 		}
 	}
 	
@@ -582,7 +562,8 @@ public class DisplayActivity extends Activity {
 					memoView.setX(mLastMotionX);
 					memoView.setY(mLastMotionY);
 					memoView.setTextColor(Color.argb(opacity, 255, 0, 0));
-					memoView.setTextSize(30);
+					// TODO : another font
+					memoView.setTextSize(30);  // TODO : get size as like opacity
 
 					Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
 							opacity, pageNum, value, musicSheetId, memoView);
@@ -672,6 +653,30 @@ public class DisplayActivity extends Activity {
 
 		return note_height;
 	}
+	
+
+	private void displayMusicSheet(int page) {
+		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
+
+		for (ImageView iv : noteViews) {
+			l.removeView(iv);
+		}
+		noteViews.clear();
+
+		// Display music sheet
+		int note_index = 0;
+		int y = top_padding;
+		int count = 0;
+		while (count++ < 3) {
+			if (note_index >= 0)
+				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(pageNum));
+			if (note_index >= 0)
+				note_index = DrawNotes(note_index,
+						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(pageNum));
+			y += space_five_line;
+		}
+		lastNoteIndex = music_sheet.getNotes(pageNum).size()-1;
+	}
 
 	public int DrawNotes(int pt, int x, int y, ArrayList<Note> notes) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
@@ -755,7 +760,7 @@ public class DisplayActivity extends Activity {
 				Canvas lineCanvas = new Canvas(bmLine);
 				lineImage.setImageBitmap(bmLine); 
 
-				int lineY = 150;
+				int lineY = space_five_line;
 				if(ratio<1) lineY+=7;
 				if(ummY%2!=0||note.getPitch()==401) lineY += 6;
 
