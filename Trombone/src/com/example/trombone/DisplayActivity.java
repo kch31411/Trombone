@@ -78,6 +78,7 @@ public class DisplayActivity extends Activity {
 	int sampleCount = 0;
 
 	double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
+	double[][] calibPitches = new double[3][12]; // 3,4,5 octave
 
 	double[] ref_pitches;
 
@@ -291,6 +292,12 @@ public class DisplayActivity extends Activity {
 			ObjectInputStream iis = new ObjectInputStream(fis);
 			calib_data = (double[][][]) iis.readObject();
 			iis.close();
+			
+			FileInputStream fis2 = new FileInputStream(cd.getFile_path2());
+			ObjectInputStream iis2 = new ObjectInputStream(fis2);
+			calibPitches = (double[][]) iis2.readObject();
+			iis2.close();
+			
 		}catch (Exception e) {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
@@ -904,75 +911,58 @@ public class DisplayActivity extends Activity {
 					maxIntensity = Magnitude[i];
 					maxFrequency = i;
 				}
-				// maxIntensity = Math.max(maxIntensity,
-				// Math.abs(toTransform[0][i]));
 			}
 
-			while (music_sheet.getNote(pageNum, currentPosition).isRest())
-				currentPosition++;
-
-			double MajorF = maxFrequency * frequency / (blockSize * 2 + 1);
-			
-			Note nextNote = music_sheet.getNote(pageNum, currentPosition+1);
 			Note currentNote = music_sheet.getNote(pageNum, currentPosition);
-
-			//double errorCurrent = 0;
-			//double errorNext = 0;
+			int xMax = (int)(calibPitches[currentNote.getPitch()/100-3][currentNote.getPitch()%100-1]
+					 / (frequency/(blockSize * 2 + 1)));
+			paint.setColor(Color.argb(150,200,255,255));
+			curCanvas.drawLine(xMax, 0, xMax, 100, paint);
+			
 			for (int i = 0; i < Magnitude.length; i++) {
 				int x = i;
 				int downy = (int) (100 - (calib_data[currentNote.getPitch()/100-3]
 						[currentNote.getPitch()%100-1][i] * 10));
 				int upy = 100;
-				paint.setColor(Color.argb(150, 255, 10, 20));
+				paint.setColor(Color.argb(80, 255, 10, 20));
 				curCanvas.drawLine(x, downy, x, upy, paint);
-				
-		//		double spec_current = calib_data[currentNote.getPitch()/100-3]
-		//				[currentNote.getPitch()%100-1][i];
-		//		double spec_next = calib_data[nextNote.getPitch()/100-3]
-		//				[nextNote.getPitch()%100-1][i];
-				
-				for (int j=0; j<errors.length; j++)
-				{
-					if(currentPosition-5+j>=0){
-						Note Note_temp = music_sheet.getNote(pageNum, currentPosition-5+j);
-						double spec_temp = calib_data[Note_temp.getPitch()/100-3]
-								[Note_temp.getPitch()%100-1][i];
-						if (spec_temp * 0.8 > Magnitude[i])
-							errors[j] += spec_temp * 0.8 - Magnitude[i];
-					}
-				}
-				
-			/*	if (spec_current * 0.8 > Magnitude[i])
-					errorCurrent += spec_current * 0.8 - Magnitude[i];
-				if (spec_next * 0.8 > Magnitude[i])
-					errorNext += spec_next * 0.8 - Magnitude[i]; */
 			}
+			
+			while (music_sheet.getNote(pageNum, currentPosition).isRest())
+				currentPosition++;
+			
 			String s = "";
-			for (int j=0; j<errors.length; j++)
+			for (int j=0; j<scores.length; j++)
 			{
 				if(currentPosition-5+j>=0){
-					if(errors[j]!=0 && errors[j]<120) counters[j]++;
-					else counters[j] = 0;
-					if( errors[j]<120 && counters[j]>=3) scores[j]+=1*100/errors[j];//(float)(Math.abs(j-5)+10);					
-				}
-				s+=Math.floor(scores[j]*10)/10+"\t";
-				errors[j]=0;
-				
-				if(j>5 && scores[j]>15 && scores[5]+1<scores[j] ) {
-					currentPosition += j-5;
-					errors = new double [11];
-					scores = new double [11];
-					counters = new double[11];
-					currentCount = 0;
-					currentError = 0;
+					Note tempNote = music_sheet.getNote(pageNum, currentPosition-5+j);
 					
-					double temp = 0;
-					for (int k=5; k<=j; k++)
-						temp+=music_sheet.getNote(pageNum, currentPosition-5+j).getBeat();
+					double[] tempSpec = calib_data[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1];
+					int xTemp = (int)(calibPitches[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1]
+							 / (frequency/(blockSize * 2 + 1)));
 					
-				}
-				
-				
+					boolean folded = false;
+					boolean fail = false;
+					double prev = -1;
+					double mag = 0;
+					for (int i= (int)(xTemp/1.04) ; i<(int)(xTemp*1.04) ; i++)
+					{
+						if(i>=0 && i<Magnitude.length)
+						{
+							if(!folded && prev>Magnitude[i]) {
+								folded = true;
+								mag = prev;
+							}
+							if(folded && prev<Magnitude[i]) {
+								fail = true;
+								break;							
+							}
+							prev = Magnitude[i];
+						}					
+					}
+					s+= (!tempNote.isRest()&&folded&&!fail) +""+ mag+"\n";										
+				}	
+				else s+= "ddd \n";	
 			}
 			resultText.setText(s);
 			//resultText.setText(scores[0]+" "+scores[1]+" "+scores[2]+" "+scores[3]+" "+scores[4]
