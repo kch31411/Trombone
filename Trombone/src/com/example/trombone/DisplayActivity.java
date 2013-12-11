@@ -122,7 +122,7 @@ public class DisplayActivity extends Activity {
 	double tracking_velocity;
 	double tracking_x;   // XXX : necessary???
 	double tracking_y;
-
+	
 	@Override
 	protected void onStop(){
 		if (started) {
@@ -961,21 +961,26 @@ public class DisplayActivity extends Activity {
 				if(currentPosition-5+j>=0){
 					if(errors[j]!=0 && errors[j]<120) counters[j]++;
 					else counters[j] = 0;
-					if(counters[j]>=3) scores[j]+=1*4;//(float)(Math.abs(j-5)+10);					
+					if( errors[j]<120 && counters[j]>=3) scores[j]+=1*100/errors[j];//(float)(Math.abs(j-5)+10);					
 				}
 				s+=Math.floor(scores[j]*10)/10+"\t";
 				errors[j]=0;
 				
-				if(j>5 && scores[j]>4 && scores[5]+1<scores[j] ) {
+				if(j>5 && scores[j]>15 && scores[5]+1<scores[j] ) {
 					currentPosition += j-5;
 					errors = new double [11];
 					scores = new double [11];
 					counters = new double[11];
 					currentCount = 0;
 					currentError = 0;
+					
+					double temp = 0;
+					for (int k=5; k<=j; k++)
+						temp+=music_sheet.getNote(pageNum, currentPosition-5+j).getBeat();
+					
 				}
-				if(scores[j]>1) scores[j]= (double)scores[j]*4/5;
-				else scores[j]=0;
+				
+				
 			}
 			resultText.setText(s);
 			//resultText.setText(scores[0]+" "+scores[1]+" "+scores[2]+" "+scores[3]+" "+scores[4]

@@ -71,10 +71,11 @@ public class CalibrationActivity extends Activity {
 
 	double reference = 440.0;
 
-	double[] ref_pitches = { 261.626, 277.183, 293.665, 311.127, 329.628,
-			349.228, 369.994, 391.995, 415.305, 440.000, 466.164, 493.883 };
-	double[] pitches = { 261.626, 277.183, 293.665, 311.127, 329.628, 349.228,
-			369.994, 391.995, 415.305, 440.000, 466.164, 493.883 };
+	double[] ref_pitches = { 261.62, 277.18, 293.67, 311.13, 329.63,
+			349.23, 369.99, 392.00, 415.31, 440.00, 466.16, 493.88 };
+	
+	double[] pitches = { 261.62, 277.18, 293.67, 311.13, 329.63,
+			349.23, 369.99, 392.00, 415.31, 440.00, 466.16, 493.88 };
 
 	double[][][] calib_data = new double[3][12][blockSize + 1]; // 3,4,5 octave
 
@@ -88,7 +89,7 @@ public class CalibrationActivity extends Activity {
 	int calibCount = 0;
 	int calibTarget = -1;
 	Button calibButton;
-	double[] calibPitches = new double[12];
+	double[][] calibPitches = new double[3][12];
 
 	int currentCount = 0;
 	int currentError = 0;
@@ -117,6 +118,7 @@ public class CalibrationActivity extends Activity {
 	SQLiteDatabase calibDB;
 
 	ArrayList<ImageView> noteViews;
+	boolean isNew = true;
 
 	private void displayMusicSheet(int start) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
@@ -128,7 +130,7 @@ public class CalibrationActivity extends Activity {
 
 		Bitmap bmNote = BitmapFactory.decodeResource(getResources(),
 				R.drawable.note_4);
-
+		
 		for (int i = 0; i < 12; i++) {
 			ImageView noteImage = new ImageView(getBaseContext());
 
@@ -185,6 +187,7 @@ public class CalibrationActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		isNew = true;
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// set up full screen
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -216,25 +219,10 @@ public class CalibrationActivity extends Activity {
 			mainView.setPivotY(0.0f);
 		}
 
-		// get latest calibration data
-		/*try {
-			int calib_id = getIntent().getIntExtra("calib_id", -1);
-			CalibrationData cd = dbhelper.getCalibrationData(calib_id);
-			
-			FileInputStream fis = new FileInputStream(cd.getFile_path());
-			ObjectInputStream iis = new ObjectInputStream(fis);
-			// calib_data = (double[][][]) iis.readObject();
-			iis.close();
-					
-		} catch (Exception e) {
-			Log.d("ccccc", "exception : " + e.toString());
-		} */
 
-		// calibDB = openOrCreateDatabase("Calibration",MODE_WORLD_WRITEABLE, null);
-		
-		for(int i=0; i<12; i++)
-		{
-			calibPitches[i] = pitches[i];
+		for (int i=0; i<3; i++) {
+			for (int j=0; j<12; j++)
+				calibPitches[i][j] = Math.floor(pitches[j] * Math.pow(2, i-1)*100)/100;		
 		}
 		setDefault();		
 
@@ -243,6 +231,7 @@ public class CalibrationActivity extends Activity {
 				Log.d("ccccc", "get activity result");
 
 				String path = CALIB_PATH + "default.clb";
+				String path2 = CALIB_PATH + "default2.clb";
 				File file = new File(CALIB_PATH);
 				if (!file.exists())
 					file.mkdirs();
@@ -252,10 +241,15 @@ public class CalibrationActivity extends Activity {
 				ObjectOutputStream oos = new ObjectOutputStream(fos);
 				oos.writeObject(calib_data);
 				oos.close();
-
+				
+				FileOutputStream fos2 = new FileOutputStream(path2);
+				ObjectOutputStream oos2 = new ObjectOutputStream(fos2);
+				oos2.writeObject(calibPitches);
+				oos2.close();
+				
 				// insert calibration data DB
 				CalibrationData calibrationData = new CalibrationData(-1,
-						"default", path); // XXX : is filepath correct?
+						"default", path, path2); // XXX : is filepath correct?
 				dbhelper.addCalibrationData(calibrationData);
 				refreshListView();
 			} catch (Exception e) {
@@ -286,10 +280,6 @@ public class CalibrationActivity extends Activity {
 					break;
 				default:
 					octave = 4;
-				}
-				for (int i = 0; i < 12; i++) {
-					calibPitches[i] = Math.floor(pitches[i]
-							* Math.pow(2, octave - 4) * 1000) / 1000;
 				}
 				showPitch();
 			}
@@ -455,8 +445,15 @@ public class CalibrationActivity extends Activity {
 				for (int i = 0; i < 12; i++) {
 					pitches[i] = Math.floor(ref_pitches[i] * reference / 440
 							* 1000) / 1000;
-					calibPitches[i] = pitches[i];
 				}
+				
+				isNew = true;
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 12; j++)
+						calibPitches[i][j] = Math.floor(pitches[j]
+								* Math.pow(2, i - 1) * 100) / 100;
+				}
+
 				showPitch();
 
 				RadioGroup rd = (RadioGroup) findViewById(R.id.radiogroup1);
@@ -475,6 +472,7 @@ public class CalibrationActivity extends Activity {
 				foo.putExtra("enterOpacity", false);
 				foo.putExtra("title", "Instrument Name");
 				CalibrationActivity.this.startActivityForResult(foo, CALIB_ENTER_NAME);
+				isNew = true;
 			}
 		});
 		
@@ -600,6 +598,7 @@ public class CalibrationActivity extends Activity {
 				}
 				
 				String path = CALIB_PATH + name + ".clb";
+				String path2 =  CALIB_PATH + name + "2.clb";
 				File file = new File(CALIB_PATH);
 				if( !file.exists() )
 					file.mkdirs();
@@ -610,8 +609,13 @@ public class CalibrationActivity extends Activity {
 				oos.writeObject(calib_data);
 				oos.close();
 				
+				FileOutputStream fos2 = new FileOutputStream(path2);
+				ObjectOutputStream oos2 = new ObjectOutputStream(fos2);
+				oos2.writeObject(calibPitches);
+				oos2.close();
+				
 				// insert calibration data DB
-				CalibrationData calibrationData = new CalibrationData(-1, name, path); // XXX : is filepath correct?
+				CalibrationData calibrationData = new CalibrationData(-1, name, path, path2); // XXX : is filepath correct?
 				dbhelper.addCalibrationData(calibrationData);
 				refreshListView();
 				//////////////////////////////////////////??????????????
@@ -817,7 +821,7 @@ public class CalibrationActivity extends Activity {
 				started = false;
 				startStopButton.setText("Start");
 				calibButton.setBackgroundColor(Color.argb(0, 0, 0, 0));
-				calibPitches[calibTarget] = Math.floor(calibPitches_sum
+				calibPitches[octave-3][calibTarget] = Math.floor(calibPitches_sum
 						/ calibCount * 1000) / 1000;
 				showPitch();
 				curCanvas.drawColor(Color.BLACK);
@@ -896,27 +900,34 @@ public class CalibrationActivity extends Activity {
 	public void showPitch() {
 		String s = "";
 		for (int i = 0; i < 12; i++) {
-			s += pitchName[i] + "\t :  "
-					+ Math.floor(pitches[i] * Math.pow(2, octave - 4) * 1000)
-					/ 1000;
-			if (Math.floor(pitches[i] * Math.pow(2, octave - 4) * 100) / 100 != Math
-					.floor(calibPitches[i] * 100) / 100)
-				s += "\t -> " + calibPitches[i];
-			s += "\n";
+			if (!isNew) {
+				s += pitchName[i] + "\t :  " + calibPitches[octave - 3][i]+"\n";
+			} else {
+				s += pitchName[i]
+						+ "\t :  "
+						+ Math.floor(pitches[i] * Math.pow(2, octave - 4) * 100)
+						/ 100;
+				if (Math.floor(pitches[i] * Math.pow(2, octave - 4) * 10) / 10 != Math
+						.floor(calibPitches[octave - 3][i] * 10) / 10)
+					s += "\t -> " + calibPitches[octave - 3][i];
+				s += "\n";
+			}
 		}
 		pitchText.setText(s);
 	}
 
 	public void setDefault() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 12; j++) {
-				for (int k = 0; k < 10; k++) {
-					int index = (int) (pitches[j] * Math.pow(2, i - 1)
-							/ frequency * (blockSize * 2 + 1));
-					if (index - k >= 0)
-						calib_data[i][j][index - k] = 10 * Math.pow(0.7, k);
-					if (index + k < blockSize + 1)
-						calib_data[i][j][index + k] = 10 * Math.pow(0.7, k);
+		if (isNew) {
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 12; j++) {
+					for (int k = 0; k < 10; k++) {
+						int index = (int) (pitches[j] * Math.pow(2, i - 1)
+								/ frequency * (blockSize * 2 + 1));
+						if (index - k >= 0)
+							calib_data[i][j][index - k] = 10 * Math.pow(0.7, k);
+						if (index + k < blockSize + 1)
+							calib_data[i][j][index + k] = 10 * Math.pow(0.7, k);
+					}
 				}
 			}
 		}
@@ -925,7 +936,7 @@ public class CalibrationActivity extends Activity {
 	public void refreshListView() {
 		ids.clear();
 		names.clear();
-		
+				
 		ids = dbhelper.getAllCalibrationId();
 		names = dbhelper.getAllCalibrationName();
 		
@@ -952,6 +963,14 @@ public class CalibrationActivity extends Activity {
 	    			ObjectInputStream iis = new ObjectInputStream(fis);
 	    			calib_data = (double[][][]) iis.readObject();
 	    			iis.close();
+	    			
+	    			FileInputStream fis2 = new FileInputStream(cd.getFile_path2());
+	    			ObjectInputStream iis2 = new ObjectInputStream(fis2);
+	    			calibPitches = (double[][]) iis2.readObject();
+	    			iis2.close();
+	    			
+	    			if(selected_db > 1) isNew = false;
+	    			
         		}catch (Exception e) {
         			Log.d("ccccc", "exception : " + e.toString());
         		} 

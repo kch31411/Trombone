@@ -61,6 +61,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String CALIB_KEY_ID = "id"; // primary key
 	private static final String CALIB_KEY_NAME = "name";
 	private static final String CALIB_KEY_PATH = "file_path";
+	private static final String CALIB_KEY_PATH2 = "file_path2";
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -122,7 +123,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		CREATE_SHEETS_TABLE = "CREATE TABLE " + CALIB_TABLE_SHEETS + "("
 				+ CALIB_KEY_ID + " INTEGER PRIMARY KEY," 
 				+ CALIB_KEY_NAME + " TEXT,"
-				+ CALIB_KEY_PATH + " TEXT"
+				+ CALIB_KEY_PATH + " TEXT,"
+				+ CALIB_KEY_PATH2 + " TEXT"
 				+ ")";
 		db.execSQL(CREATE_SHEETS_TABLE);
 	}
@@ -151,13 +153,13 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	/**
-	 * CRUD ÇÔ¼ö
+	 * CRUD ï¿½Ô¼ï¿½
 	 */
 	
 	/*/////////////////////////////////////////////////////////////////////////
 	 * MUSICSHEET
 	 */////////////////////////////////////////////////////////////////////////
-	// »õ·Î¿î  Sheet ÇÔ¼ö Ãß°¡
+	// ï¿½ï¿½ï¿½Î¿ï¿½  Sheet ï¿½Ô¼ï¿½ ï¿½ß°ï¿½
 	public long addMusicSheet(MusicSheet sheet) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -175,7 +177,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	// id ¿¡ ÇØ´çÇÏ´Â Sheet °´Ã¼ °¡Á®¿À±â
+	// id ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ Sheet ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public MusicSheet getMusicSheet(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
@@ -185,7 +187,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		if ( cursor != null )
 			cursor.moveToFirst();
 		Log.d("ddddd","debbbb");
-		// memo °¡Á®¿À±â, note °¡Á®¿À±â
+		// memo ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, note ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		int pages = Integer.parseInt(cursor.getString(3)); 
 		
 		ArrayList<ArrayList<Note>> note = new ArrayList<ArrayList<Note>>();
@@ -208,22 +210,22 @@ public class DBHelper extends SQLiteOpenHelper {
 		return sheet;
 	}
 	
-	// ¸ðµç Sheet Á¤º¸ °¡Á®¿À±â
+	// ï¿½ï¿½ï¿½ Sheet ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public List<MusicSheet> getAllMusicSheets(int oper) {
 		List<MusicSheet> sheetList = new ArrayList<MusicSheet>();
 		// Select All Query
 		String selectQuery = "SELECT * FROM " + MUSICSHEET_TABLE_SHEETS
 				+ " ORDER BY ";
 		if ( oper == 1 ) {
-			// ÃÖ½Å¼ø
+			// ï¿½Ö½Å¼ï¿½
 			selectQuery = selectQuery + MUSICSHEET_KEY_ID + " DESC"; 
 		}
 		else if ( oper == 2 ) {
-			// ÀÌ¸§¼ø
+			// ï¿½Ì¸ï¿½ï¿½ï¿½
 			selectQuery = selectQuery + MUSICSHEET_KEY_NAME + " ASC";
 		}
 		else if ( oper == 3 ) {
-			// ÇÃ·¹ÀÌ¼ø 
+			// ï¿½Ã·ï¿½ï¿½Ì¼ï¿½ 
 			selectQuery = selectQuery + MUSICSHEET_KEY_PLAYCOUNT + " DESC";
 		}
 		
@@ -233,7 +235,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to listf
 		if ( cursor.moveToFirst() ) {
 			do {
-				// memo °¡Á®¿À±â, note °¡Á®¿À±â
+				// memo ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, note ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				int id = Integer.parseInt(cursor.getString(0));
 				int pages = Integer.parseInt(cursor.getString(3)); 
 				
@@ -259,7 +261,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return sheetList;
 	}
 	
-	// MusicSheet Á¤º¸ ¾÷µ¥ÀÌÆ®
+	// MusicSheet ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	public int updateMusicSheet(MusicSheet sheet) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -274,7 +276,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(sheet.getId()) });
 	}
 	
-	// MusicSheet Á¤º¸ »èÁ¦ÇÏ±â
+	// MusicSheet ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 	public void deleteMusicSheet(MusicSheet sheet) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(MUSICSHEET_TABLE_SHEETS, MUSICSHEET_KEY_ID + " = ?", 
@@ -282,7 +284,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.close();
 	}
 	
-	// MusicSheet Á¤º¸ ¼ýÀÚ
+	// MusicSheet ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	public int getMusicSheetsCount() {
 		String countQuery = "SELECT * FROM " + MUSICSHEET_TABLE_SHEETS;
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -296,7 +298,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	/*/////////////////////////////////////////////////////////////////////////
 	 * NOTE
 	 */////////////////////////////////////////////////////////////////////////
-	// »õ·Î¿î Note¸¦ Sheet¿¡ Ãß°¡
+	// ï¿½ï¿½ï¿½Î¿ï¿½ Noteï¿½ï¿½ Sheetï¿½ï¿½ ï¿½ß°ï¿½
 	public long addNote(Note note) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -318,7 +320,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	// musicsheet_id¿Í page°¡ ÁÖ¾îÁú ‹š ¼ø¼­´ë·Î Note Á¤º¸ °¡Á®¿À±â
+	// musicsheet_idï¿½ï¿½ pageï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Note ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public ArrayList<Note> getNotes(int musicsheet_id, int page) {
 		ArrayList<Note> noteList = new ArrayList<Note>();
 		// Select All Query
@@ -356,7 +358,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	/*/////////////////////////////////////////////////////////////////////////
 	 * MEMO
 	 */////////////////////////////////////////////////////////////////////////
-	// »õ·Î¿î Memo¸¦ Sheet¿¡ Ãß°¡
+	// ï¿½ï¿½ï¿½Î¿ï¿½ Memoï¿½ï¿½ Sheetï¿½ï¿½ ï¿½ß°ï¿½
 	public long addMemo(Memo memo) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -375,7 +377,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	// id ¿¡ ÇØ´çÇÏ´Â Sheet °´Ã¼ °¡Á®¿À±â
+	// id ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ Sheet ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public Memo getMemo(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
@@ -398,7 +400,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return memo;
 	}
 	
-	// musicsheet_id¿Í page°¡ ÁÖ¾îÁú ‹š Memo Á¤º¸ °¡Á®¿À±â
+	// musicsheet_idï¿½ï¿½ pageï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ Memo ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public ArrayList<Memo> getMemos(int musicsheet_id, int page) {
 		ArrayList<Memo> memoList = new ArrayList<Memo>();
 		// Select All Query
@@ -430,7 +432,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return memoList;
 	}
 	
-	// Memo Á¤º¸ ¾÷µ¥ÀÌÆ®
+	// Memo ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	public int updateMemo(Memo memo) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -446,7 +448,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(memo.getId()) });
 	}
 	
-	// Memo Á¤º¸ »èÁ¦ÇÏ±â
+	// Memo ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 	public void deleteMemo(Memo memo) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(MEMO_TABLE_SHEETS, MEMO_KEY_ID + " = ?", 
@@ -458,7 +460,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	/*/////////////////////////////////////////////////////////////////////////
 	 * HISTORY
 	 */////////////////////////////////////////////////////////////////////////
-	// »õ·Î¿î History¸¦ Sheet¿¡ Ãß°¡
+	// ï¿½ï¿½ï¿½Î¿ï¿½ Historyï¿½ï¿½ Sheetï¿½ï¿½ ï¿½ß°ï¿½
 	public long addHistory(History history) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -474,7 +476,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	// musicsheet_id°¡ ÁÖ¾îÁú ‹š Memo Á¤º¸ °¡Á®¿À±â
+	// musicsheet_idï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ Memo ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public List<History> getHitories(int musicsheet_id) {
 			List<History> historyList = new ArrayList<History>();
 			// Select All Query
@@ -506,13 +508,14 @@ public class DBHelper extends SQLiteOpenHelper {
 	/*/////////////////////////////////////////////////////////////////////////
 	 * Calibration
 	 */////////////////////////////////////////////////////////////////////////
-	// »õ·Î¿î Calibration data¸¦ Ãß°¡
+	// ï¿½ï¿½ï¿½Î¿ï¿½ Calibration dataï¿½ï¿½ ï¿½ß°ï¿½
 	public long addCalibrationData(CalibrationData calibrationData) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
 		ContentValues values = new ContentValues();
 		values.put(CALIB_KEY_NAME, calibrationData.getName());
 		values.put(CALIB_KEY_PATH, calibrationData.getFile_path());
+		values.put(CALIB_KEY_PATH2, calibrationData.getFile_path2());
 		
 		// Inserting Row
 		long id = db.insert(CALIB_TABLE_SHEETS, null, values);
@@ -521,12 +524,12 @@ public class DBHelper extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	// id ¿¡ ÇØ´çÇÏ´Â Calibration data °´Ã¼ °¡Á®¿À±â
+	// id ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ Calibration data ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public CalibrationData getCalibrationData(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
 		Cursor cursor = db.query(CALIB_TABLE_SHEETS, new String[] { CALIB_KEY_ID, 
-				CALIB_KEY_NAME, CALIB_KEY_PATH }, CALIB_KEY_ID + "=?",
+				CALIB_KEY_NAME, CALIB_KEY_PATH, CALIB_KEY_PATH2 }, CALIB_KEY_ID + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if ( cursor != null )
 			cursor.moveToFirst();
@@ -534,7 +537,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		CalibrationData cd = new CalibrationData(
 				Integer.parseInt(cursor.getString(0)),
 				cursor.getString(1),
-				cursor.getString(2));
+				cursor.getString(2),
+				cursor.getString(3));
 		
 		return cd;
 	}
