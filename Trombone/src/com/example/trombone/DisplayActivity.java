@@ -104,6 +104,7 @@ public class DisplayActivity extends Activity {
 	int side_padding = 40;
 	int top_padding = 80;
 	int space_five_line = 150;
+	double dx;
 
 	TextView resultText, debugText;
 
@@ -156,6 +157,7 @@ public class DisplayActivity extends Activity {
 		if(keyNumber<0)
 			yPositions=yPosition_flat;
 		bar_length = music_sheet.getBeat();		
+		dx = ((nexus7_width - 2*side_padding - 100) / 2) / (double) bar_length; 
 		
 		drawBackground();
 		displayMusicSheet(pageNum);
@@ -669,10 +671,10 @@ public class DisplayActivity extends Activity {
 		int count = 0;
 		while (count++ < 3) {
 			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(pageNum));
+				note_index = DrawNotes(note_index, side_padding + 100, y, music_sheet.getNotes(pageNum));
 			if (note_index >= 0)
 				note_index = DrawNotes(note_index,
-						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(pageNum));
+						(int) ((nexus7_width - side_padding + 140) / 2), y, music_sheet.getNotes(pageNum));
 			y += space_five_line;
 		}
 		lastNoteIndex = music_sheet.getNotes(pageNum).size()-1;
@@ -771,7 +773,7 @@ public class DisplayActivity extends Activity {
 				}
 				lineImage.setLayoutParams(new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				lineImage.setPadding(x+55, getNotePosition(note)+y-100, 0, 0);
+				lineImage.setPadding(x+5, getNotePosition(note)+y-100, 0, 0);
 
 				l.addView(lineImage);
 				noteViews.add(lineImage);
@@ -781,7 +783,7 @@ public class DisplayActivity extends Activity {
 			noteImage.setImageBitmap(bmNote);
 			noteImage.setLayoutParams(new LayoutParams(
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			noteImage.setPadding(x+60, getNotePosition(note) + y, 0, 0);
+			noteImage.setPadding(x+10, getNotePosition(note) + y, 0, 0);
 			note.x = x;
 			note.y = y;
 
@@ -810,7 +812,7 @@ public class DisplayActivity extends Activity {
 				accidental.setImageBitmap(bmA);
 				accidental.setLayoutParams(new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				accidental.setPadding(x+40, getNotePosition(note)+y+35, 0, 0);
+				accidental.setPadding(x-5, getNotePosition(note)+y+35, 0, 0);
 				
 				Matrix mA = new Matrix();
 				mA.postScale((float) 0.17, (float) 0.17);
@@ -820,7 +822,7 @@ public class DisplayActivity extends Activity {
 				noteViews.add(accidental); 
 			}
 
-			x += (int)(16*note.getBeat()/((double)bar_length)*16) ;
+			x += dx*note.getBeat();
 		}
 		return -1;
 	}
@@ -981,7 +983,7 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 */
-			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+55);
+			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+5);
 			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
 
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
