@@ -54,6 +54,7 @@ public class DisplayActivity extends Activity {
 	private int pageNum = 1;  // TODO : page related works
 	int lastNoteIndex;
 	int currentPosition = 0;
+	private long prevRecognitionTime;
 	
 	private TextView selectedMemo;	// for memo modify
 	private ArrayList<Memo> memoList = new ArrayList<Memo>();
@@ -178,6 +179,9 @@ public class DisplayActivity extends Activity {
 					startStopButton.setText("Stop");
 					recordTask = new RecordAudio();
 					recordTask.execute();		// thread call
+					
+					Date temp = new Date();
+					prevRecognitionTime = temp.getTime();
 				}
 			}
 		});
@@ -200,6 +204,23 @@ public class DisplayActivity extends Activity {
 		{
 			Log.d("for captrue", "capture file does not exist");
 			capturePreview();
+		}
+	}
+	
+	private void FeedbackVelocity(int pageNum, int index) {
+		Date temp = new Date();
+		long currentRecognitionTime = temp.getTime();
+		long deltaTime = currentRecognitionTime - prevRecognitionTime;
+		
+		try {
+			Note currentNote = music_sheet.getNote(pageNum, index - 1);
+			double modifiedVelocity = deltaTime / currentNote.getBeat();
+			
+			// 식 보정 필요
+			tracking_velocity = tracking_velocity * 0.2 + modifiedVelocity * 0.8;
+		} catch (Exception e) {
+			// 시작 위치
+			tracking_velocity = 5000;
 		}
 	}
 	
@@ -274,6 +295,7 @@ public class DisplayActivity extends Activity {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
 		
+		tracking_velocity = 5000; // 초기값
 	}
 	
 	private void drawBackground() {
@@ -454,11 +476,11 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_DOWN:
 			mLastMotionX = event.getX();
-			mLastMotionY = event.getY();   // 占쏙옙占쏙옙 占쏙옙치 占쏙옙占쏙옙
+			mLastMotionY = event.getY();   // �좎룞�쇿뜝�숈삕 �좎룞�숈튂 �좎룞�쇿뜝�숈삕
 
 			mHasPerformedLongPress = false;   
 
-			postCheckForLongClick(0);     //  Long click message 占쏙옙占쏙옙
+			postCheckForLongClick(0);     //  Long click message �좎룞�쇿뜝�숈삕
 
 			break;
 
@@ -468,7 +490,7 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏘나占쏙옙  占쏙옙占쏙옙占�
+			// �좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�섎굹�좎룞�� �좎룞�쇿뜝�숈삕�좑옙
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -487,10 +509,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long Click占쏙옙 처占쏙옙占쏙옙占쏙옙 占십억옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙.
+				// Long Click�좎룞��泥섇뜝�숈삕�좎룞�쇿뜝�숈삕 �좎떗�듭삕�좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�숈삕�좎룞��
 				removeLongPressCallback();
 
-				// Short Click 처占쏙옙 占쏙옙틴占쏙옙 占쏙옙占썩에 占쏙옙占쏙옙占쏙옙 占싯니댐옙.
+				// Short Click 泥섇뜝�숈삕 �좎룞�숉떞�좎룞���좎룞�쇿뜝�⑹뿉 �좎룞�쇿뜝�숈삕�좎룞���좎떙�덈뙋��
 				performOneClick(); 
 
 			}
@@ -503,7 +525,7 @@ public class DisplayActivity extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	// Long Click占쏙옙 처占쏙옙占쏙옙  Runnable 占쌉니댐옙. 
+	// Long Click�좎룞��泥섇뜝�숈삕�좎룞�� Runnable �좎뙃�덈뙋�� 
 	class CheckForLongPress implements Runnable {
 
 		public void run() {
@@ -513,7 +535,7 @@ public class DisplayActivity extends Activity {
 		}
 	}
 
-	// Long Click 처占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쌉쇽옙 
+	// Long Click 泥섇뜝�숈삕 �좎룞�쇿뜝�숈삕�좎룞���좎룞�쇿뜝�숈삕 �좎뙃�쎌삕 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -523,8 +545,8 @@ public class DisplayActivity extends Activity {
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
 				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// 占쏙옙占썩서  占시쏙옙占쏙옙占쏙옙  getLongPressTimeout() 占식울옙 message 占쏙옙占쏙옙占싹곤옙 占쌌니댐옙.  
-		// 占쌩곤옙 delay占쏙옙 占십울옙占쏙옙 占쏙옙痢�占쏙옙占쌔쇽옙  占식띰옙占쏙옙庫占�占쏙옙占쏙옙占쏙옙構占�占쌌니댐옙.
+		// �좎룞�쇿뜝�⑹꽌  �좎떆�숈삕�좎룞�쇿뜝�숈삕  getLongPressTimeout() �좎떇�몄삕 message �좎룞�쇿뜝�숈삕�좎떦怨ㅼ삕 �좎뙆�덈뙋��  
+		// �좎뙥怨ㅼ삕 delay�좎룞���좎떗�몄삕�좎룞���좎룞�숋㎘占썲뜝�숈삕�좎뙏�쎌삕  �좎떇�곗삕�좎룞�쇿벴�좑옙�좎룞�쇿뜝�숈삕�좎룞�숁쭓�좑옙�좎뙆�덈뙋��
 	}
 
 
@@ -985,7 +1007,8 @@ public class DisplayActivity extends Activity {
 */
 			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+5);
 			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
-
+			FeedbackVelocity(pageNum, currentPosition - 1);
+			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
 				updatePage(pageNum + 1);
