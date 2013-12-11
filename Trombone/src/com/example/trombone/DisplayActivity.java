@@ -2,7 +2,6 @@ package com.example.trombone;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
@@ -25,7 +24,6 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -39,7 +37,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
 import classes.History;
@@ -57,6 +54,7 @@ public class DisplayActivity extends Activity {
 	private int pageNum = 1;  // TODO : page related works
 	int lastNoteIndex;
 	int currentPosition = 0;
+	private long prevRecognitionTime;
 	
 	private TextView selectedMemo;	// for memo modify
 	private ArrayList<Memo> memoList = new ArrayList<Memo>();
@@ -103,7 +101,11 @@ public class DisplayActivity extends Activity {
 	
 	int[] yPositions = yPosition;
 	
+	// drawing related.
 	int side_padding = 40;
+	int top_padding = 80;
+	int space_five_line = 150;
+	double dx;
 
 	TextView resultText, debugText;
 
@@ -115,8 +117,10 @@ public class DisplayActivity extends Activity {
 	double [] errors = new double[11];
 	double [] scores = new double[11];
 	double [] counters = new double[11];
-	double velocity = 0.1;
-	int setTime = 0;
+	
+	double tracking_velocity;
+	double tracking_x;
+	double tracking_y;
 	
 	@Override
 	protected void onStop(){
@@ -154,6 +158,7 @@ public class DisplayActivity extends Activity {
 		if(keyNumber<0)
 			yPositions=yPosition_flat;
 		bar_length = music_sheet.getBeat();		
+		dx = ((nexus7_width - 2*side_padding - 100) / 2) / (double) bar_length; 
 		
 		drawBackground();
 		displayMusicSheet(pageNum);
@@ -174,6 +179,9 @@ public class DisplayActivity extends Activity {
 					startStopButton.setText("Stop");
 					recordTask = new RecordAudio();
 					recordTask.execute();		// thread call
+					
+					Date temp = new Date();
+					prevRecognitionTime = temp.getTime();
 				}
 			}
 		});
@@ -196,6 +204,23 @@ public class DisplayActivity extends Activity {
 		{
 			Log.d("for captrue", "capture file does not exist");
 			capturePreview();
+		}
+	}
+	
+	private void FeedbackVelocity(int pageNum, int index) {
+		Date temp = new Date();
+		long currentRecognitionTime = temp.getTime();
+		long deltaTime = currentRecognitionTime - prevRecognitionTime;
+		
+		try {
+			Note currentNote = music_sheet.getNote(pageNum, index - 1);
+			double modifiedVelocity = deltaTime / currentNote.getBeat();
+			
+			// 식 보정 필요
+			tracking_velocity = tracking_velocity * 0.2 + modifiedVelocity * 0.8;
+		} catch (Exception e) {
+			// 시작 위치
+			tracking_velocity = 5000;
 		}
 	}
 	
@@ -231,31 +256,7 @@ public class DisplayActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-	
-	private void displayMusicSheet(int page) {
-		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
-
-		for (ImageView iv : noteViews) {
-			l.removeView(iv);
-		}
-		noteViews.clear();
-
-		// Display music sheet
-		int note_index = 0;
-		int y = 80;
-		int count = 0;
-		while (count++ < 3) {
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index, 120, y, music_sheet.getNotes(pageNum));
-			if (note_index >= 0)
-				note_index = DrawNotes(note_index,
-						(int) ((nexus7_width - side_padding)/2+60), y, music_sheet.getNotes(pageNum));
-			y += 150;
-		}
-		lastNoteIndex = music_sheet.getNotes(pageNum).size()-1;
-	}
-
-	
+		
 	// set initial data
 	private void initialize() {
 		// touch handler
@@ -294,6 +295,7 @@ public class DisplayActivity extends Activity {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
 		
+		tracking_velocity = 5000; // 초기값
 	}
 	
 	private void drawBackground() {
@@ -341,11 +343,11 @@ public class DisplayActivity extends Activity {
 		l.addView(trackingView);
 		
 		// Display music sheet
-		int y = 80;
+		int y = top_padding;
 		int count = 0;
 		while (count++ < 3) {
 			ImageView fiveLine = new ImageView(getBaseContext());
-			Bitmap bitmap = Bitmap.createBitmap((int) nexus7_width, (int) 150,
+			Bitmap bitmap = Bitmap.createBitmap((int) nexus7_width, (int) space_five_line,
 					Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			fiveLine.setImageBitmap(bitmap);
@@ -431,7 +433,7 @@ public class DisplayActivity extends Activity {
 					l.addView(iv);
 				}
 			}
-			y += 150;
+			y += space_five_line;
 		}
 	}
 	
@@ -474,11 +476,11 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_DOWN:
 			mLastMotionX = event.getX();
-			mLastMotionY = event.getY();   // 占쏙옙占쏙옙 占쏙옙치 占쏙옙占쏙옙
+			mLastMotionY = event.getY();   // �좎룞�쇿뜝�숈삕 �좎룞�숈튂 �좎룞�쇿뜝�숈삕
 
 			mHasPerformedLongPress = false;   
 
-			postCheckForLongClick(0);     //  Long click message 占쏙옙占쏙옙
+			postCheckForLongClick(0);     //  Long click message �좎룞�쇿뜝�숈삕
 
 			break;
 
@@ -488,7 +490,7 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏘나占쏙옙  占쏙옙占쏙옙占�
+			// �좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�섎굹�좎룞�� �좎룞�쇿뜝�숈삕�좑옙
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -507,10 +509,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long Click占쏙옙 처占쏙옙占쏙옙占쏙옙 占십억옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙.
+				// Long Click�좎룞��泥섇뜝�숈삕�좎룞�쇿뜝�숈삕 �좎떗�듭삕�좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�숈삕�좎룞��
 				removeLongPressCallback();
 
-				// Short Click 처占쏙옙 占쏙옙틴占쏙옙 占쏙옙占썩에 占쏙옙占쏙옙占쏙옙 占싯니댐옙.
+				// Short Click 泥섇뜝�숈삕 �좎룞�숉떞�좎룞���좎룞�쇿뜝�⑹뿉 �좎룞�쇿뜝�숈삕�좎룞���좎떙�덈뙋��
 				performOneClick(); 
 
 			}
@@ -523,7 +525,7 @@ public class DisplayActivity extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	// Long Click占쏙옙 처占쏙옙占쏙옙  Runnable 占쌉니댐옙. 
+	// Long Click�좎룞��泥섇뜝�숈삕�좎룞�� Runnable �좎뙃�덈뙋�� 
 	class CheckForLongPress implements Runnable {
 
 		public void run() {
@@ -533,7 +535,7 @@ public class DisplayActivity extends Activity {
 		}
 	}
 
-	// Long Click 처占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쌉쇽옙 
+	// Long Click 泥섇뜝�숈삕 �좎룞�쇿뜝�숈삕�좎룞���좎룞�쇿뜝�숈삕 �좎뙃�쎌삕 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -543,8 +545,8 @@ public class DisplayActivity extends Activity {
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
 				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// 占쏙옙占썩서  占시쏙옙占쏙옙占쏙옙  getLongPressTimeout() 占식울옙 message 占쏙옙占쏙옙占싹곤옙 占쌌니댐옙.  
-		// 占쌩곤옙 delay占쏙옙 占십울옙占쏙옙 占쏙옙痢�占쏙옙占쌔쇽옙  占식띰옙占쏙옙庫占�占쏙옙占쏙옙占쏙옙構占�占쌌니댐옙.
+		// �좎룞�쇿뜝�⑹꽌  �좎떆�숈삕�좎룞�쇿뜝�숈삕  getLongPressTimeout() �좎떇�몄삕 message �좎룞�쇿뜝�숈삕�좎떦怨ㅼ삕 �좎뙆�덈뙋��  
+		// �좎뙥怨ㅼ삕 delay�좎룞���좎떗�몄삕�좎룞���좎룞�숋㎘占썲뜝�숈삕�좎뙏�쎌삕  �좎떇�곗삕�좎룞�쇿벴�좑옙�좎룞�쇿뜝�숈삕�좎룞�숁쭓�좑옙�좎뙆�덈뙋��
 	}
 
 
@@ -584,7 +586,8 @@ public class DisplayActivity extends Activity {
 					memoView.setX(mLastMotionX);
 					memoView.setY(mLastMotionY);
 					memoView.setTextColor(Color.argb(opacity, 255, 0, 0));
-					memoView.setTextSize(30);
+					// TODO : another font
+					memoView.setTextSize(30);  // TODO : get size as like opacity
 
 					Memo memo = new Memo(-1, mLastMotionX, mLastMotionY,
 							opacity, pageNum, value, musicSheetId, memoView);
@@ -674,6 +677,30 @@ public class DisplayActivity extends Activity {
 
 		return note_height;
 	}
+	
+
+	private void displayMusicSheet(int page) {
+		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
+
+		for (ImageView iv : noteViews) {
+			l.removeView(iv);
+		}
+		noteViews.clear();
+
+		// Display music sheet
+		int note_index = 0;
+		int y = top_padding;
+		int count = 0;
+		while (count++ < 3) {
+			if (note_index >= 0)
+				note_index = DrawNotes(note_index, side_padding + 100, y, music_sheet.getNotes(pageNum));
+			if (note_index >= 0)
+				note_index = DrawNotes(note_index,
+						(int) ((nexus7_width - side_padding + 140) / 2), y, music_sheet.getNotes(pageNum));
+			y += space_five_line;
+		}
+		lastNoteIndex = music_sheet.getNotes(pageNum).size()-1;
+	}
 
 	public int DrawNotes(int pt, int x, int y, ArrayList<Note> notes) {
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
@@ -757,7 +784,7 @@ public class DisplayActivity extends Activity {
 				Canvas lineCanvas = new Canvas(bmLine);
 				lineImage.setImageBitmap(bmLine); 
 
-				int lineY = 150;
+				int lineY = space_five_line;
 				if(ratio<1) lineY+=7;
 				if(ummY%2!=0||note.getPitch()==401) lineY += 6;
 
@@ -768,7 +795,7 @@ public class DisplayActivity extends Activity {
 				}
 				lineImage.setLayoutParams(new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				lineImage.setPadding(x+55, getNotePosition(note)+y-100, 0, 0);
+				lineImage.setPadding(x+5, getNotePosition(note)+y-100, 0, 0);
 
 				l.addView(lineImage);
 				noteViews.add(lineImage);
@@ -778,7 +805,7 @@ public class DisplayActivity extends Activity {
 			noteImage.setImageBitmap(bmNote);
 			noteImage.setLayoutParams(new LayoutParams(
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			noteImage.setPadding(x+60, getNotePosition(note) + y, 0, 0);
+			noteImage.setPadding(x+10, getNotePosition(note) + y, 0, 0);
 			note.x = x;
 			note.y = y;
 
@@ -807,7 +834,7 @@ public class DisplayActivity extends Activity {
 				accidental.setImageBitmap(bmA);
 				accidental.setLayoutParams(new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				accidental.setPadding(x+40, getNotePosition(note)+y+35, 0, 0);
+				accidental.setPadding(x-5, getNotePosition(note)+y+35, 0, 0);
 				
 				Matrix mA = new Matrix();
 				mA.postScale((float) 0.17, (float) 0.17);
@@ -817,7 +844,7 @@ public class DisplayActivity extends Activity {
 				noteViews.add(accidental); 
 			}
 
-			x += (int)(16*note.getBeat()/((double)bar_length)*16) ;
+			x += dx*note.getBeat();
 		}
 		return -1;
 	}
@@ -942,17 +969,10 @@ public class DisplayActivity extends Activity {
 					double temp = 0;
 					for (int k=5; k<=j; k++)
 						temp+=music_sheet.getNote(pageNum, currentPosition-5+j).getBeat();
-					velocity += ((temp/setTime)-velocity)*0.5;					
-					setTime = 0;
+					
 				}
-				else setTime ++;
 				
-				if(setTime * velocity < music_sheet.getNote(pageNum, currentPosition).getBeat()) 
-					scores[5] += velocity;
-				else{
-					scores[6] += velocity;
-					scores[5] -= velocity;					
-				}
+				
 			}
 			resultText.setText(s);
 			//resultText.setText(scores[0]+" "+scores[1]+" "+scores[2]+" "+scores[3]+" "+scores[4]
@@ -990,9 +1010,10 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 */
-			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+55);
+			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+5);
 			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
-
+			FeedbackVelocity(pageNum, currentPosition - 1);
+			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
 				updatePage(pageNum + 1);
