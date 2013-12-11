@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
@@ -119,7 +120,7 @@ public class DisplayActivity extends Activity {
 	double [] counters = new double[11];
 	
 	double tracking_velocity;
-	double tracking_x;
+	double tracking_x;   // XXX : necessary???
 	double tracking_y;
 
 	@Override
@@ -207,20 +208,27 @@ public class DisplayActivity extends Activity {
 		}
 	}
 	
-	private void FeedbackVelocity(int pageNum, int index) {
+	private void FeedbackVelocity(int prev, int curr) {
 		Date temp = new Date();
 		long currentRecognitionTime = temp.getTime();
 		long deltaTime = currentRecognitionTime - prevRecognitionTime;
+
+		double curr_x = trackingView.getX();
+		trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
 		
 		try {
-			Note currentNote = music_sheet.getNote(pageNum, index - 1);
-			double modifiedVelocity = deltaTime / currentNote.getBeat();
+			int total_beat = 0;
+			for (int i = prev; i<curr; i++) {
+				total_beat += music_sheet.getNote(pageNum, i).getBeat();
+			}
+			double modifiedVelocity = total_beat / deltaTime;
 			
 			// 식 보정 필요
 			tracking_velocity = tracking_velocity * 0.2 + modifiedVelocity * 0.8;
+			prevRecognitionTime = currentRecognitionTime;
 		} catch (Exception e) {
 			// 시작 위치
-			tracking_velocity = 5000;
+			tracking_velocity = 1/5000;
 		}
 	}
 	
@@ -295,7 +303,7 @@ public class DisplayActivity extends Activity {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
 		
-		tracking_velocity = 5000; // 초기값
+		tracking_velocity = 1 / 5000; // 초기값
 	}
 	
 	private void drawBackground() {
@@ -1005,9 +1013,9 @@ public class DisplayActivity extends Activity {
 				currentError++;
 			}
 */
-			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x+5);
-			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
-			FeedbackVelocity(pageNum, currentPosition - 1);
+
+			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);  // XXX : tracking view should independent to curr position
+			FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
@@ -1062,6 +1070,10 @@ public class DisplayActivity extends Activity {
 			
 			// initialize current playing position as 0
 			currentPosition = 0;
+			
+			// tracking bar position
+			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x);
+			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
 		}
 	}
 }
