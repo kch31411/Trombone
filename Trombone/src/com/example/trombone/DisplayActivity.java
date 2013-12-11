@@ -116,7 +116,7 @@ public class DisplayActivity extends Activity {
 	MusicSheet music_sheet;
 	ArrayList<ImageView> noteViews =  new ArrayList<ImageView>();
 
-	double [] errors = new double[11];
+	boolean [] matches = new boolean[11];
 	double [] scores = new double[11];
 	double [] counters = new double[11];
 	
@@ -155,7 +155,6 @@ public class DisplayActivity extends Activity {
 		setContentView(R.layout.activity_display);
 
 		initialize();
-
 		keyNumber = music_sheet.getKeyNumber();
 		if(keyNumber<0)
 			yPositions=yPosition_flat;
@@ -163,6 +162,7 @@ public class DisplayActivity extends Activity {
 		dx = ((nexus7_width - 2*side_padding - 100) / 2) / (double) bar_length; 
 		
 		drawBackground();
+
 		displayMusicSheet(pageNum);
 		
 		// start button
@@ -224,11 +224,9 @@ public class DisplayActivity extends Activity {
 			}
 			double modifiedVelocity = total_beat / deltaTime;
 			
-			// 식 보정 필요
 			tracking_velocity = tracking_velocity * 0.2 + modifiedVelocity * 0.8;
 			prevRecognitionTime = currentRecognitionTime;
 		} catch (Exception e) {
-			// 시작 위치
 			tracking_velocity = 1/5000;
 		}
 	}
@@ -290,6 +288,21 @@ public class DisplayActivity extends Activity {
 		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
 		titleView.setText(music_sheet.getName());
 
+		// tracking bar
+		trackingView = new ImageView(getBaseContext());
+		Bitmap trackingBm = Bitmap.createBitmap((int) 40, (int) 120,
+				Bitmap.Config.ARGB_8888);
+		Canvas trackingCanvas = new Canvas(trackingBm);
+		trackingView.setImageBitmap(trackingBm);
+
+		trackingCanvas.drawColor(Color.LTGRAY);
+
+		trackingView.setLayoutParams(new LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		trackingView.setScaleType(ScaleType.MATRIX);
+		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
+		l.addView(trackingView);
+				
 		updatePage(1);	// first page
 
 		// set calibration data
@@ -310,8 +323,8 @@ public class DisplayActivity extends Activity {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
 		
-		tracking_velocity = 1 / 5000; // 초기값
-	}
+		tracking_velocity = 1 / 5000; // 珥덇린媛�	
+		}
 	
 	private void drawBackground() {
 		// scale layout for multiple devices
@@ -342,21 +355,6 @@ public class DisplayActivity extends Activity {
 		Paint paint = new Paint();
 		paint.setColor(Color.BLACK);
 
-		// tracking bar
-		trackingView = new ImageView(getBaseContext());
-		Bitmap trackingBm = Bitmap.createBitmap((int) 40, (int) 120,
-				Bitmap.Config.ARGB_8888);
-		Canvas trackingCanvas = new Canvas(trackingBm);
-		trackingView.setImageBitmap(trackingBm);
-
-		trackingCanvas.drawColor(Color.LTGRAY);
-
-		trackingView.setLayoutParams(new LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		trackingView.setScaleType(ScaleType.MATRIX);
-
-		l.addView(trackingView);
-		
 		// Display music sheet
 		int y = top_padding;
 		int count = 0;
@@ -491,12 +489,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_DOWN:
 			mLastMotionX = event.getX();
-			mLastMotionY = event.getY();   // �좎룞�쇿뜝�숈삕 �좎룞�숈튂 �좎룞�쇿뜝�숈삕
-
+			mLastMotionY = event.getY();   // 占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�덊뒄 占쎌쥙猷욑옙�용쐻占쎌늿��
 			mHasPerformedLongPress = false;   
 
-			postCheckForLongClick(0);     //  Long click message �좎룞�쇿뜝�숈삕
-
+			postCheckForLongClick(0);     //  Long click message 占쎌쥙猷욑옙�용쐻占쎌늿��
 			break;
 
 		case MotionEvent.ACTION_MOVE:
@@ -505,7 +501,7 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// �좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�섎굹�좎룞�� �좎룞�쇿뜝�숈삕�좑옙
+			// 占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�용쐻占쎌꼶援뱄옙醫롫짗占쏙옙 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫묒삕
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -524,10 +520,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long Click�좎룞��泥섇뜝�숈삕�좎룞�쇿뜝�숈삕 �좎떗�듭삕�좎룞�쇿뜝�숈삕 �좎룞�쇿뜝�숈삕�좎룞��
+				// Long Click占쎌쥙猷욑옙占쏙㎗�뉖쐻占쎌늿�뺧옙醫롫짗占쎌눨�앾옙�덉굲 占쎌쥙�쀯옙��굲占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫짗占쏙옙
 				removeLongPressCallback();
 
-				// Short Click 泥섇뜝�숈삕 �좎룞�숉떞�좎룞���좎룞�쇿뜝�⑹뿉 �좎룞�쇿뜝�숈삕�좎룞���좎떙�덈뙋��
+				// Short Click 筌ｌ꼪�앾옙�덉굲 占쎌쥙猷욑옙�됰뼖占쎌쥙猷욑옙占쏙옙醫롫짗占쎌눨�앾옙�밸퓠 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫짗占쏙옙占쎌쥙�숋옙�덈솇占쏙옙
 				performOneClick(); 
 
 			}
@@ -540,7 +536,7 @@ public class DisplayActivity extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	// Long Click�좎룞��泥섇뜝�숈삕�좎룞�� Runnable �좎뙃�덈뙋�� 
+	// Long Click占쎌쥙猷욑옙占쏙㎗�뉖쐻占쎌늿�뺧옙醫롫짗占쏙옙 Runnable 占쎌쥙�껓옙�덈솇占쏙옙 
 	class CheckForLongPress implements Runnable {
 
 		public void run() {
@@ -550,7 +546,7 @@ public class DisplayActivity extends Activity {
 		}
 	}
 
-	// Long Click 泥섇뜝�숈삕 �좎룞�쇿뜝�숈삕�좎룞���좎룞�쇿뜝�숈삕 �좎뙃�쎌삕 
+	// Long Click 筌ｌ꼪�앾옙�덉굲 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫짗占쏙옙占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙�껓옙�뚯굲 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -560,9 +556,9 @@ public class DisplayActivity extends Activity {
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
 				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// �좎룞�쇿뜝�⑹꽌  �좎떆�숈삕�좎룞�쇿뜝�숈삕  getLongPressTimeout() �좎떇�몄삕 message �좎룞�쇿뜝�숈삕�좎떦怨ㅼ삕 �좎뙆�덈뙋��  
-		// �좎뙥怨ㅼ삕 delay�좎룞���좎떗�몄삕�좎룞���좎룞�숋㎘占썲뜝�숈삕�좎뙏�쎌삕  �좎떇�곗삕�좎룞�쇿벴�좑옙�좎룞�쇿뜝�숈삕�좎룞�숁쭓�좑옙�좎뙆�덈뙋��
-	}
+		// 占쎌쥙猷욑옙�용쐻占썩뫗苑� 占쎌쥙�놅옙�덉굲占쎌쥙猷욑옙�용쐻占쎌늿�� getLongPressTimeout() 占쎌쥙�뉛옙紐꾩굲 message 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫뼣�ⓦ끉��占쎌쥙�놅옙�덈솇占쏙옙  
+		// 占쎌쥙�ζ��쇱굲 delay占쎌쥙猷욑옙占쏙옙醫롫뼏占쎈챷�뺧옙醫롫짗占쏙옙占쎌쥙猷욑옙�뗣럹�좎뜴�앾옙�덉굲占쎌쥙�륅옙�뚯굲  占쎌쥙�뉛옙怨쀬굲占쎌쥙猷욑옙�용껜占쎌쥜�숋옙醫롫짗占쎌눨�앾옙�덉굲占쎌쥙猷욑옙�곸춷占쎌쥜�숋옙醫롫솁占쎈뜄�뗰옙占�	
+		}
 
 
 	private void removeLongPressCallback() {
@@ -946,71 +942,36 @@ public class DisplayActivity extends Activity {
 					Note tempNote = music_sheet.getNote(pageNum, currentPosition-5+j);
 					
 					double[] tempSpec = calib_data[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1];
-					int xTemp = (int)(calibPitches[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1]
-							 / (frequency/(blockSize * 2 + 1)));
+					double tempMaxF = calibPitches[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1];
+					int tempIdx = (int)Math.round(tempMaxF/(frequency/(blockSize*2+1)));
 					
-					boolean folded = false;
-					boolean fail = false;
-					double prev = -1;
 					double mag = 0;
-					for (int i= (int)(xTemp/1.04) ; i<(int)(xTemp*1.04) ; i++)
+					int idx = 0;
+					for (int i=-5;i<=5; i++)
 					{
-						if(i>=0 && i<Magnitude.length)
+						if(tempIdx+i>=0 && tempIdx+i<Magnitude.length)
 						{
-							if(!folded && prev>Magnitude[i]) {
-								folded = true;
-								mag = prev;
+							if(mag<Magnitude[tempIdx+i]) {
+								mag=Magnitude[tempIdx+i];
+								idx = i;
 							}
-							if(folded && prev<Magnitude[i]) {
-								fail = true;
-								break;							
-							}
-							prev = Magnitude[i];
 						}					
 					}
-					s+= (!tempNote.isRest()&&folded&&!fail) +""+ mag+"\n";										
+					matches[j]= Math.abs(idx)<1 
+							&& mag>tempSpec[tempIdx]*0.4 && !tempNote.isRest();
+					s+= matches[j]? "t":"f" +"\t";
 				}	
-				else s+= "ddd \n";	
+				else s+= "f\t";	
 			}
 			resultText.setText(s);
-			//resultText.setText(scores[0]+" "+scores[1]+" "+scores[2]+" "+scores[3]+" "+scores[4]
-			//		+"\n"+scores[5]+" "+scores[6]+" "+scores[7]+" "+scores[8]+" "+scores[9]+" "+scores[10]+" ");
 			
-			//debugText.setText(currentCount+"");
-
-			/*
-			if (maxIntensity < 5)
-				currentError++;
-			else if (currentError > 1
-					&& currentCount > 2
-					&& errorNext<100){ // MajorF<pitch2frequency(nextNote.getPitch())*1.04
-					//&&  MajorF>pitch2frequency(nextNote.getPitch())/1.04) {
-				currentPosition++;
-				errors = new double [11];
-				scores = new double [11];
-				counters = new double[11];
-				currentCount = 0;
-				currentError = 0;
-
-			} else if (errorCurrent<100){ // (MajorF<pitch2frequency(currentNote.getPitch())*1.04
-					//&& MajorF>pitch2frequency(currentNote.getPitch())/1.04) {
-				currentCount++;
-				currentError = 0;
-			} 
-			else if (currentError>1 && currentCount>5 
-					&& nextNote.isRest())
-			{
-				currentPosition++;
-				currentCount = 0;
-				currentError = 0;
-			}
-			else {
-				currentError++;
-			}
-*/
-
+			if(!matches[5]&&matches[6]) currentPosition++;
+			else if(!matches[5]&&matches[7]) currentPosition+=2;
+			else if(!matches[5]&&matches[8]) currentPosition+=3;
+			
 			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);  // XXX : tracking view should independent to curr position
 			FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
+			debugText.setText(tracking_velocity+"");
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.

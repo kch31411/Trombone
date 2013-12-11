@@ -222,7 +222,7 @@ public class CalibrationActivity extends Activity {
 
 		for (int i=0; i<3; i++) {
 			for (int j=0; j<12; j++)
-				calibPitches[i][j] = Math.floor(pitches[j] * Math.pow(2, i-1)*100)/100;		
+				calibPitches[i][j] = Math.round(pitches[j] * Math.pow(2, i-1)*100)/100;		
 		}
 		setDefault();		
 
@@ -443,14 +443,14 @@ public class CalibrationActivity extends Activity {
 			public void onClick(View v) {
 				reference = Double.parseDouble(refText.getText().toString());
 				for (int i = 0; i < 12; i++) {
-					pitches[i] = Math.floor(ref_pitches[i] * reference / 440
+					pitches[i] = Math.round(ref_pitches[i] * reference / 440
 							* 1000) / 1000;
 				}
 				
 				isNew = true;
 				for (int i = 0; i < 3; i++) {
 					for (int j = 0; j < 12; j++)
-						calibPitches[i][j] = Math.floor(pitches[j]
+						calibPitches[i][j] = Math.round(pitches[j]
 								* Math.pow(2, i - 1) * 100) / 100;
 				}
 
@@ -780,10 +780,10 @@ public class CalibrationActivity extends Activity {
 				double MajorF = maxFrequency[0];
 				double MaxI = maxIntensity[0];
 
-				MajorF = Math.floor(MajorF * 1000) / 1000;
+				MajorF = Math.round(MajorF * 1000) / 1000;
 				debugText.setText(MajorF + "\n"
-						+ Math.floor(maxFrequency[1] * 1000) / 1000 + "\n"
-						+ Math.floor(maxFrequency[2] * 1000) / 1000);
+						+ Math.round(maxFrequency[1] * 1000) / 1000 + "\n"
+						+ Math.round(maxFrequency[2] * 1000) / 1000);
 
 				double targetPitch = pitches[calibTarget]
 						* Math.pow(2, octave - 4);
@@ -821,7 +821,7 @@ public class CalibrationActivity extends Activity {
 				started = false;
 				startStopButton.setText("Start");
 				calibButton.setBackgroundColor(Color.argb(0, 0, 0, 0));
-				calibPitches[octave-3][calibTarget] = Math.floor(calibPitches_sum
+				calibPitches[octave-3][calibTarget] = Math.round(calibPitches_sum
 						/ calibCount * 1000) / 1000;
 				showPitch();
 				curCanvas.drawColor(Color.BLACK);
@@ -860,26 +860,26 @@ public class CalibrationActivity extends Activity {
 							temp_collected[index + i] = 0;
 					}
 
-					entire_maxFrequency[j] = Math.floor(entire_maxFrequency[j]
+					entire_maxFrequency[j] = Math.round(entire_maxFrequency[j]
 							* frequency / (blockSize * 2 + 1) * 1000) / 1000;
 				}
 
 				resultText
 						.setText(entire_maxFrequency[0]
 								+ "_"
-								+ Math.floor(entire_maxIntensity[0]
+								+ Math.round(entire_maxIntensity[0]
 										/ entire_sum * 1000)
 								/ 1000
 								+ " "
 								+ entire_maxFrequency[1]
 								+ "_"
-								+ Math.floor(entire_maxIntensity[1]
+								+ Math.round(entire_maxIntensity[1]
 										/ entire_sum * 1000)
 								/ 1000
 								+ " "
 								+ entire_maxFrequency[2]
 								+ "_"
-								+ Math.floor(entire_maxIntensity[2]
+								+ Math.round(entire_maxIntensity[2]
 										/ entire_sum * 1000) / 1000);
 			}
 
@@ -905,9 +905,9 @@ public class CalibrationActivity extends Activity {
 			} else {
 				s += pitchName[i]
 						+ "\t :  "
-						+ Math.floor(pitches[i] * Math.pow(2, octave - 4) * 100)
+						+ Math.round(pitches[i] * Math.pow(2, octave - 4) * 100)
 						/ 100;
-				if (Math.floor(pitches[i] * Math.pow(2, octave - 4) * 10) / 10 != Math
+				if (Math.round(pitches[i] * Math.pow(2, octave - 4) * 10) / 10 != Math
 						.floor(calibPitches[octave - 3][i] * 10) / 10)
 					s += "\t -> " + calibPitches[octave - 3][i];
 				s += "\n";
