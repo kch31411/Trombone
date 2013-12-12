@@ -123,6 +123,7 @@ public class DisplayActivity extends Activity {
 	double tracking_velocity;
 	double tracking_x;   // XXX : necessary???
 	double tracking_y;
+	long tracking_prev_time = -1;
 	
 	@Override
 	protected void onStop(){
@@ -213,16 +214,13 @@ public class DisplayActivity extends Activity {
 		Date temp = new Date();
 		long currentRecognitionTime = temp.getTime();
 		long deltaTime = currentRecognitionTime - prevRecognitionTime;
-
-		double curr_x = trackingView.getX();
-		trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
 		
 		try {
 			int total_beat = 0;
 			for (int i = prev; i<curr; i++) {
 				total_beat += music_sheet.getNote(pageNum, i).getBeat();
 			}
-			double modifiedVelocity = total_beat / deltaTime;
+			double modifiedVelocity = total_beat / (double) deltaTime;
 			
 			tracking_velocity = tracking_velocity * 0.2 + modifiedVelocity * 0.8;
 			prevRecognitionTime = currentRecognitionTime;
@@ -323,7 +321,7 @@ public class DisplayActivity extends Activity {
 			Log.d("ccccc", "exception : " + e.toString());
 		} 
 		
-		tracking_velocity = 1 / 5000; // 珥덇린媛�	
+		tracking_velocity = 1 / 5000; // �λ뜃由겼첎占�
 		}
 	
 	private void drawBackground() {
@@ -489,10 +487,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_DOWN:
 			mLastMotionX = event.getX();
-			mLastMotionY = event.getY();   // 占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�덊뒄 占쎌쥙猷욑옙�용쐻占쎌늿��
+			mLastMotionY = event.getY();   // �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙�좎럩伊숂뙴�묒삕占쎈뜇���좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙
 			mHasPerformedLongPress = false;   
 
-			postCheckForLongClick(0);     //  Long click message 占쎌쥙猷욑옙�용쐻占쎌늿��
+			postCheckForLongClick(0);     //  Long click message �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙
 			break;
 
 		case MotionEvent.ACTION_MOVE:
@@ -501,7 +499,7 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// 占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�용쐻占쎌꼶援뱄옙醫롫짗占쏙옙 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫묒삕
+			// �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙�좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙�좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚭섬�대콈�숅넫濡レ쭢�좎룞���좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫臾믪굲
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -520,11 +518,10 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long Click占쎌쥙猷욑옙占쏙㎗�뉖쐻占쎌늿�뺧옙醫롫짗占쎌눨�앾옙�덉굲 占쎌쥙�쀯옙��굲占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫짗占쏙옙
+				// Long Click�좎럩伊숂뙴�묒삕�좎룞�쀯옙�뽰맶�좎럩�울옙類㏃삕�ル∥吏쀥뜝�뚮닲占쎌빢�숋옙�됯뎡 �좎럩伊숋옙��삕占쏙옙援꿨뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙占썲뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙類㏃삕�ル∥吏쀥뜝�숈삕
 				removeLongPressCallback();
 
-				// Short Click 筌ｌ꼪�앾옙�덉굲 占쎌쥙猷욑옙�됰뼖占쎌쥙猷욑옙占쏙옙醫롫짗占쎌눨�앾옙�밸퓠 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫짗占쏙옙占쎌쥙�숋옙�덈솇占쏙옙
-				performOneClick(); 
+				// Short Click 嶺뚳퐣瑗わ옙�얠삕占쎈뜆援��좎럩伊숂뙴�묒삕占쎈맧堉뽩뜝�뚯쪠�룹쉻�쇿뜝�숈삕�ル∥吏쀥뜝�뚮닲占쎌빢�숋옙諛명뱺 �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫濡レ쭢�좎룞�쇿뜝�뚯쪠占쎌닂�숋옙�덉냷�좎룞��				performOneClick(); 
 
 			}
 
@@ -536,7 +533,7 @@ public class DisplayActivity extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	// Long Click占쎌쥙猷욑옙占쏙㎗�뉖쐻占쎌늿�뺧옙醫롫짗占쏙옙 Runnable 占쎌쥙�껓옙�덈솇占쏙옙 
+	// Long Click�좎럩伊숂뙴�묒삕�좎룞�쀯옙�뽰맶�좎럩�울옙類㏃삕�ル∥吏쀥뜝�숈삕 Runnable �좎럩伊숋옙猿볦삕占쎈뜄�뉐뜝�숈삕 
 	class CheckForLongPress implements Runnable {
 
 		public void run() {
@@ -546,7 +543,7 @@ public class DisplayActivity extends Activity {
 		}
 	}
 
-	// Long Click 筌ｌ꼪�앾옙�덉굲 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫짗占쏙옙占쎌쥙猷욑옙�용쐻占쎌늿��占쎌쥙�껓옙�뚯굲 
+	// Long Click 嶺뚳퐣瑗わ옙�얠삕占쎈뜆援��좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫濡レ쭢�좎룞�쇿뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙占썲뜝�뚯쪠占쎄퍜�숋옙��뎡 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -556,8 +553,8 @@ public class DisplayActivity extends Activity {
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
 				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// 占쎌쥙猷욑옙�용쐻占썩뫗苑� 占쎌쥙�놅옙�덉굲占쎌쥙猷욑옙�용쐻占쎌늿�� getLongPressTimeout() 占쎌쥙�뉛옙紐꾩굲 message 占쎌쥙猷욑옙�용쐻占쎌늿�뺧옙醫롫뼣�ⓦ끉��占쎌쥙�놅옙�덈솇占쏙옙  
-		// 占쎌쥙�ζ��쇱굲 delay占쎌쥙猷욑옙占쏙옙醫롫뼏占쎈챷�뺧옙醫롫짗占쏙옙占쎌쥙猷욑옙�뗣럹�좎뜴�앾옙�덉굲占쎌쥙�륅옙�뚯굲  占쎌쥙�뉛옙怨쀬굲占쎌쥙猷욑옙�용껜占쎌쥜�숋옙醫롫짗占쎌눨�앾옙�덉굲占쎌쥙猷욑옙�곸춷占쎌쥜�숋옙醫롫솁占쎈뜄�뗰옙占�	
+		// �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�⑸쳴�묕옙 �좎럩伊숋옙�낆삕占쎈뜆援꿨뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙占�getLongPressTimeout() �좎럩伊숋옙�쏆삕筌뤾쑴援�message �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫濡ル샬占썩벀�됵옙占썲뜝�뚯쪠占쎈냵�숋옙�덉냷�좎룞�� 
+		// �좎럩伊숋옙瓘占쏙옙�깃뎡 delay�좎럩伊숂뙴�묒삕�좎룞�숅넫濡ル폀�좎럥梨뤄옙類㏃삕�ル∥吏쀥뜝�숈삕�좎럩伊숂뙴�묒삕占쎈뿣�뱄옙醫롫쑕占쎌빢�숋옙�됯뎡�좎럩伊숋옙瑜낆삕占쎈슣援� �좎럩伊숋옙�쏆삕�⑥�援꿨뜝�뚯쪠�룹쉻�숋옙�⑷퍥�좎럩伊쒙옙�뗭삕�ル∥吏쀥뜝�뚮닲占쎌빢�숋옙�됯뎡�좎럩伊숂뙴�묒삕占쎄낯異룟뜝�뚯쪣占쎌닂�숅넫濡レ냱�좎럥�꾬옙�곗삕�좑옙	
 		}
 
 
@@ -901,6 +898,16 @@ public class DisplayActivity extends Activity {
 		// not in background
 		@Override
 		protected void onProgressUpdate(double[]... toTransform) {
+			// tracking bar moving
+			Date temp = new Date();
+			long currentRecognitionTime = temp.getTime();
+			if (tracking_prev_time <= 0) tracking_prev_time = currentRecognitionTime;
+			long deltaTime = currentRecognitionTime - tracking_prev_time;
+
+			double curr_x = trackingView.getX();
+			trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
+			debugText.setText(trackingView.getX()+"   "+tracking_velocity);
+			
 			curCanvas.drawColor(Color.BLACK);
 			double maxIntensity = Math.abs(toTransform[0][0]); // first real (0
 			// imaginary)
@@ -965,13 +972,23 @@ public class DisplayActivity extends Activity {
 			}
 			resultText.setText(s);
 			
-			if(!matches[5]&&matches[6]) currentPosition++;
-			else if(!matches[5]&&matches[7]) currentPosition+=2;
-			else if(!matches[5]&&matches[8]) currentPosition+=3;
+			if(!matches[5]&&matches[6]) {
+				currentPosition++;
+				FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
+			} else if(!matches[5]&&matches[7]) {
+				currentPosition+=2;
+				FeedbackVelocity(currentPosition - 2, currentPosition); // XXX : prev, curr
+			} else if(!matches[5]&&matches[8]) {
+				currentPosition+=3;
+				FeedbackVelocity(currentPosition - 3, currentPosition); // XXX : prev, curr
+			}
 			
-			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);  // XXX : tracking view should independent to curr position
-			FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
-			debugText.setText(tracking_velocity+"");
+			if (tracking_y != music_sheet.getNote(pageNum, currentPosition).y) {
+				tracking_x = music_sheet.getNote(pageNum, currentPosition).x;
+				tracking_y = music_sheet.getNote(pageNum, currentPosition).y;
+				trackingView.setY((float) tracking_y);  // XXX : tracking view should independent to curr position
+				trackingView.setX((float) tracking_x);  // XXX : tracking view should independent to curr position
+			}
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
