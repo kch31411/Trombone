@@ -926,7 +926,7 @@ public class DisplayActivity extends Activity {
    
 			double curr_x = trackingView.getX();
 			if (Math.abs(curr_x - music_sheet.getNote(pageNum, currentPosition).x) > ((nexus7_width - 2*side_padding - 100) / 2)) 
-				trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
+				trackingView.setX( music_sheet.getNote(pageNum, currentPosition).x);
 			else trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
 			//debugText.setText(trackingView.getX()+"   "+tracking_velocity);
 			
