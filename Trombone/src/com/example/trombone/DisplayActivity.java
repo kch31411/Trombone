@@ -221,11 +221,9 @@ public class DisplayActivity extends Activity {
 			for (int i = prev; i<curr; i++) {
 				if (lastNoteIndex >= 0 && i < lastNoteIndex) {
 					total_beat += music_sheet.getNote(pageNum, i).getBeat();
-					s+=music_sheet.getNote(pageNum, i).getBeat()+" ";
 				}
 				else {
 					total_beat += music_sheet.getNote(pageNum+1, i-lastNoteIndex).getBeat();
-					s+=music_sheet.getNote(pageNum, i).getBeat()+" ";
 				}
 			}
 			double modifiedVelocity = total_beat / (double) deltaTime;
@@ -988,6 +986,17 @@ public class DisplayActivity extends Activity {
 				prevRecognitionTime = temp.getTime();
 			}
 
+
+			Note currNote = music_sheet.getNote(pageNum, currentPosition); 
+			if (currNote.isRest() && deltaTime > currNote.getBeat()/(tracking_velocity)){
+				currentPosition++;
+				FeedbackVelocity(currentPosition - 1, currentPosition); 
+			}
+			if (matches[5]&&matches[6] && deltaTime > currNote.getBeat()/(tracking_velocity)){
+				currentPosition++;
+				FeedbackVelocity(currentPosition - 1, currentPosition); 
+			}
+					
 			if(!matches[5]&&matches[6]) {
 				currentPosition++;
 				FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
