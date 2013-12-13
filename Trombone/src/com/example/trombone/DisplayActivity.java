@@ -183,8 +183,8 @@ public class DisplayActivity extends Activity {
 					recordTask = new RecordAudio();
 					recordTask.execute();		// thread call
 					
-					Date temp = new Date();
-					prevRecognitionTime = temp.getTime();
+					//Date temp = new Date();
+					prevRecognitionTime = 0;// temp.getTime();
 				}
 			}
 		});
@@ -217,12 +217,23 @@ public class DisplayActivity extends Activity {
 		
 		try {
 			int total_beat = 0;
+			String s="";
 			for (int i = prev; i<curr; i++) {
-				total_beat += music_sheet.getNote(pageNum, i).getBeat();
+				if (lastNoteIndex >= 0 && i < lastNoteIndex) {
+					total_beat += music_sheet.getNote(pageNum, i).getBeat();
+					s+=music_sheet.getNote(pageNum, i).getBeat()+" ";
+				}
+				else {
+					total_beat += music_sheet.getNote(pageNum+1, i-lastNoteIndex).getBeat();
+					s+=music_sheet.getNote(pageNum, i).getBeat()+" ";
+				}
 			}
 			double modifiedVelocity = total_beat / (double) deltaTime;
 			
-			tracking_velocity = tracking_velocity * 0.2 + modifiedVelocity * 0.8;
+			if(tracking_velocity < 1/10000) tracking_velocity =  modifiedVelocity * 0.8;
+			tracking_velocity = tracking_velocity * 0.3 + modifiedVelocity * 0.7;
+			
+			debugText.setText(s+" "+tracking_velocity+"");
 			prevRecognitionTime = currentRecognitionTime;
 		} catch (Exception e) {
 			tracking_velocity = 1/5000;
@@ -903,10 +914,11 @@ public class DisplayActivity extends Activity {
 			long currentRecognitionTime = temp.getTime();
 			if (tracking_prev_time <= 0) tracking_prev_time = currentRecognitionTime;
 			long deltaTime = currentRecognitionTime - tracking_prev_time;
-
+			tracking_prev_time = currentRecognitionTime; 
+   
 			double curr_x = trackingView.getX();
 			trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
-			debugText.setText(trackingView.getX()+"   "+tracking_velocity);
+			//debugText.setText(trackingView.getX()+"   "+tracking_velocity);
 			
 			curCanvas.drawColor(Color.BLACK);
 			double maxIntensity = Math.abs(toTransform[0][0]); // first real (0
@@ -964,14 +976,18 @@ public class DisplayActivity extends Activity {
 							}
 						}					
 					}
-					matches[j]= Math.abs(idx)<1 
+					matches[j]= Math.abs(idx)<2 
 							&& mag>tempSpec[tempIdx]*0.4 && !tempNote.isRest();
-					s+= matches[j]? "t":"f" +"\t";
+					s+= matches[j]? (tempNote.getPitch()%100):"f" +"\t";
 				}	
 				else s+= "f\t";	
 			}
 			resultText.setText(s);
 			
+			if(matches[5]==true && prevRecognitionTime ==0){								
+				prevRecognitionTime = temp.getTime();
+			}
+
 			if(!matches[5]&&matches[6]) {
 				currentPosition++;
 				FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
@@ -1002,7 +1018,7 @@ public class DisplayActivity extends Activity {
 				paint.setColor(Color.rgb(250, 100, 255));
 				curCanvas.drawLine(x, downy, x, upy, paint);
 			}
-						
+			/*			
 			if (true) {
 				if (sampleCount < sampleSize) {
 					for (int i = 0; i < toTransform[0].length; i++) {
@@ -1012,7 +1028,7 @@ public class DisplayActivity extends Activity {
 				} else {
 					sampleCount = 0;
 				}
-			}
+			}*/
 
 			currentSpec.invalidate();
 		}
