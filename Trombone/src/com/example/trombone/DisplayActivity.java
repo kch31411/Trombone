@@ -961,13 +961,13 @@ public class DisplayActivity extends Activity {
 				curCanvas.drawLine(x, downy, x, upy, paint);
 			}
 			
-			while (music_sheet.getNote(pageNum, currentPosition).isRest())
+			while (music_sheet.getNote(pageNum, currentPosition).isRest() && tracking_velocity < (double)1/4000)
 				currentPosition++;
 			
 			String s = "";
 			for (int j=0; j<scores.length; j++)
 			{
-				if(currentPosition-5+j>=0){
+				if(currentPosition-5+j>=0||pageNum>1){
 					Note tempNote = music_sheet.getNote(pageNum, currentPosition-5+j);
 					
 					double[] tempSpec = calib_data[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1];
@@ -986,7 +986,7 @@ public class DisplayActivity extends Activity {
 							}
 						}					
 					}
-					matches[j]= (Math.abs(idx)<1 && mag>tempSpec[tempIdx]*0.4)
+					matches[j]= (Math.abs(idx)<2 && mag>tempSpec[tempIdx]*0.4)
 							|| tempNote.isRest();
 					if(matches[j]) {
 						scores[j]+=deltaTime*factors[j];
@@ -1006,15 +1006,19 @@ public class DisplayActivity extends Activity {
 			Note prevNote = pageNum>1||currentPosition>0 ? music_sheet.getNote(pageNum, currentPosition-1) : currNote; 
 			Note nextNote1 = music_sheet.getNote(pageNum, currentPosition+1);
 			Note nextNote2 = music_sheet.getNote(pageNum, currentPosition+2);
+			Note nextNote3 = music_sheet.getNote(pageNum, currentPosition+2);
 			
 			double passedTime = currentRecognitionTime - matched_time;
 			
 			boolean isPassed = false;
+			
 			if (scores[5] > currNote.getBeat() / tracking_velocity * 0.4) {
 				debugText.setText("here");
-				if ( (passedTime > (currNote.getBeat()+prevNote.getBeat())/tracking_velocity && currNote.isRest())
-						|| ( passedTime > currNote.getBeat()/tracking_velocity && matches[6] && nextNote1.getPitch()!=currNote.getPitch())
-						|| (errors[5]> 100 && matches[6] && nextNote1.getPitch()==currNote.getPitch())){
+				if ( (passedTime > currNote.getBeat()/tracking_velocity && currNote.isRest())
+						|| ( passedTime > currNote.getBeat()/tracking_velocity && matches[6] && nextNote1.getPitch()!=currNote.getPitch() && !currNote.isRest())
+						|| (errors[5]> 100 && matches[6] && nextNote1.getPitch()==currNote.getPitch() && !currNote.isRest())
+						|| (errors[5]> 100 && nextNote1.isRest() && 
+								(passedTime > (currNote.getBeat())/tracking_velocity || tracking_velocity < (double)1/4000) && !currNote.isRest()) ){
 					debugText.setText("here2");
 					currentPosition++;
 					FeedbackVelocity(currentPosition - 1, currentPosition); 
@@ -1023,18 +1027,18 @@ public class DisplayActivity extends Activity {
 				else 
 					debugText.setText("here3");
 			} 
-			if(!isPassed){
-				if (!matches[5] && matches[6]
+			if(!isPassed && !currNote.isRest()){
+				if (!matches[5] && matches[6] && !nextNote1.isRest()
 						&& (passedTime>currNote.getBeat()/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition++;
 					FeedbackVelocity(currentPosition - 1, currentPosition); 
-				} else if (!matches[5] && matches[6]
+				} else if (!matches[5] && matches[7] && !nextNote2.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
-					currentPosition += 1;
-					FeedbackVelocity(currentPosition - 2, currentPosition); 
-				}else if (!matches[5] && matches[7]
-						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 2;
+					FeedbackVelocity(currentPosition - 2, currentPosition); 
+				}else if (!matches[5] && matches[8] && !nextNote3.isRest()
+						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
+					currentPosition += 3;
 					FeedbackVelocity(currentPosition - 3, currentPosition); 
 				}
 			}
@@ -1075,7 +1079,8 @@ public class DisplayActivity extends Activity {
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
-				updatePage(pageNum + 1);				
+				updatePage(pageNum + 1);	
+				currentPosition--;
 			}
 
 			for (int i = 0; i < Magnitude.length; i++) {
