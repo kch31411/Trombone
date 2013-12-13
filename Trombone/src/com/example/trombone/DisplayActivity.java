@@ -90,7 +90,7 @@ public class DisplayActivity extends Activity {
 
 	// TODO : collect view variables in here.
 	TextView pageNumView;
-	ImageView trackingView;
+	ImageView trackingView, trackingDebugView;
 	ImageView currentSpec;
 	Bitmap curBitmap, rec1Bitmap, rec2Bitmap;
 	Canvas curCanvas, rec1Canvas, rec2Canvas;
@@ -295,7 +295,7 @@ public class DisplayActivity extends Activity {
 		TextView titleView = (TextView) findViewById(R.id.music_sheet_title);
 		titleView.setText(music_sheet.getName());
 
-		// tracking bar
+		// tracking bar (with velocity)
 		trackingView = new ImageView(getBaseContext());
 		Bitmap trackingBm = Bitmap.createBitmap((int) 40, (int) 120,
 				Bitmap.Config.ARGB_8888);
@@ -309,7 +309,21 @@ public class DisplayActivity extends Activity {
 		trackingView.setScaleType(ScaleType.MATRIX);
 		FrameLayout l = (FrameLayout) findViewById(R.id.music_sheet);
 		l.addView(trackingView);
-				
+		
+		// tracking bar (for debug)
+		trackingDebugView = new ImageView(getBaseContext());
+		Bitmap trackingDebugBm = Bitmap.createBitmap((int) 40, (int) 120,
+				Bitmap.Config.ARGB_8888);
+		Canvas trackingDebugCanvas = new Canvas(trackingDebugBm);
+		trackingDebugView.setImageBitmap(trackingDebugBm);
+
+		trackingDebugCanvas.drawColor(Color.CYAN);
+
+		trackingDebugView.setLayoutParams(new LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		trackingDebugView.setScaleType(ScaleType.MATRIX);
+		l.addView(trackingDebugView);
+		
 		updatePage(1);	// first page
 
 		// set calibration data
@@ -1007,6 +1021,9 @@ public class DisplayActivity extends Activity {
 				currentPosition+=3;
 				FeedbackVelocity(currentPosition - 3, currentPosition); // XXX : prev, curr
 			}
+			
+			trackingDebugView.setX(music_sheet.getNote(pageNum, currentPosition).x);
+			trackingDebugView.setY(music_sheet.getNote(pageNum, currentPosition).y);
 			
 			if (tracking_y != music_sheet.getNote(pageNum, currentPosition).y) {
 				tracking_x = music_sheet.getNote(pageNum, currentPosition).x;
