@@ -118,13 +118,16 @@ public class DisplayActivity extends Activity {
 
 	boolean [] matches = new boolean[11];
 	double [] scores = new double[11];
-	double [] counters = new double[11];
+	double [] errors = new double[11];
+	double [] factors = {0,0,0,0,0,1,0.7,0.4,0.2,0.1,0.1};
 	
 	double tracking_velocity;
 	double tracking_x;   // XXX : necessary???
 	double tracking_y;
 	long tracking_prev_time = -1;
+	long matched_time = -1;
 	
+
 	@Override
 	protected void onStop(){
 		if (started) {
@@ -175,6 +178,8 @@ public class DisplayActivity extends Activity {
 					startStopButton.setText("Start");
 					recordTask.cancel(true);
 					currentPosition = 0;
+					scores = new double[11];
+					errors = new double[11];
 					currentCount = 0;
 					currentError = 0;
 				} else {
@@ -214,26 +219,20 @@ public class DisplayActivity extends Activity {
 		Date temp = new Date();
 		long currentRecognitionTime = temp.getTime();
 		long deltaTime = currentRecognitionTime - prevRecognitionTime;
-		
+		matched_time = temp.getTime();
+		scores = new double[11];
+		errors = new double[11];
 		try {
 			int total_beat = 0;
 			String s="";
 			for (int i = prev; i<curr; i++) {
-				if (lastNoteIndex >= 0 && i < lastNoteIndex) {
-					total_beat += music_sheet.getNote(pageNum, i).getBeat();
-					s+=music_sheet.getNote(pageNum, i).getBeat()+" ";
-				}
-				else {
-					total_beat += music_sheet.getNote(pageNum+1, i-lastNoteIndex).getBeat();
-					s+=music_sheet.getNote(pageNum, i).getBeat()+" ";
-				}
+				total_beat += music_sheet.getNote(pageNum, i).getBeat();
 			}
 			double modifiedVelocity = total_beat / (double) deltaTime;
 			
-			if(tracking_velocity < 1/10000) tracking_velocity =  modifiedVelocity * 0.8;
-			tracking_velocity = tracking_velocity * 0.3 + modifiedVelocity * 0.7;
+			if(tracking_velocity < 1/10000) tracking_velocity =  modifiedVelocity * 0.9;
+			tracking_velocity = tracking_velocity * 0.4 + modifiedVelocity * 0.6;
 			
-			debugText.setText(s+" "+tracking_velocity+"");
 			prevRecognitionTime = currentRecognitionTime;
 		} catch (Exception e) {
 			tracking_velocity = 1/5000;
@@ -987,18 +986,71 @@ public class DisplayActivity extends Activity {
 							}
 						}					
 					}
-					matches[j]= Math.abs(idx)<2 
-							&& mag>tempSpec[tempIdx]*0.4 && !tempNote.isRest();
-					s+= matches[j]? (tempNote.getPitch()%100):"f" +"\t";
+					matches[j]= (Math.abs(idx)<1 && mag>tempSpec[tempIdx]*0.4)
+							|| tempNote.isRest();
+					if(matches[j]) {
+						scores[j]+=deltaTime*factors[j];
+					}
+					else errors[j]+=deltaTime*factors[j];
+					s+= Math.floor(scores[j]*10)/10+","+Math.floor(errors[j]*10)/10+" ";
 				}	
-				else s+= "f\t";	
+				else s+= " - " ;
 			}
 			resultText.setText(s);
-			
+			// initializing
 			if(matches[5]==true && prevRecognitionTime ==0){								
 				prevRecognitionTime = temp.getTime();
 			}
 
+			Note currNote = music_sheet.getNote(pageNum, currentPosition); 
+			Note prevNote = pageNum>1||currentPosition>0 ? music_sheet.getNote(pageNum, currentPosition-1) : currNote; 
+			Note nextNote1 = music_sheet.getNote(pageNum, currentPosition+1);
+			Note nextNote2 = music_sheet.getNote(pageNum, currentPosition+2);
+			
+			double passedTime = currentRecognitionTime - matched_time;
+			
+			boolean isPassed = false;
+			if (scores[5] > currNote.getBeat() / tracking_velocity * 0.4) {
+				debugText.setText("here");
+				if ( (passedTime > (currNote.getBeat()+prevNote.getBeat())/tracking_velocity && currNote.isRest())
+						|| ( passedTime > currNote.getBeat()/tracking_velocity && matches[6] && nextNote1.getPitch()!=currNote.getPitch())
+						|| (errors[5]> 100 && matches[6] && nextNote1.getPitch()==currNote.getPitch())){
+					debugText.setText("here2");
+					currentPosition++;
+					FeedbackVelocity(currentPosition - 1, currentPosition); 
+					isPassed = true; 
+				}				
+				else 
+					debugText.setText("here3");
+			} 
+			if(!isPassed){
+				if (!matches[5] && matches[6]
+						&& (passedTime>currNote.getBeat()/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
+					currentPosition++;
+					FeedbackVelocity(currentPosition - 1, currentPosition); 
+				} else if (!matches[5] && matches[6]
+						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
+					currentPosition += 1;
+					FeedbackVelocity(currentPosition - 2, currentPosition); 
+				}else if (!matches[5] && matches[7]
+						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
+					currentPosition += 2;
+					FeedbackVelocity(currentPosition - 3, currentPosition); 
+				}
+			}
+
+			/*
+			Note currNote = music_sheet.getNote(pageNum, currentPosition); 
+			double passedTime = currentRecognitionTime - matched_time;
+			if (currNote.isRest() && passedTime > currNote.getBeat()/tracking_velocity){
+				currentPosition++;
+				FeedbackVelocity(currentPosition - 1, currentPosition); 
+			}
+			if (matches[5]&&matches[6] && passedTime > currNote.getBeat()/tracking_velocity){
+				currentPosition++;
+				FeedbackVelocity(currentPosition - 1, currentPosition); 
+			}
+					
 			if(!matches[5]&&matches[6]) {
 				currentPosition++;
 				FeedbackVelocity(currentPosition - 1, currentPosition); // XXX : prev, curr
@@ -1009,6 +1061,7 @@ public class DisplayActivity extends Activity {
 				currentPosition+=3;
 				FeedbackVelocity(currentPosition - 3, currentPosition); // XXX : prev, curr
 			}
+			*/
 			
 			trackingDebugView.setX(music_sheet.getNote(pageNum, currentPosition).x);
 			trackingDebugView.setY(music_sheet.getNote(pageNum, currentPosition).y);
@@ -1022,7 +1075,7 @@ public class DisplayActivity extends Activity {
 			
 			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
 				// turn to next page.
-				updatePage(pageNum + 1);
+				updatePage(pageNum + 1);				
 			}
 
 			for (int i = 0; i < Magnitude.length; i++) {
