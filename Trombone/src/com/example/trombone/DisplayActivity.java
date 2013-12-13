@@ -524,7 +524,6 @@ public class DisplayActivity extends Activity {
 			final int deltaX = Math.abs((int) (mLastMotionX - x));
 			final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-			// �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙�좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쏙옙�좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚭섬�대콈�숅넫濡レ쭢�좎룞���좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫臾믪굲
 			if (deltaX >= mTouchSlop || deltaY >= mTouchSlop) {
 				if (!mHasPerformedLongPress) {
 					// This is a tap, so remove the longpress check
@@ -543,10 +542,9 @@ public class DisplayActivity extends Activity {
 
 		case MotionEvent.ACTION_UP:
 			if (!mHasPerformedLongPress) {
-				// Long Click�좎럩伊숂뙴�묒삕�좎룞�쀯옙�뽰맶�좎럩�울옙類㏃삕�ル∥吏쀥뜝�뚮닲占쎌빢�숋옙�됯뎡 �좎럩伊숋옙��삕占쏙옙援꿨뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙占썲뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙類㏃삕�ル∥吏쀥뜝�숈삕
 				removeLongPressCallback();
-
-				// Short Click 嶺뚳퐣瑗わ옙�얠삕占쎈뜆援��좎럩伊숂뙴�묒삕占쎈맧堉뽩뜝�뚯쪠�룹쉻�쇿뜝�숈삕�ル∥吏쀥뜝�뚮닲占쎌빢�숋옙諛명뱺 �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫濡レ쭢�좎룞�쇿뜝�뚯쪠占쎌닂�숋옙�덉냷�좎룞��				performOneClick(); 
+				
+				performOneClick(); 
 
 			}
 
@@ -567,8 +565,7 @@ public class DisplayActivity extends Activity {
 			}
 		}
 	}
-
-	// Long Click 嶺뚳퐣瑗わ옙�얠삕占쎈뜆援��좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫濡レ쭢�좎룞�쇿뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙占썲뜝�뚯쪠占쎄퍜�숋옙��뎡 
+ 
 	private void postCheckForLongClick(int delayOffset) {
 		mHasPerformedLongPress = false;
 
@@ -577,9 +574,7 @@ public class DisplayActivity extends Activity {
 		}
 
 		mHandler.postDelayed(mPendingCheckForLongPress,
-				ViewConfiguration.getLongPressTimeout() - delayOffset);
-		// �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�⑸쳴�묕옙 �좎럩伊숋옙�낆삕占쎈뜆援꿨뜝�뚯쪠�룹쉻�숋옙�⑹맶�좎럩�울옙占�getLongPressTimeout() �좎럩伊숋옙�쏆삕筌뤾쑴援�message �좎럩伊숂뙴�묒삕占쎌슜�삣뜝�뚮듌占쎈벨�숅넫濡ル샬占썩벀�됵옙占썲뜝�뚯쪠占쎈냵�숋옙�덉냷�좎룞�� 
-		// �좎럩伊숋옙瓘占쏙옙�깃뎡 delay�좎럩伊숂뙴�묒삕�좎룞�숅넫濡ル폀�좎럥梨뤄옙類㏃삕�ル∥吏쀥뜝�숈삕�좎럩伊숂뙴�묒삕占쎈뿣�뱄옙醫롫쑕占쎌빢�숋옙�됯뎡�좎럩伊숋옙瑜낆삕占쎈슣援� �좎럩伊숋옙�쏆삕�⑥�援꿨뜝�뚯쪠�룹쉻�숋옙�⑷퍥�좎럩伊쒙옙�뗭삕�ル∥吏쀥뜝�뚮닲占쎌빢�숋옙�됯뎡�좎럩伊숂뙴�묒삕占쎄낯異룟뜝�뚯쪣占쎌닂�숅넫濡レ냱�좎럥�꾬옙�곗삕�좑옙	
+				ViewConfiguration.getLongPressTimeout() - delayOffset);	
 		}
 
 
@@ -931,7 +926,9 @@ public class DisplayActivity extends Activity {
 			tracking_prev_time = currentRecognitionTime; 
    
 			double curr_x = trackingView.getX();
-			trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
+			if (Math.abs(curr_x - music_sheet.getNote(pageNum, currentPosition).x) > ((nexus7_width - 2*side_padding - 100) / 2)) 
+				trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
+			else trackingView.setX((float)(curr_x + tracking_velocity * dx * deltaTime));
 			//debugText.setText(trackingView.getX()+"   "+tracking_velocity);
 			
 			curCanvas.drawColor(Color.BLACK);
