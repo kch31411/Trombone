@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
+import javax.xml.datatype.Duration;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -38,6 +39,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
 import classes.History;
@@ -74,6 +76,7 @@ public class DisplayActivity extends Activity {
 
 	private RealDoubleFFT transformer;
 	Button startStopButton;
+	Button prevButton, nextButton;
 	boolean started = false;
 	int sampleSize = 10;
 	int sampleCount = 0;
@@ -169,6 +172,25 @@ public class DisplayActivity extends Activity {
 
 		displayMusicSheet(pageNum);
 		
+		
+		prevButton = (Button) findViewById(R.id.prevButton);
+		if(pageNum<=1) prevButton.setClickable(false);
+		else prevButton.setClickable(true);
+		prevButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				updatePage(pageNum - 1);
+			}
+		});
+		
+		nextButton = (Button) findViewById(R.id.nextButton);
+		if(pageNum+1> music_sheet.getPages()) nextButton.setClickable(false);
+		else nextButton.setClickable(true);
+		nextButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				updatePage(pageNum + 1);	
+			}
+		});
+		
 		// start button
 		startStopButton = (Button) findViewById(R.id.StartStopButton);
 		startStopButton.setOnClickListener(new Button.OnClickListener() {
@@ -182,6 +204,7 @@ public class DisplayActivity extends Activity {
 					errors = new double[11];
 					currentCount = 0;
 					currentError = 0;
+					tracking_velocity = 0;
 				} else {
 					started = true;
 					startStopButton.setText("Stop");
@@ -216,6 +239,7 @@ public class DisplayActivity extends Activity {
 	}
 	
 	private void FeedbackVelocity(int prev, int curr) {
+		trackingView.setVisibility(View.VISIBLE);
 		Date temp = new Date();
 		long currentRecognitionTime = temp.getTime();
 		long deltaTime = currentRecognitionTime - prevRecognitionTime;
@@ -967,9 +991,8 @@ public class DisplayActivity extends Activity {
 			String s = "";
 			for (int j=0; j<scores.length; j++)
 			{
-				if(currentPosition-5+j>=0||pageNum>1){
-					Note tempNote = music_sheet.getNote(pageNum, currentPosition-5+j);
-					
+				Note tempNote = music_sheet.getNote(pageNum, currentPosition-5+j);
+				if( tempNote != null ){ //currentPosition-5+j>=0||pageNum>1 &&        currentPosition <= lastNoteIndex ||pageNum>1){
 					double[] tempSpec = calib_data[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1];
 					double tempMaxF = calibPitches[tempNote.getPitch()/100-3][tempNote.getPitch()%100-1];
 					int tempIdx = (int)Math.round(tempMaxF/(frequency/(blockSize*2+1)));
@@ -1003,21 +1026,36 @@ public class DisplayActivity extends Activity {
 			}
 
 			Note currNote = music_sheet.getNote(pageNum, currentPosition); 
-			Note prevNote = pageNum>1||currentPosition>0 ? music_sheet.getNote(pageNum, currentPosition-1) : currNote; 
+			
 			Note nextNote1 = music_sheet.getNote(pageNum, currentPosition+1);
 			Note nextNote2 = music_sheet.getNote(pageNum, currentPosition+2);
 			Note nextNote3 = music_sheet.getNote(pageNum, currentPosition+2);
+			Note nextNote4 = music_sheet.getNote(pageNum, currentPosition+3);
 			
 			double passedTime = currentRecognitionTime - matched_time;
 			
 			boolean isPassed = false;
 			
-			if (scores[5] > currNote.getBeat() / tracking_velocity * 0.4) {
+			
+			if(nextNote1 == null)
+			{
+				if(passedTime > currNote.getBeat()/tracking_velocity*2)
+				{
+					started = false;
+					startStopButton.setText("Start");
+					recordTask.cancel(true);
+					tracking_velocity = 0;
+					trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x);
+					trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
+					Toast.makeText(getBaseContext(), "end", Toast.LENGTH_SHORT).show();
+				}
+			}
+			else if (scores[5] > currNote.getBeat() / tracking_velocity * 0.4 || tracking_velocity < (double)1/4000) {
 				debugText.setText("here");
-				if ( (passedTime > currNote.getBeat()/tracking_velocity && currNote.isRest())
-						|| ( passedTime > currNote.getBeat()/tracking_velocity && matches[6] && nextNote1.getPitch()!=currNote.getPitch() && !currNote.isRest())
-						|| (errors[5]> 100 && matches[6] && nextNote1.getPitch()==currNote.getPitch() && !currNote.isRest())
-						|| (errors[5]> 100 && nextNote1.isRest() && 
+				if ( (passedTime > currNote.getBeat()/tracking_velocity*0.8 && currNote.isRest())
+						|| ( (passedTime > currNote.getBeat()/tracking_velocity || (tracking_velocity<(double)1/4000&&scores[5]>200)) && matches[6] && nextNote1.getPitch()!=currNote.getPitch() && !currNote.isRest())
+						|| (errors[5]> 60 && matches[6] && nextNote1.getPitch()==currNote.getPitch() && !currNote.isRest())
+						|| (errors[5]> 60 && nextNote1.isRest() && 
 								(passedTime > (currNote.getBeat())/tracking_velocity || tracking_velocity < (double)1/4000) && !currNote.isRest()) ){
 					debugText.setText("here2");
 					currentPosition++;
@@ -1028,18 +1066,23 @@ public class DisplayActivity extends Activity {
 					debugText.setText("here3");
 			} 
 			if(!isPassed && !currNote.isRest()){
-				if (!matches[5] && matches[6] && !nextNote1.isRest()
+				if (!matches[5] && matches[6] && nextNote1!=null && !nextNote1.isRest()
 						&& (passedTime>currNote.getBeat()/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition++;
 					FeedbackVelocity(currentPosition - 1, currentPosition); 
-				} else if (!matches[5] && matches[7] && !nextNote2.isRest()
+				} else if (!matches[5] && matches[7] && nextNote2!=null && !nextNote2.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 2;
 					FeedbackVelocity(currentPosition - 2, currentPosition); 
-				}else if (!matches[5] && matches[8] && !nextNote3.isRest()
+				}else if (!matches[5] && matches[8]  && nextNote3!=null && !nextNote3.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 3;
 					FeedbackVelocity(currentPosition - 3, currentPosition); 
+				}
+				else if (!matches[5] && matches[9]  && nextNote4!=null && !nextNote4.isRest()
+						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat()+nextNote3.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
+					currentPosition += 4;
+					FeedbackVelocity(currentPosition - 4, currentPosition); 
 				}
 			}
 
@@ -1077,7 +1120,8 @@ public class DisplayActivity extends Activity {
 				trackingView.setX((float) tracking_x);  // XXX : tracking view should independent to curr position
 			}
 			
-			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex) {
+			if (lastNoteIndex >= 0 && currentPosition >= lastNoteIndex
+					&& pageNum < music_sheet.getPages() && passedTime>0.6*(currNote.getBeat())/tracking_velocity ) {
 				// turn to next page.
 				updatePage(pageNum + 1);	
 				currentPosition--;
@@ -1135,6 +1179,7 @@ public class DisplayActivity extends Activity {
 			// tracking bar position
 			trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x);
 			trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
+			if(page!=1) trackingView.setVisibility(View.INVISIBLE);
 		}
 	}
 }
