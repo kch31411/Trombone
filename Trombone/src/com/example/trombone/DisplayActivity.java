@@ -183,7 +183,7 @@ public class DisplayActivity extends Activity {
 		});
 		
 		nextButton = (Button) findViewById(R.id.nextButton);
-		if(pageNum+1> music_sheet.getPages()) nextButton.setClickable(false);
+		if(pageNum+1 >= music_sheet.getPages()) nextButton.setClickable(false);
 		else nextButton.setClickable(true);
 		nextButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
@@ -769,9 +769,22 @@ public class DisplayActivity extends Activity {
 			Bitmap bmNote;
 			if (note.isRest()) {
 				switch (note.getBeat()){
+				
+				case 1:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_1);
+					break;
+				case 2:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_2);
+					break;
 				case 4:
 					bmNote = BitmapFactory.decodeResource(getResources(),
 							R.drawable.rest_4);
+					break;
+				case 6:
+					bmNote = BitmapFactory.decodeResource(getResources(),
+							R.drawable.rest_6);
 					break;
 				case 8:
 					bmNote = BitmapFactory.decodeResource(getResources(),

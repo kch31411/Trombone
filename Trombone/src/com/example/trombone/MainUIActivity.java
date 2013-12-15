@@ -28,7 +28,7 @@ public class MainUIActivity extends Activity {
 		Button playBtnCall = (Button)findViewById(R.id.playbutton);
 		playBtnCall.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MainUIActivity.this, demoActivity.class);
+				Intent intent = new Intent(MainUIActivity.this, MusicsheetSelectActivity.class);
 				intent.putExtra("calib_id2play", calib_id);
 				startActivity(intent);
 			}
