@@ -27,6 +27,7 @@ public final class Constants {
 	// display activity
 	public static final int MEMO_ADD = 1;
 	public static final int MEMO_MODIFY = 2;
+	public static final int SCORE = 3;
 	// main ui activity
 	public final static int CALIBRATION = 3;
 }

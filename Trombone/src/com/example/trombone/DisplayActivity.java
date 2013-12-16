@@ -703,6 +703,8 @@ public class DisplayActivity extends Activity {
 			} catch (Exception e) {
 			}
 			break;
+		case SCORE:
+			this.finish();
 		default:
 			break;
 		}
@@ -1079,7 +1081,11 @@ public class DisplayActivity extends Activity {
 					tracking_velocity = 0;
 					trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x);
 					trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
-					Toast.makeText(getBaseContext(), "end", Toast.LENGTH_SHORT).show();
+
+					Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
+					foo.putExtra("score", 100);
+					DisplayActivity.this.startActivityForResult(foo, SCORE);
+					
 				}
 			}
 			else if (scores[5] > currNote.getBeat() / tracking_velocity * 0.4 || tracking_velocity < (double)1/4000) {
