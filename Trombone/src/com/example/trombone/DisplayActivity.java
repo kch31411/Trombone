@@ -33,6 +33,9 @@ import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -49,6 +52,7 @@ import static classes.Constants.*;
 
 public class DisplayActivity extends Activity {
 	boolean debugMode = false;
+	boolean feedbackOn = false;
 	
 	// music sheet information
 	private int musicSheetId;
@@ -223,6 +227,19 @@ public class DisplayActivity extends Activity {
 				}
 			}
 		});
+		
+		CheckBox checkbox = (CheckBox) findViewById(R.id.feedbackCheckBox);
+		checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (buttonView.getId() == R.id.feedbackCheckBox) {
+					if (isChecked) feedbackOn = true;
+					else feedbackOn = false;
+				}
+			}
+		});
+		
 		transformer = new RealDoubleFFT(blockSize * 2 + 1);
 		
 		// Capture musicsheet for preview
@@ -927,6 +944,8 @@ public class DisplayActivity extends Activity {
 	}
 	
 	private void changeColorToRed(ImageView note) {
+		if(!feedbackOn) return;
+		
 		Bitmap bitmap = ((BitmapDrawable)note.getDrawable()).getBitmap();
 		
 		int [] allpixels = new int [ bitmap.getHeight()*bitmap.getWidth()];
