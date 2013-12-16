@@ -133,7 +133,9 @@ public class DisplayActivity extends Activity {
 	long matched_time = -1;
 	
 	int num_of_note = 0;
-
+	int num_of_correct = 0;
+	int num_of_mistake = 0;
+	
 	@Override
 	protected void onStop(){
 		if (started) {
@@ -248,6 +250,8 @@ public class DisplayActivity extends Activity {
 	}
 	
 	private void FeedbackVelocity(int prev, int curr) {
+		num_of_correct ++;
+		debugText.setText(num_of_correct+"/"+num_of_note+" "+(int)((float)num_of_correct/num_of_note*100)+" ");
 		trackingView.setVisibility(View.VISIBLE);
 		Date temp = new Date();
 		long currentRecognitionTime = temp.getTime();
@@ -1025,8 +1029,10 @@ public class DisplayActivity extends Activity {
 			}
 			
 			while (music_sheet.getNote(pageNum, currentPosition).isRest() && tracking_velocity < (double)1/4000)
+			{
+				num_of_correct++;
 				currentPosition++;
-			
+			}
 			String s = "";
 			for (int j=0; j<scores.length; j++)
 			{
@@ -1068,8 +1074,9 @@ public class DisplayActivity extends Activity {
 			
 			Note nextNote1 = music_sheet.getNote(pageNum, currentPosition+1);
 			Note nextNote2 = music_sheet.getNote(pageNum, currentPosition+2);
-			Note nextNote3 = music_sheet.getNote(pageNum, currentPosition+2);
-			Note nextNote4 = music_sheet.getNote(pageNum, currentPosition+3);
+			Note nextNote3 = music_sheet.getNote(pageNum, currentPosition+3);
+			Note nextNote4 = music_sheet.getNote(pageNum, currentPosition+4);
+			Note nextNote5 = music_sheet.getNote(pageNum, currentPosition+5);
 			
 			double passedTime = currentRecognitionTime - matched_time;
 			
@@ -1100,7 +1107,7 @@ public class DisplayActivity extends Activity {
 					currentPosition++;
 					FeedbackVelocity(currentPosition - 1, currentPosition); 
 					isPassed = true; 
-				}				
+				}	
 				else; 
 				//	debugText.setText("here3");
 			} 
@@ -1112,22 +1119,35 @@ public class DisplayActivity extends Activity {
 				} else if (!matches[5] && matches[7] && nextNote2!=null && !nextNote2.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 2;
-					changeColorToRed(noteViews.get(currentPosition+1));
+					num_of_mistake += 1;
+					changeColorToRed(noteViews.get(currentPosition-1));
 					FeedbackVelocity(currentPosition - 2, currentPosition); 
 				}else if (!matches[5] && matches[8]  && nextNote3!=null && !nextNote3.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 3;
-					changeColorToRed(noteViews.get(currentPosition+1));
-					changeColorToRed(noteViews.get(currentPosition+2));
+					num_of_mistake += 2;
+					changeColorToRed(noteViews.get(currentPosition-1));
+					changeColorToRed(noteViews.get(currentPosition-2));
 					FeedbackVelocity(currentPosition - 3, currentPosition); 
 				}
 				else if (!matches[5] && matches[9]  && nextNote4!=null && !nextNote4.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat()+nextNote3.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 4;
-					changeColorToRed(noteViews.get(currentPosition+1));
-					changeColorToRed(noteViews.get(currentPosition+2));
-					changeColorToRed(noteViews.get(currentPosition+3));
+					num_of_mistake += 3;
+					changeColorToRed(noteViews.get(currentPosition-1));
+					changeColorToRed(noteViews.get(currentPosition-2));
+					changeColorToRed(noteViews.get(currentPosition-3));
 					FeedbackVelocity(currentPosition - 4, currentPosition); 
+				}
+				else if (!matches[5] && matches[10]  && nextNote5!=null && !nextNote5.isRest()
+						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat()+nextNote3.getBeat()+nextNote4.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
+					currentPosition += 5;
+					num_of_mistake += 4;
+					changeColorToRed(noteViews.get(currentPosition-1));
+					changeColorToRed(noteViews.get(currentPosition-2));
+					changeColorToRed(noteViews.get(currentPosition-3));
+					changeColorToRed(noteViews.get(currentPosition-4));
+					FeedbackVelocity(currentPosition - 5, currentPosition); 
 				}
 			}
 
