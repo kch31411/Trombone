@@ -7,9 +7,6 @@ import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Random;
-import javax.xml.datatype.Duration;
-
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
@@ -30,7 +27,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
@@ -41,7 +37,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import classes.CalibrationData;
 import classes.History;
@@ -53,6 +48,8 @@ import db.DBHelper;
 import static classes.Constants.*;
 
 public class DisplayActivity extends Activity {
+	boolean debugMode = false;
+	
 	// music sheet information
 	private int musicSheetId;
 	private int calibId;
@@ -181,7 +178,7 @@ public class DisplayActivity extends Activity {
 		{
 			num_of_note += music_sheet.getNotes(pg).size();
 		}
-		debugText.setText(num_of_note+"");		
+		if (debugMode) debugText.setText(num_of_note+"");		
 		
 		prevButton = (Button) findViewById(R.id.prevButton);
 		if(pageNum<=1) prevButton.setClickable(false);
@@ -250,7 +247,7 @@ public class DisplayActivity extends Activity {
 	
 	private void FeedbackVelocity(int prev, int curr) {
 		num_of_correct ++;
-		debugText.setText(num_of_correct+"/"+num_of_note+" "+(int)((float)num_of_correct/num_of_note*100)+" ");
+		if(debugMode) debugText.setText(num_of_correct+"/"+num_of_note+" "+(int)((float)num_of_correct/num_of_note*100)+" ");
 		trackingView.setVisibility(View.VISIBLE);
 		Date temp = new Date();
 		long currentRecognitionTime = temp.getTime();
@@ -360,6 +357,8 @@ public class DisplayActivity extends Activity {
 				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		trackingDebugView.setScaleType(ScaleType.MATRIX);
 		l.addView(trackingDebugView);
+		
+		if (!debugMode) trackingDebugView.setVisibility(View.GONE);
 		
 		updatePage(1);	// first page
 
@@ -1065,7 +1064,9 @@ public class DisplayActivity extends Activity {
 				}	
 				else s+= " - " ;
 			}
-			resultText.setText(s);
+			
+			if(debugMode) resultText.setText(s);
+			
 			// initializing
 			if(matches[5]==true && prevRecognitionTime ==0){								
 				prevRecognitionTime = temp.getTime();
