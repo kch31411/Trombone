@@ -18,4 +18,6 @@
         <item>이름 순</item>
         <item>플레이 순</item>
     </string-array>
+    <string name="prev">&lt;</string>
+    <string name="next">&gt;</string>
 </resources>

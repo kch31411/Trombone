@@ -89,6 +89,9 @@ public class MusicSheet {
 			
 			if (new_page > pages || new_index >= getNotes(new_page).size()) return null;
 		} else if (index < 0) {
+			
+			if(page-1<1) return null;
+			
 			new_index = index + getNotes(page-1).size();
 			new_page = page - 1;
 
