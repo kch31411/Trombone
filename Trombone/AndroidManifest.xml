@@ -65,6 +65,9 @@
             android:label="Type in the memo"
             android:theme="@android:style/Theme.Dialog" />
         <activity
+            android:name="com.example.trombone.ScoreActivity"
+            android:theme="@android:style/Theme.Dialog" />
+        <activity
             android:name="com.example.trombone.MusicsheetSelectActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
 			android:screenOrientation="portrait"

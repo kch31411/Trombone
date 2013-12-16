@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -18,6 +19,7 @@ public class ScoreActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+		requestWindowFeature(Window.FEATURE_NO_TITLE);  
         setContentView(R.layout.activity_score);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
                 WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
@@ -33,7 +35,7 @@ public class ScoreActivity extends Activity {
 
         try {
             TextView tv = ((TextView) findViewById(R.id.score));
-            tv.setText(getIntent().getExtras().getString("score"));
+            tv.setText(getIntent().getExtras().getInt("score")+"");
         } catch (Exception e) {
         }
     }

@@ -147,9 +147,8 @@ public class DisplayActivity extends Activity {
 		// This history construction must be done when play is end.
 		Date cDate = new Date();
 		String fDate = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
-		
-		Random random = new Random();
-		History history = new History(-1, fDate, random.nextInt(100), musicSheetId);
+		int score = (int)((float)num_of_correct/num_of_note*100);
+		History history = new History(-1, fDate, Math.min(score, 100), musicSheetId);
 		dbhelper.addHistory(history);
 		
 		super.onStop();
@@ -1096,8 +1095,11 @@ public class DisplayActivity extends Activity {
 					trackingView.setX(music_sheet.getNote(pageNum, currentPosition).x);
 					trackingView.setY(music_sheet.getNote(pageNum, currentPosition).y);
 
-					Intent foo = new Intent(DisplayActivity.this, TextEntryActivity.class);
-					foo.putExtra("score", 100);
+					Intent foo = new Intent(DisplayActivity.this, ScoreActivity.class);
+					foo.putExtra("title", "Score");
+					
+					int score = (int)((float)num_of_correct/num_of_note*100);
+					foo.putExtra("score", Math.min(score, 100));
 					DisplayActivity.this.startActivityForResult(foo, SCORE);
 					
 				}
