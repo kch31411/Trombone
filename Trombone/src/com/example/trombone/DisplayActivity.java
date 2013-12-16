@@ -14,12 +14,14 @@ import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -919,6 +921,23 @@ public class DisplayActivity extends Activity {
 		}
 		return -1;
 	}
+	
+	private void changeColorToRed(ImageView note) {
+		Bitmap bitmap = ((BitmapDrawable)note.getDrawable()).getBitmap();
+		
+		int [] allpixels = new int [ bitmap.getHeight()*bitmap.getWidth()];
+		bitmap.getPixels(allpixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+		for(int i =0; i<bitmap.getHeight()*bitmap.getWidth();i++){
+			if(allpixels[i] != 0)
+				allpixels[i] = Color.RED;
+		}
+
+		Bitmap newBmp = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Config.ARGB_8888);
+		newBmp.setPixels(allpixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+		
+		note.setImageBitmap(newBmp);
+	}
 
 	private class RecordAudio extends AsyncTask<Void, double[], Void> {
 		@Override
@@ -1093,15 +1112,21 @@ public class DisplayActivity extends Activity {
 				} else if (!matches[5] && matches[7] && nextNote2!=null && !nextNote2.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 2;
+					changeColorToRed(noteViews.get(currentPosition+1));
 					FeedbackVelocity(currentPosition - 2, currentPosition); 
 				}else if (!matches[5] && matches[8]  && nextNote3!=null && !nextNote3.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 3;
+					changeColorToRed(noteViews.get(currentPosition+1));
+					changeColorToRed(noteViews.get(currentPosition+2));
 					FeedbackVelocity(currentPosition - 3, currentPosition); 
 				}
 				else if (!matches[5] && matches[9]  && nextNote4!=null && !nextNote4.isRest()
 						&& (passedTime>(currNote.getBeat()+nextNote1.getBeat()+nextNote2.getBeat()+nextNote3.getBeat())/tracking_velocity*0.5 || tracking_velocity < (double)1/4000)) {
 					currentPosition += 4;
+					changeColorToRed(noteViews.get(currentPosition+1));
+					changeColorToRed(noteViews.get(currentPosition+2));
+					changeColorToRed(noteViews.get(currentPosition+3));
 					FeedbackVelocity(currentPosition - 4, currentPosition); 
 				}
 			}
