@@ -130,6 +130,7 @@ public class DisplayActivity extends Activity {
 	long tracking_prev_time = -1;
 	long matched_time = -1;
 	
+	int num_of_note = 0;
 
 	@Override
 	protected void onStop(){
@@ -173,6 +174,12 @@ public class DisplayActivity extends Activity {
 		displayMusicSheet(pageNum);
 		
 		
+		for (int pg =1; pg<=music_sheet.getPages(); pg++)
+		{
+			num_of_note += music_sheet.getNotes(pg).size();
+		}
+		debugText.setText(num_of_note+"");		
+		
 		prevButton = (Button) findViewById(R.id.prevButton);
 		if(pageNum<=1) prevButton.setClickable(false);
 		else prevButton.setClickable(true);
@@ -183,7 +190,7 @@ public class DisplayActivity extends Activity {
 		});
 		
 		nextButton = (Button) findViewById(R.id.nextButton);
-		if(pageNum+1 >= music_sheet.getPages()) nextButton.setClickable(false);
+		if(pageNum+1>=music_sheet.getPages()) nextButton.setClickable(false);
 		else nextButton.setClickable(true);
 		nextButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
@@ -1064,19 +1071,19 @@ public class DisplayActivity extends Activity {
 				}
 			}
 			else if (scores[5] > currNote.getBeat() / tracking_velocity * 0.4 || tracking_velocity < (double)1/4000) {
-				debugText.setText("here");
+				// debugText.setText("here");
 				if ( (passedTime > currNote.getBeat()/tracking_velocity*0.8 && currNote.isRest())
 						|| ( (passedTime > currNote.getBeat()/tracking_velocity || (tracking_velocity<(double)1/4000&&scores[5]>200)) && matches[6] && nextNote1.getPitch()!=currNote.getPitch() && !currNote.isRest())
 						|| (errors[5]> 60 && matches[6] && nextNote1.getPitch()==currNote.getPitch() && !currNote.isRest())
 						|| (errors[5]> 60 && nextNote1.isRest() && 
 								(passedTime > (currNote.getBeat())/tracking_velocity || tracking_velocity < (double)1/4000) && !currNote.isRest()) ){
-					debugText.setText("here2");
+				//	debugText.setText("here2");
 					currentPosition++;
 					FeedbackVelocity(currentPosition - 1, currentPosition); 
 					isPassed = true; 
 				}				
-				else 
-					debugText.setText("here3");
+				else; 
+				//	debugText.setText("here3");
 			} 
 			if(!isPassed && !currNote.isRest()){
 				if (!matches[5] && matches[6] && nextNote1!=null && !nextNote1.isRest()
